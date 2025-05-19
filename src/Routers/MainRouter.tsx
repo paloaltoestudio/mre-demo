@@ -1,4 +1,4 @@
-import { Routes, Route, HashRouter } from "react-router-dom";
+import { Routes, Route, HashRouter, BrowserRouter } from "react-router-dom";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { AuthView } from "../views/AuthView";
 import { VerificationViews } from "../views/VerificationViews";
@@ -7,7 +7,7 @@ import { VerificationFileView } from "../views/VerificationFileView";
 import { RegistryView } from "../views/RegistryView";
 export const MainRouter = () => {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<AuthLayout />}>
@@ -28,6 +28,6 @@ export const MainRouter = () => {
           <Route path="/auth/registry" element={<RegistryView />} />
         </Route>
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 };

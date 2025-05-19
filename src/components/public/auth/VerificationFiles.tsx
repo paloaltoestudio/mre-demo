@@ -26,6 +26,8 @@ export const VerificationFiles = () => {
     multiple: false,
     accept: {
       "application/pdf": [],
+      "image/jpeg": [],
+      "image/png": [],
     },
   });
 

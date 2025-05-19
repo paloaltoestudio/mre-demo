@@ -9,11 +9,11 @@ type formType = {
 export const VerificationViews = () => {
   // Setear en base al método de verificación;
   const [method, setMethod] = useState<"email" | "sms" | "whatsapp">(
-    "whatsapp"
+    "email"
   );
 
   useEffect(() => {
-    setMethod("whatsapp");
+    setMethod("email");
   }, []);
 
   const onSubmit = (data: formType) => {
