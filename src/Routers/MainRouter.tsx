@@ -14,6 +14,7 @@ export const MainRouter = () => {
         <Route path="/" element={<AuthLayout />}>
           <Route index element={<AuthView />} />
           <Route path="/auth" element={<AuthView />} />
+          <Route path="/auth/:registry" element={<AuthView />} />
           <Route
             path="/auth/verification-method"
             element={<VerificationMethodsViews />}

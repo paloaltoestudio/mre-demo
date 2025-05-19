@@ -441,6 +441,7 @@ export const RegistryForm: React.FC = () => {
              {/* Botones */}
              <button
               type="submit"
+              onClick={() => {navigate("/auth/verification-files")}}
               className={`w-full rounded-full py-3 font-semibold shadow-lg transition ${
                 form.acceptData && form.acceptTerms && validateContactInfo() && isPasswordValid()
                   ? "bg-blue-600 hover:bg-blue-700 text-white"
