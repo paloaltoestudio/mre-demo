@@ -14,7 +14,6 @@ export const AuthView = () => {
   return (
     <div
       id="auth-view"
-      // className="w-5/12 mx-auto flex flex-col items-center justify-start h-auto shadow-lg"
       className="max-w-[500px] mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10 border border-gray-100 rounded-lg"
     >
       {/* Renderizar los componentes de formularios. */}

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export const RegistryForm: React.FC = () => {
   const navigate = useNavigate();
-  const [documentTypes, setDocumentTypes] = useState<string[]>([]);
+  const [documentTypes, setDocumentTypes] = useState<{ value: string; label: string }[]>([]);
   const [countryCodes, setCountryCodes] = useState<{ country: string; code: string }[]>([]);
   const [passwordRequirements, setPasswordRequirements] = useState({
     minLength: false,
@@ -190,10 +190,10 @@ export const RegistryForm: React.FC = () => {
                 backgroundSize: '1em',
                 }}>
                 <option value="" hidden>Tipo de documento</option>
-                {documentTypes.map((type) => (
-                <option key={type} value={type} className="text-black">
-                    {type}
-                </option>
+                {documentTypes.map(({ label }) => (
+                      <option key={label} value={label}>
+                        {label}
+                      </option>
                 ))}
               </select>
 
@@ -211,7 +211,7 @@ export const RegistryForm: React.FC = () => {
               />
 
               {/* Campos adicionales para cédula de extranjería */}
-              {form.documentType === "Cédula de extranjería" && (
+              {form.documentType === "Cédula de Extranjería" && (
                   <div className="mt-4 space-y-5">
                     <input
                       type="text"

@@ -5,6 +5,7 @@ import { VerificationViews } from "../views/VerificationViews";
 import { VerificationMethodsViews } from "../views/VerificationMethodsViews";
 import { VerificationFileView } from "../views/VerificationFileView";
 import { RegistryView } from "../views/RegistryView";
+import { AppointmentsView } from "../views/AppointmentsView";
 export const MainRouter = () => {
   return (
     <BrowserRouter>
@@ -26,6 +27,8 @@ export const MainRouter = () => {
             element={<VerificationFileView />}
           />
           <Route path="/auth/registry" element={<RegistryView />} />
+
+          <Route path="/dashboard/appointments" element={<AppointmentsView />} />
         </Route>
       </Routes>
     </BrowserRouter>

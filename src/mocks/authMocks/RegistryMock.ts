@@ -1,12 +1,3 @@
-export const documentTypes = [ //eliminar el tipo de dato y usar loginmock
-    "Cédula de ciudadanía",
-    "Cédula de extranjería",
-    "Pasaporte",
-    "Tarjeta de identidad",
-    "Registro civil",
-    "Permiso especial de permanencia",
-    "NIT"
-];
 export const countryCodes = [
     { country: "Estados Unidos / Canadá", code: "+1" },
     { country: "Rusia / Kazajistán", code: "+7" },
