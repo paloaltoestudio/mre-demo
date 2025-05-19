@@ -141,14 +141,14 @@ export const VerificationCard = ({
 
       <button
         type="submit"
-        className="mt-[20px] w-full p-2 bg-[#3466cc] text-white font-bold rounded-full hover:cursor-pointer"
+        className="mt-[20px] w-full p-2 bg-[#3466cc] text-white font-bold rounded-full hover:cursor-pointer hover:bg-[#3734cc]"
       >
         Continuar
       </button>
 
       <p
         onClick={resendCode}
-        className="mt-[10px] text-[#3466cc] hover:text-[#3467ccd8] hover:cursor-pointer text-center underline"
+        className="mt-[10px] text-[#3466cc] hover:text-[#3734cc] hover:cursor-pointer text-center underline"
       >
         Reenviar código &#x21bb;
       </p>

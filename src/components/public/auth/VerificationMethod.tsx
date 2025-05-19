@@ -6,7 +6,7 @@ type MethodType = "email" | "sms" | "whatsapp";
 export const VerificationMethod = () => {
   const methods = useFormContext();
   const selectedMethod = methods.watch("method");
-const isFormValid = !!selectedMethod;
+  const isFormValid = !!selectedMethod;
 
   const maskEmail = (email: string) => {
     const [name, domain] = email.split("@");
@@ -50,7 +50,7 @@ const isFormValid = !!selectedMethod;
             <input
               type="radio"
               id={method}
-              value={method}
+              value={MethodsMock[method]}
               {...methods.register("method", {
                 required: "Debe seleccionar un método de verificación",
               })}
@@ -78,10 +78,10 @@ const isFormValid = !!selectedMethod;
         className="w-full flex flex-col justify-center items-center gap-3"
       >
         <button
-          className={`w-11/12 p-2 flex flex-col justify-center items-center mt-2 rounded-full  ${
+          className={`w-11/12 p-2 flex flex-col justify-center items-center mt-2 rounded-full hover:cursor-pointer  ${
             isFormValid
-              ? "text-md bg-[#3366cc] text-white hover:cursor-pointer"
-              : "bg-gray-300 text-gray-400 text-md"
+              ? "text-md bg-[#3366cc] text-white hover:bg-[#3342cc]"
+              : "bg-gray-300 text-gray-400 text-md hover:bg-gray-500 hover:text-white"
           }`}
           type="submit"
         >

@@ -117,9 +117,9 @@ export const LoginForm = ({ typeUser, setTypeUser }: LoginFormProps) => {
         className="w-full p-2 flex flex-col justify-center items-center gap-3 mt-5"
       >
         <button
-          className={`w-11/12 p-2 flex flex-col justify-center items-center mt-2 rounded-full  ${
+          className={`w-11/12 p-2 flex flex-col justify-center items-center mt-2 rounded-full hover:cursor-pointer  ${
             isFormValid
-              ? "text-md bg-[#3366cc] text-white hover:cursor-pointer"
+              ? "text-md bg-[#3366cc] hover:bg-[#334acc] text-white"
               : "bg-gray-300 text-gray-400 text-md"
           }`}
           type="submit"
@@ -128,7 +128,7 @@ export const LoginForm = ({ typeUser, setTypeUser }: LoginFormProps) => {
         </button>
         <button
           onClick={() => {navigate("/auth/registry")}}
-          className={`w-11/12 p-2 flex flex-col justify-center items-center rounded-full text-[#3466cc] border-1 border-[#3466cc] text-md hover:cursor-pointer`}
+          className={`w-11/12 p-2 flex flex-col justify-center items-center rounded-full text-[#3466cc] border-1 border-[#3466cc] text-md hover:cursor-pointer hover:bg-blue-100`}
         >
           Registrarse
         </button>

@@ -40,7 +40,7 @@ export const VerificationFiles = () => {
         {resources.map((item, index) => (
           <div
             {...getRootProps()}
-            className="hover:cursor-pointer flex gap-3 border-gray-300 border-2 p-3 rounded-md"
+            className="hover:cursor-pointer flex gap-3 border-gray-300 border-2 p-3 rounded-md hover:bg-gray-100"
             key={index}
           >
             <span className="">
