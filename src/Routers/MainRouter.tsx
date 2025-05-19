@@ -10,21 +10,22 @@ export const MainRouter = () => {
     <HashRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/auth" element={<AuthLayout />}>
+        <Route path="/" element={<AuthLayout />}>
           <Route index element={<AuthView />} />
+          <Route path="/auth" element={<AuthView />} />
           <Route
-            path="verification-method"
+            path="/auth/verification-method"
             element={<VerificationMethodsViews />}
           />
           <Route
-            path="verification-code"
+            path="/auth/verification-code"
             element={<VerificationViews />}
           />
           <Route
-            path="verification-files"
+            path="/auth/verification-files"
             element={<VerificationFileView />}
           />
-          <Route path="registry" element={<RegistryView />} />
+          <Route path="/auth/registry" element={<RegistryView />} />
         </Route>
       </Routes>
     </HashRouter>
