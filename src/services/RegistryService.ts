@@ -1,6 +1,7 @@
-import { documentTypes, countryCodes } from "../data/registryMockData";
+import { countryCodes } from "../mocks/authMocks/RegistryMock";
+import { documentTypes } from "../mocks/authMocks/LoginMock";
 
-export async function getDocumentTypes(): Promise<string[]> {
+export async function getDocumentTypes(): Promise<{ value: string; label: string }[]> {
   return new Promise((resolve) =>
     setTimeout(() => resolve(documentTypes), 30)
   );
