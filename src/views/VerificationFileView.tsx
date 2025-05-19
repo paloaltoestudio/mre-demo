@@ -11,10 +11,11 @@ export const VerificationFileView = () => {
   };
 
   return (
-    <div className="w-10/12 mx-auto flex items-center flex-col justify-center">
+    <div className="max-w-[1200px] mx-auto flex items-center flex-col justify-center">
       <div
         id="auth-view-driver-file"
-        className="w-full mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10"
+        className="w-full mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10 border border-gray-100 rounded-lg"
+
       >
         <AuthForm<formType> onSubmit={onSubmit}>
           <VerificationFiles />

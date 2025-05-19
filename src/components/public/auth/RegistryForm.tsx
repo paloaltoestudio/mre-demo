@@ -167,9 +167,7 @@ export const RegistryForm: React.FC = () => {
 
   
   return (
-    <div className="min-h-screen bg-white flex justify-center items-center p-4" >
-      <div className="w-full max-w-lg" >
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+    <div className="flex justify-center" >
           <div className="p-8">
             <h2 className="text-center text-xl font-bold text-gray-800 mb-6">
               Registro
@@ -465,7 +463,6 @@ export const RegistryForm: React.FC = () => {
             </form>
           </div>
         </div>
-      </div>
-    </div>
+
   );
 };

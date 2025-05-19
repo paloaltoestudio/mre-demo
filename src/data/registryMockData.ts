@@ -1,4 +1,4 @@
-export const documentTypes = [
+export const documentTypes = [ //eliminar el tipo de dato y usar loginmock
     "Cédula de ciudadanía",
     "Cédula de extranjería",
     "Pasaporte",

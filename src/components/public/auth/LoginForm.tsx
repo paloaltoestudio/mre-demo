@@ -1,6 +1,6 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { documentsType } from "../../../mocks/authMocks/LoginMock";
+import { documentTypes } from "../../../mocks/authMocks/LoginMock";
 import { Captcha } from "./Captcha";
 import { useNavigate } from "react-router-dom";
 
@@ -81,7 +81,7 @@ export const LoginForm = ({ typeUser, setTypeUser }: LoginFormProps) => {
           <option value="" disabled>
             Tipo de documento
           </option>
-          {documentsType.map((doc, index) => (
+          {documentTypes.map((doc, index) => (
             <option key={`${doc.value}-${index}`} value={doc.value}>
               {doc.label}
             </option>
