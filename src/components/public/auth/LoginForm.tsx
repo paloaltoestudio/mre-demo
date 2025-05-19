@@ -2,6 +2,7 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { documentsType } from "../../../mocks/authMocks/LoginMock";
 import { Captcha } from "./Captcha";
+import { useNavigate } from "react-router-dom";
 
 type LoginFormProps = {
   typeUser: string;
@@ -10,6 +11,7 @@ type LoginFormProps = {
 
 export const LoginForm = ({ typeUser, setTypeUser }: LoginFormProps) => {
   const [tipoDocumento, setTipoDocumento] = useState("");
+  const navigate = useNavigate();
   const [hasValue, setHasValue] = useState(false);
   const [catpchaState, setCatpchaState] = useState<boolean>(false);
 
@@ -125,6 +127,7 @@ export const LoginForm = ({ typeUser, setTypeUser }: LoginFormProps) => {
           Continuar
         </button>
         <button
+          onClick={() => {navigate("/auth/registry")}}
           className={`w-11/12 p-2 flex flex-col justify-center items-center rounded-full text-[#3466cc] border-1 border-[#3466cc] text-md hover:cursor-pointer`}
         >
           Registrarse

@@ -4,25 +4,27 @@ import { AuthView } from "../views/AuthView";
 import { VerificationViews } from "../views/VerificationViews";
 import { VerificationMethodsViews } from "../views/VerificationMethodsViews";
 import { VerificationFileView } from "../views/VerificationFileView";
+import { RegistryView } from "../views/RegistryView";
 export const MainRouter = () => {
   return (
     <HashRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<AuthLayout />}>
+        <Route path="/auth" element={<AuthLayout />}>
           <Route index element={<AuthView />} />
           <Route
-            path="/auth/verification-method"
+            path="verification-method"
             element={<VerificationMethodsViews />}
           />
           <Route
-            path="/auth/verification-code"
+            path="verification-code"
             element={<VerificationViews />}
           />
           <Route
-            path="/auth/verification-files"
+            path="verification-files"
             element={<VerificationFileView />}
           />
+          <Route path="registry" element={<RegistryView />} />
         </Route>
       </Routes>
     </HashRouter>
