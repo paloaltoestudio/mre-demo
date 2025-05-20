@@ -1,4 +1,4 @@
-import { Routes, Route, HashRouter, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { AuthView } from "../views/AuthView";
 import { VerificationViews } from "../views/VerificationViews";
