@@ -1,12 +1,17 @@
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { RegistryForm } from "../components/public/auth/RegistryForm";
+import { useRoutesStore } from "../stores/routesStore";
 
 type formType = {
   code: number;
 };
 
 export const RegistryView = () => {
+
+  const {setFromAuth}= useRoutesStore()
+
   const onSubmit = (data: formType) => {
+    setFromAuth(false)
     console.log(data);
   };
 

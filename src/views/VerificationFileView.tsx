@@ -25,7 +25,7 @@ export const VerificationFileView = () => {
       </div>
 
       <div className="w-full flex flex-col items-end justify-end mt-10 pr-10">
-        <button onClick={() => navigate('/auth/verification-code')}className="bg-[#3466cc] text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8]">Continuar</button>
+        <button onClick={() => navigate('/auth/verification-method')} className="bg-[#3466cc] text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8]">Continuar</button>
       </div>
     </div>
   );

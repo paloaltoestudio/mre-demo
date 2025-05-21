@@ -1,13 +1,17 @@
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { VerificationMethod } from "../components/public/auth/VerificationMethod";
+import { useNavigate } from "react-router-dom";
 
 type formType = {
   method: string;
 };
 
 export const VerificationMethodsViews = () => {
+
+  const navigate = useNavigate();
   const onSubmit = (data: formType) => {
-    // Fetching para el codigo;
+    const method = JSON.parse(data.method);
+    navigate("/auth/verification-code/"+ method.type);
     console.log(data.method);
   };
 

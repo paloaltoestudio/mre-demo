@@ -5,6 +5,7 @@ import type { LoginPasswordType, LoginType } from "../types/auth/LoginTypes";
 import { LoginPasswordForm } from "../components/public/auth/LoginPasswordForm";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useRoutesStore } from "../stores/routesStore";
 
 type LoginCombinedType = LoginType | LoginPasswordType;
 
@@ -17,6 +18,8 @@ export const AuthView = () => {
   // const [searchParams] = useSearchParams();
   // const verified = searchParams.get('registry');
   const {registry} = useParams();
+  const {setFromAuth}= useRoutesStore()
+
   useEffect(() => {
     console.log(registry);
     if (registry === "verified") {
@@ -28,14 +31,15 @@ export const AuthView = () => {
   // Funciones para manejar el envío del formulario.
   const onSubmit = (data: LoginType) => {
     // setPasswordView(true);
-    navigate("/dashboard/appointments")
+    navigate("/auth/verified")
     console.log("documentNumber", data.documentNumber);
   };
 
   const onSubmitPassword = (data: LoginPasswordType) => {
+    setFromAuth(true)
     setPasswordView(false);
     console.log("password",data.password);
-    navigate("/dashboard/appointments")
+    navigate("/auth/verification-method")
   };
 
   const handleSubmit = (data: LoginCombinedType) => {

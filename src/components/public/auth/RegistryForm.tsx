@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getDocumentTypes, getCountryCodes } from "../../../services/RegistryService";
 import { useNavigate } from "react-router-dom";
+import { useRoutesStore } from "../../../stores/routesStore";
 
 export const RegistryForm: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +32,8 @@ export const RegistryForm: React.FC = () => {
     acceptData: false,
     acceptTerms: false,
   });
+
+  const {setFromAuth}= useRoutesStore()
 
   useEffect(() => {
     async function fetchData() {
@@ -441,7 +444,14 @@ export const RegistryForm: React.FC = () => {
              {/* Botones */}
              <button
               type="submit"
-              onClick={() => {navigate("/auth/verification-files")}}
+              onClick={() => {
+                setFromAuth(false)
+                if (form.documentType === "Cédula de Extranjería") {
+                  navigate("/access/verification-id");
+                } else {
+                  navigate("/auth/verification-files");
+                }
+              }}
               className={`w-full rounded-full py-3 font-semibold shadow-lg transition ${
                 form.acceptData && form.acceptTerms && validateContactInfo() && isPasswordValid()
                   ? "bg-blue-600 hover:bg-blue-700 text-white"

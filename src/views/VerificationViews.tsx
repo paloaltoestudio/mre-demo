@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { VerificationCard } from "../components/public/auth/VerificationCard";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useRoutesStore } from "../stores/routesStore";
 
 type formType = {
   code: number;
@@ -12,16 +13,22 @@ export const VerificationViews = () => {
   const [method, setMethod] = useState<"email" | "sms" | "whatsapp">(
     "email"
   );
+  const {fromAuth}= useRoutesStore()
+  
+  const {methodSelected} = useParams();
+  useEffect(() => {
+    setMethod(methodSelected as "email" | "sms" | "whatsapp");
+  }, [methodSelected]);
+  
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setMethod("email");
-  }, []);
-
+  console.log("aqui", fromAuth);
   const onSubmit = (data: formType) => {
-    console.log(data.code);
-    navigate("/auth/verified")
+    if (fromAuth === false) {
+      navigate("/auth/verified")
+    } else {
+    navigate("/dashboard/appointments");
+    }
   };
 
   const resendCode = () => {

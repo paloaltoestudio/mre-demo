@@ -22,7 +22,7 @@ export const MainRouter = () => {
             element={<VerificationMethodsViews />}
           />
           <Route
-            path="/auth/verification-code"
+            path="/auth/verification-code/:methodSelected"
             element={<VerificationViews />}
           />
           <Route

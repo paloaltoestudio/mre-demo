@@ -50,7 +50,10 @@ export const VerificationMethod = () => {
             <input
               type="radio"
               id={method}
-              value={MethodsMock[method]}
+              value={JSON.stringify({
+                type: method,
+                value: MethodsMock[method],
+              })}
               {...methods.register("method", {
                 required: "Debe seleccionar un método de verificación",
               })}
