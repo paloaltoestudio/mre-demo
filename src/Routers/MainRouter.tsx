@@ -1,4 +1,4 @@
-import { Routes, Route, HashRouter, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { AuthLayout } from "../layouts/AuthLayout";
 import { AuthView } from "../views/AuthView";
 import { VerificationViews } from "../views/VerificationViews";
@@ -6,6 +6,8 @@ import { VerificationMethodsViews } from "../views/VerificationMethodsViews";
 import { VerificationFileView } from "../views/VerificationFileView";
 import { RegistryView } from "../views/RegistryView";
 import { AppointmentsView } from "../views/AppointmentsView";
+import { VerificationIDView } from "../views/VerificationIDView";
+import { AccessLayout } from "../layouts/AccessLayout";
 export const MainRouter = () => {
   return (
     <BrowserRouter>
@@ -26,9 +28,13 @@ export const MainRouter = () => {
             path="/auth/verification-files"
             element={<VerificationFileView />}
           />
+
           <Route path="/auth/registry" element={<RegistryView />} />
 
           <Route path="/dashboard/appointments" element={<AppointmentsView />} />
+        </Route>
+        <Route path="/access" element={<AccessLayout />}>
+          <Route path="verification-id" element={<VerificationIDView />} />
         </Route>
       </Routes>
     </BrowserRouter>
