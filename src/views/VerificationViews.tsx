@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { VerificationCard } from "../components/public/auth/VerificationCard";
+import { useNavigate } from "react-router-dom";
 
 type formType = {
   code: number;
@@ -12,12 +13,15 @@ export const VerificationViews = () => {
     "email"
   );
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     setMethod("email");
   }, []);
 
   const onSubmit = (data: formType) => {
     console.log(data.code);
+    navigate("/auth/verified")
   };
 
   const resendCode = () => {
