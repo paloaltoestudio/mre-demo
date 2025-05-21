@@ -24,10 +24,13 @@ export const VerificationViews = () => {
   const navigate = useNavigate();
   console.log("aqui", fromAuth);
   const onSubmit = (data: formType) => {
+    // TODO: Add verification logic using data.code
+    console.log('Verification code:', data.code);
+    
     if (fromAuth === false) {
       navigate("/auth/verified")
     } else {
-    navigate("/dashboard/appointments");
+      navigate("/dashboard/appointments");
     }
   };
 
