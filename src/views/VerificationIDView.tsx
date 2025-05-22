@@ -26,7 +26,7 @@ export const VerificationIDView = () => {
         <button className="min-w-[100px] max-w-[110px] border-[#3466cc] border-2 text-[#3466cc] font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-gray-300 hover:text-white hover:border-gray-300 duration-200">
           Cancelar
         </button>
-        <button onClick={() => navigate('/auth/verification-method')} className="min-w-[100px] max-w-[110px] bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-200">
+        <button onClick={() => navigate('/auth/verified')} className="min-w-[100px] max-w-[110px] bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-200">
           Enviar
         </button>
       </div>

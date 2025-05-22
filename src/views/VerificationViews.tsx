@@ -10,25 +10,25 @@ type formType = {
 
 export const VerificationViews = () => {
   // Setear en base al método de verificación;
-  const [method, setMethod] = useState<"email" | "sms" | "whatsapp">(
-    "email"
-  );
-  const {fromAuth}= useRoutesStore()
-  
-  const {methodSelected} = useParams();
+  const [method, setMethod] = useState<"email" | "sms" | "whatsapp">("email");
+  const { fromAuth, registry, typeUser } = useRoutesStore();
+
+  const { methodSelected } = useParams();
   useEffect(() => {
     setMethod(methodSelected as "email" | "sms" | "whatsapp");
   }, [methodSelected]);
-  
 
   const navigate = useNavigate();
   console.log("aqui", fromAuth);
   const onSubmit = (data: formType) => {
     // TODO: Add verification logic using data.code
-    console.log('Verification code:', data.code);
-    
+    console.log("Verification code:", data.code);
+
     if (fromAuth === false) {
-      navigate("/auth/verified")
+      // navigate("/auth/verified");
+      if (registry && typeUser === "Ciudadano") {
+        navigate("/access/verification-id");
+      } else navigate("/auth/verification-files");
     } else {
       navigate("/dashboard/appointments");
     }
@@ -44,7 +44,6 @@ export const VerificationViews = () => {
       id="auth-view"
       // className="w-5/12 mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10"
       className="max-w-[500px] mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10 border border-gray-100 rounded-lg"
-
     >
       <AuthForm<formType> onSubmit={onSubmit}>
         {method === "email" ? (
