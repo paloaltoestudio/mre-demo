@@ -9,3 +9,13 @@ export type Appointment = {
   codigo: string;
   solicitantes: string[];
 };
+
+export type ConsulatesType = {
+  country: string;
+  city: string;
+  consulate: {
+    name: string;
+    address: string;
+    phone: number;
+  };
+};

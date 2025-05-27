@@ -27,13 +27,14 @@ export const LoginForm = ({ typeUser, setTypeUser }: LoginFormProps) => {
   });
 
   const onChangeCaptcha = (value: string | null) => {
-    if (value !== null) {
+    console.log("Captcha value:", value);
+    if (value !== null && value !== "" && value !== undefined) {
       setCatpchaState(true);
     }
   };
 
   const isFormValid =
-    catpchaState &&
+    catpchaState === true &&
     watchTipoDocumento &&
     watchNumeroDocumento &&
     watchNumeroDocumento.trim() !== "";
@@ -123,6 +124,7 @@ export const LoginForm = ({ typeUser, setTypeUser }: LoginFormProps) => {
               : "bg-gray-300 text-gray-400 text-md"
           }`}
           type="submit"
+          disabled={!isFormValid}
         >
           Continuar
         </button>

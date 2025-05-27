@@ -49,7 +49,34 @@ export const VerificationCard = ({
     }
   };
 
+  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   const allowedKeys = [
+  //     "Backspace",
+  //     "ArrowLeft",
+  //     "ArrowRight",
+  //     "Delete",
+  //     "Tab",
+  //   ];
+  //   if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
+  //     e.preventDefault();
+  //   }
+  // };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const { key, ctrlKey, metaKey, currentTarget } = e; // Destructura ctrlKey y metaKey
+
+    // Permite explícitamente Ctrl+V (Windows/Linux) o Cmd+V (Mac)
+    if ((ctrlKey || metaKey) && key === "v") {
+      // Si es Ctrl+V o Cmd+V, no hagas nada y deja que el evento onPaste se encargue.
+      return;
+    }
+
+    // Permite explícitamente Ctrl+A (seleccionar todo), Ctrl+C (copiar), Ctrl+X (cortar)
+    // Aunque no los manejes directamente, es bueno permitirlos para la UX
+    if ((ctrlKey || metaKey) && (key === "a" || key === "c" || key === "x")) {
+      return;
+    }
+
+    // Tu lógica original para permitir solo dígitos y teclas de navegación/borrado
     const allowedKeys = [
       "Backspace",
       "ArrowLeft",
@@ -57,20 +84,59 @@ export const VerificationCard = ({
       "Delete",
       "Tab",
     ];
-    if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
+
+    if (!allowedKeys.includes(key) && !/^[0-9]$/.test(key)) {
       e.preventDefault();
+    }
+
+    const index = parseInt(currentTarget.dataset.index || "0");
+    if (key === "Backspace" && currentTarget.value === "" && index > 0) {
+      e.preventDefault();
+      const updated = [...codeArray];
+      updated[index - 1] = "";
+      setCodeArray(updated);
+      inputRefs.current[index - 1]?.focus();
+    } else if (
+      key === "Delete" &&
+      currentTarget.value !== "" &&
+      index < length - 1
+    ) {
+    } else if (key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (key === "ArrowRight" && index < length - 1) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const paste = e.clipboardData.getData("text");
-    if (!/^\d*$/.test(paste)) {
-      e.preventDefault();
-    }
+  const handlePaste = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    startIndex: number
+  ) => {
+    e.preventDefault();
+
+    const paste = e.clipboardData.getData("text").replace(/\D/g, "");
+    const digits = paste.split("").slice(0, length);
+
+    if (digits.length === 0) return;
+
+    const newCodeArray = [...codeArray];
+
+    digits.forEach((digit, i) => {
+      const index = startIndex + i;
+      if (index < length) {
+        newCodeArray[index] = digit;
+        const ref = inputRefs.current[index];
+        if (ref) ref.value = digit;
+      }
+    });
+
+    setCodeArray(newCodeArray);
+
+    const focusIndex = Math.min(startIndex + digits.length, length - 1);
+    inputRefs.current[focusIndex]?.focus();
   };
 
   const changeMethod = () => {
-    // Camibar por la ruta de ingreso de metodos de verificacion;
     navigate("/auth/verification-code");
     console.log("Cambiar método de verificación");
   };
@@ -118,7 +184,7 @@ export const VerificationCard = ({
                 errors.code && "border-red-500"
               }`}
               onKeyDown={handleKeyDown}
-              onPaste={handlePaste}
+              onPaste={(e) => handlePaste(e, index)}
             />
           );
         })}

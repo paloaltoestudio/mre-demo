@@ -19,13 +19,10 @@ export const VerificationViews = () => {
   }, [methodSelected]);
 
   const navigate = useNavigate();
-  console.log("aqui", fromAuth);
   const onSubmit = (data: formType) => {
-    // TODO: Add verification logic using data.code
     console.log("Verification code:", data.code);
 
     if (fromAuth === false) {
-      // navigate("/auth/verified");
       if (registry && typeUser === "Ciudadano") {
         navigate("/access/verification-id");
       } else navigate("/auth/verification-files");
@@ -42,7 +39,6 @@ export const VerificationViews = () => {
   return (
     <div
       id="auth-view"
-      // className="w-5/12 mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10"
       className="max-w-[500px] mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10 border border-gray-100 rounded-lg"
     >
       <AuthForm<formType> onSubmit={onSubmit}>
