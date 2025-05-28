@@ -4,12 +4,14 @@ type DropzoneProps = {
   text: string;
   onDrop: (acceptedFiles: File[], fileRejections: FileRejection[]) => void;
   selectorClasses?: string;
+  identi: string;
 };
 
 export const DropzoneComponent = ({
   text,
   onDrop,
   selectorClasses,
+  identi,
 }: DropzoneProps) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -22,7 +24,7 @@ export const DropzoneComponent = ({
   });
 
   return (
-    <div {...getRootProps()} className="">
+    <div {...getRootProps()} className="flex justify-center items-center" id={`dropzone-${identi}`}>
       <input {...getInputProps()} />
       {isDragActive ? (
         <p>Suelta el archivo aquí...</p>
