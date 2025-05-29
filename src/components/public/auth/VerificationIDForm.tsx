@@ -57,6 +57,7 @@ export const VerificationIDForm = () => {
               selectorClasses={
                 "text-[#3466cc] hover:text-white font-medium hover:cursor-pointer"
               }
+              identi="front-document"
             />
           </button>
         </div>
@@ -70,6 +71,7 @@ export const VerificationIDForm = () => {
             text={"Identificación del rostro"}
             onDrop={faceScan}
             selectorClasses={"text-gray-900 text-lg text-center"}
+            identi="face-scan"
           />
         </div>
 
@@ -92,6 +94,7 @@ export const VerificationIDForm = () => {
               selectorClasses={
                 "text-[#3466cc] hover:text-white font-medium hover:cursor-pointer"
               }
+              identi="back-document"
             />
           </button>
         </div>

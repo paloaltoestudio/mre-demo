@@ -8,7 +8,7 @@ type formType = {
   dependentID: string;
 };
 export const DependentInformationView = () => {
-  const onSubmit = (data: any) => {};
+  const onSubmit = () => {};
 
   return (
     <div
