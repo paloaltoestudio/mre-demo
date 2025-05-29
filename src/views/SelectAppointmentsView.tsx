@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { SelectAppointmentForm } from "../components/scheduling/SelectAppointmentForm";
 import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
+import { AppointmentForForm } from "../components/scheduling/AppointmentForForm";
 
 type formType = {
   country: string;
@@ -14,6 +15,7 @@ type formType = {
 };
 
 export const SelectAppointmentsView = () => {
+  const [view, setView] = useState<number>(1);
   const [consulate, setConsulate] = useState<ConsulatesType>({
     country: "CO",
     city: "BOG",
@@ -37,8 +39,14 @@ export const SelectAppointmentsView = () => {
       className="max-w-[1200px] mx-auto flex flex-col items-center"
     >
       <div className="w-11/12">
-        <AuthForm<formType> onSubmit={onSubmit}>
-          <SelectAppointmentForm setConsulate={setConsulate} />
+        <AuthForm<formType> onSubmit={onSubmit} >
+          {/* Toda la info del tramite */}
+          {view === 1 ? (
+            <SelectAppointmentForm setConsulate={setConsulate} setView={setView}/>
+          ) : (
+            <AppointmentForForm consulate={consulate} setView={setView}/>
+          )}
+          
         </AuthForm>
       </div>
     </div>

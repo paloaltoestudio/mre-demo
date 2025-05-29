@@ -1,0 +1,281 @@
+import { useState, type Dispatch, type SetStateAction } from "react";
+import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
+import {
+  countryOptions,
+  proceduresOptions,
+} from "../../mocks/dashboardMocks/AppoinmentsMock";
+import { Controller, useFormContext } from "react-hook-form";
+import Select from "react-select";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faArrowRight,
+  faPeopleGroup,
+  faSmile,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
+
+type AppointmentForFormProps = {
+  consulate: ConsulatesType;
+  setView?: Dispatch<SetStateAction<number>>;
+};
+
+const customStyles = {
+  control: (provided: any, state: any) => ({
+    ...provided,
+    borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
+    boxShadow: "none",
+    padding: "0.25rem 0.5rem",
+    minHeight: "3rem",
+  }),
+  multiValue: (provided: any) => ({
+    ...provided,
+    backgroundColor: "#e2e8f0", // light gray
+    borderRadius: "9999px",
+    padding: "2px 6px",
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
+};
+
+type ChipProps = {
+  label: string;
+  onRemove: () => void;
+};
+
+const Chip = ({ label, onRemove }: ChipProps) => (
+  <div className="mt-2 inline-flex items-center px-3 py-1 mr-2 mb-2 bg-gray-200 hover:bg-gray-300 text-sm rounded-full">
+    {label}
+    <button
+      type="button"
+      onClick={onRemove}
+      className="ml-2 text-white bg-gray-400 rounded-full hover:bg-gray-500 w-4 h-4 text-center flex items-center justify-center"
+    >
+      &times;
+    </button>
+  </div>
+);
+
+export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormProps) => {
+  const [selectedOption, setSelectedOption] = useState<string>();
+  const [count, setCount] = useState(1);
+
+  const increment = () => setCount((prev) => prev + 1);
+  const decrement = () => setCount((prev) => (prev > 0 ? prev - 1 : 0));
+
+  const { control } = useFormContext();
+
+  return (
+    <section
+      id="appointment-for-form"
+      aria-label="appointment-for-form"
+      className="w-full"
+    >
+      <div className="border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md w-full  px-4 py-3 justify-center flex flex-col shadow-lg">
+        <h3 className="font-medium text-md flex items-center gap-1">
+          <span className="w-5 h-5 flex justify-center items-center">
+            <img
+              src={
+                countryOptions.filter(
+                  (country) => country.value === consulate.country
+                )[0].icon
+              }
+              alt={consulate.consulate.name}
+            />
+          </span>
+          {
+            countryOptions.filter(
+              (country) => country.value === consulate.country
+            )[0].label
+          }
+        </h3>
+        <h3 className="font-medium text-md">{consulate.consulate.name}</h3>
+        <p className="text-sm text-gray-600">
+          Dirección: {consulate.consulate.address}
+        </p>
+        <p className="text-sm text-gray-600">
+          Teléfono: {consulate.consulate.phone}
+        </p>
+      </div>
+
+      <div className="mt-6 w-full">
+        <h2 className="font-medium text-lg">¿Qué trámite vas a realizar?</h2>
+        <div className="relative w-full mt-4">
+          <label
+            htmlFor="country"
+            className="absolute left-3 -top-2.5 bg-white px-1 text-sm text-gray-600 z-10"
+          >
+            Selecciona
+          </label>
+          <Controller
+            name="tramites"
+            control={control}
+            rules={{
+              required: "Selecciona al menos un trámite",
+            }}
+            render={({ field, fieldState }) => (
+              <div className="w-full mt-4">
+                <Select
+                  options={proceduresOptions}
+                  isMulti
+                  styles={{
+                    ...customStyles,
+                    multiValue: () => ({ display: "none" }), // Oculta viñetas internas
+                    multiValueLabel: () => ({ display: "none" }),
+                    multiValueRemove: () => ({ display: "none" }),
+                  }}
+                  closeMenuOnSelect={false}
+                  {...field}
+                  value={field.value}
+                  onChange={(selected) => field.onChange(selected)}
+                />
+
+                {/* Chips debajo del Select */}
+                <div className="mt-2 flex flex-wrap">
+                  {field.value?.map((option: any) => (
+                    <Chip
+                      key={option.value}
+                      label={option.label}
+                      onRemove={() => {
+                        const newValue = field.value.filter(
+                          (o: any) => o.value !== option.value
+                        );
+                        field.onChange(newValue);
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {fieldState.error && (
+                  <span className="text-red-500 text-sm">
+                    {fieldState.error.message}
+                  </span>
+                )}
+              </div>
+            )}
+          />
+        </div>
+
+        <div className="mt-6 w-full">
+          <h2 className="font-medium text-lg">
+            Selecciona para quién es la cita
+          </h2>
+          <div className="w-full flex justify-between items-center mt-4">
+            <div
+              onClick={() => setSelectedOption("Para mí")}
+              className={`flex items-center gap-5 pl-6 p-4 rounded-full border-2 min-w-[30%] min-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+    ${
+      selectedOption === "Para mí"
+        ? "border-blue-500 bg-gray-200"
+        : "border-gray-300"
+    }`}
+            >
+              <FontAwesomeIcon icon={faUser} size="2x" />
+              <span>
+                <h3 className="text-md font-medium">Para mí</h3> <p></p>
+              </span>
+            </div>
+            <div
+              onClick={() => setSelectedOption("Para mis dependientes")}
+              className={`flex items-center gap-5 pl-6 p-4 rounded-full border-2 min-w-[30%] min-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+    ${
+      selectedOption === "Para mis dependientes"
+        ? "border-blue-500 bg-gray-200"
+        : "border-gray-300"
+    }`}
+            >
+              <FontAwesomeIcon icon={faSmile} size="2x" />
+              <span>
+                <h3 className="text-md font-medium">Para mis dependientes</h3>{" "}
+                <p className="text-gray-500 text-sm">
+                  {"(Menores de edad, adultos mayores, otros)"}
+                </p>
+              </span>
+            </div>
+            <div
+              onClick={() => setSelectedOption("Para mí y mis dependientes")}
+              className={`flex items-center gap-5 pl-6 p-4 rounded-full border-2 min-w-[30%] min-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+    ${
+      selectedOption === "Para mí y mis dependientes"
+        ? "border-blue-500 bg-gray-200"
+        : "border-gray-300"
+    }`}
+            >
+              <FontAwesomeIcon icon={faPeopleGroup} size="2x" />
+              <span>
+                <h3 className="text-md font-medium">
+                  Para mí y mis dependientes
+                </h3>{" "}
+                <p className="text-gray-500 text-sm">
+                  {"(Menores de edad, adultos mayores, otros)"}
+                </p>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {(selectedOption === "Para mis dependientes" ||
+          selectedOption === "Para mí y mis dependientes") && (
+          <div className="mt-7 w-full flex gap-5">
+            <h2 className="font-medium text-lg flex items-center ">
+              Cantidad de dependientes
+            </h2>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={decrement}
+                type="button"
+                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+              >
+                <FontAwesomeIcon
+                  icon={faMinus}
+                  className="text-gray-700 text-sm"
+                />
+              </button>
+
+              <input
+                value={count}
+                className="max-w-[50px] text-center border border-gray-300 rounded px-2 py-2"
+              ></input>
+
+              <button
+                onClick={increment}
+                type="button"
+                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+              >
+                <FontAwesomeIcon
+                  icon={faPlus}
+                  className="text-gray-700 text-sm"
+                />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">
+        <button
+          type="button"
+          className="mr-auto text-[#3466cc]  hover:text-[#343ecc] hover:underline  font-medium py-2 px-4 rounded-full hover:cursor-pointer duration-150"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {setView?.(1)}}
+          className="text-[#3466cc] border-2 border-[#3466cc] hover:text-white hover:border-[#e9e9e9] font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#d1d1d1] duration-150"
+        >
+          Regresar
+        </button>
+        <button
+          type="button"
+          onClick={() => {setView?.(3)}}
+          className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
+        >
+          Continuar
+          <span className="ml-2">
+            <FontAwesomeIcon icon={faArrowRight} />
+          </span>
+        </button>
+      </div>
+    </section>
+  );
+};

@@ -34,10 +34,12 @@ const initialLocation = {
 
 type SelectAppointmentFormProps = {
   setConsulate: Dispatch<SetStateAction<ConsulatesType>>;
+  setView?: Dispatch<SetStateAction<number>>;
 };
 
 export const SelectAppointmentForm = ({
   setConsulate,
+  setView,
 }: SelectAppointmentFormProps) => {
   const [mapLocation, setMapLocation] = useState(initialLocation);
   const [markerPosition, setMarkerPosition] = useState(initialLocation);
@@ -218,7 +220,11 @@ export const SelectAppointmentForm = ({
             ))}
           </div>
 
-          <div id="map" aria-label="map" className="bg-slate-200 w-full h-[400px] lg:w-6/12">
+          <div
+            id="map"
+            aria-label="map"
+            className="bg-slate-200 w-full h-[400px] lg:w-6/12"
+          >
             <LoadScript googleMapsApiKey={import.meta.env.VITE_MAPS_API_KEY!}>
               <GoogleMap
                 mapContainerStyle={containerStyle}
@@ -233,7 +239,10 @@ export const SelectAppointmentForm = ({
       </div>
       <div className="w-full flex flex-col items-end justify-end mt-10 mb-10">
         <button
-          type="submit"
+          type="button"
+          onClick={() => {
+            setView?.(2);
+          }}
           className="bg-[#3466cc] text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8]"
         >
           Continuar

@@ -181,3 +181,22 @@ export const consulatesOptions = [
     },
   },
 ];
+
+export const proceduresOptions = [
+  {
+    value: "pasaporte",
+    label: "Pasaporte",
+  },
+  {
+    value: "visa",
+    label: "Visa",
+  },
+  {
+    value: "registroCivil",
+    label: "Registro Civil",
+  },
+  {
+    value: "tramiteConsular",
+    label: "Trámite Consular",
+  },
+]
