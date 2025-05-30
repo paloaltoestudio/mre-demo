@@ -3,6 +3,8 @@ import { AuthForm } from "../components/public/auth/AuthForm";
 import { SelectAppointmentForm } from "../components/scheduling/SelectAppointmentForm";
 import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
 import { AppointmentForForm } from "../components/scheduling/AppointmentForForm";
+import { SelectDateForm } from "../components/scheduling/SelectDateForm";
+import { DependentInformationForm } from "../components/scheduling/DependentInformationForm";
 
 type formType = {
   country: string;
@@ -16,6 +18,7 @@ type formType = {
 
 export const SelectAppointmentsView = () => {
   const [view, setView] = useState<number>(1);
+  const [selectedOption, setSelectedOption] = useState<string>();
   const [consulate, setConsulate] = useState<ConsulatesType>({
     country: "CO",
     city: "BOG",
@@ -30,6 +33,7 @@ export const SelectAppointmentsView = () => {
     const completedData = {
       ...data,
       consulate,
+      selectedOption,
     };
     console.log("Selected appointments:", completedData);
   };
@@ -39,14 +43,32 @@ export const SelectAppointmentsView = () => {
       className="max-w-[1200px] mx-auto flex flex-col items-center"
     >
       <div className="w-11/12">
-        <AuthForm<formType> onSubmit={onSubmit} >
+        <AuthForm<formType> onSubmit={onSubmit}>
           {/* Toda la info del tramite */}
           {view === 1 ? (
-            <SelectAppointmentForm setConsulate={setConsulate} setView={setView}/>
+            <SelectAppointmentForm
+              setConsulate={setConsulate}
+              setView={setView}
+            />
+          ) : view === 2 ? (
+            <AppointmentForForm
+              consulate={consulate}
+              setView={setView}
+              selectedOption={selectedOption}
+              setSelectedOption={setSelectedOption}
+            />
+          ) : view === 3 ? (
+            <SelectDateForm consulate={consulate} setView={setView} />
           ) : (
-            <AppointmentForForm consulate={consulate} setView={setView}/>
+            view === 4 && (
+              <div
+                id="dependent-information-view"
+                className="max-w-[1200px] mx-auto flex flex-col items-center"
+              >
+                <DependentInformationForm setView={setView} />
+              </div>
+            )
           )}
-          
         </AuthForm>
       </div>
     </div>

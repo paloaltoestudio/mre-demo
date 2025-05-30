@@ -8,7 +8,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faArrowRight,
+  faArrowRight,
   faPeopleGroup,
   faSmile,
   faUser,
@@ -18,6 +18,8 @@ import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
   setView?: Dispatch<SetStateAction<number>>;
+  selectedOption: string | undefined;
+  setSelectedOption: Dispatch<SetStateAction<string | undefined>>;
 };
 
 const customStyles = {
@@ -55,14 +57,18 @@ const Chip = ({ label, onRemove }: ChipProps) => (
   </div>
 );
 
-export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormProps) => {
-  const [selectedOption, setSelectedOption] = useState<string>();
+export const AppointmentForForm = ({
+  consulate,
+  setView,
+  selectedOption = "Para mí",
+  setSelectedOption,
+}: AppointmentForFormProps) => {
   const [count, setCount] = useState(1);
 
   const increment = () => setCount((prev) => prev + 1);
   const decrement = () => setCount((prev) => (prev > 0 ? prev - 1 : 0));
 
-  const { control } = useFormContext();
+  const { control, register } = useFormContext();
 
   return (
     <section
@@ -159,10 +165,10 @@ export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormPro
           <h2 className="font-medium text-lg">
             Selecciona para quién es la cita
           </h2>
-          <div className="w-full flex justify-between items-center mt-4">
+          <div className="w-full flex flex-col lg:flex-row lg:justify-between items-center mt-4">
             <div
               onClick={() => setSelectedOption("Para mí")}
-              className={`flex items-center gap-5 pl-6 p-4 rounded-full border-2 min-w-[30%] min-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+              className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
     ${
       selectedOption === "Para mí"
         ? "border-blue-500 bg-gray-200"
@@ -176,7 +182,7 @@ export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormPro
             </div>
             <div
               onClick={() => setSelectedOption("Para mis dependientes")}
-              className={`flex items-center gap-5 pl-6 p-4 rounded-full border-2 min-w-[30%] min-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+              className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
     ${
       selectedOption === "Para mis dependientes"
         ? "border-blue-500 bg-gray-200"
@@ -193,7 +199,7 @@ export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormPro
             </div>
             <div
               onClick={() => setSelectedOption("Para mí y mis dependientes")}
-              className={`flex items-center gap-5 pl-6 p-4 rounded-full border-2 min-w-[30%] min-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+              className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
     ${
       selectedOption === "Para mí y mis dependientes"
         ? "border-blue-500 bg-gray-200"
@@ -223,7 +229,7 @@ export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormPro
               <button
                 onClick={decrement}
                 type="button"
-                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
               >
                 <FontAwesomeIcon
                   icon={faMinus}
@@ -233,13 +239,14 @@ export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormPro
 
               <input
                 value={count}
+                {...register("dependientesCount")}
                 className="max-w-[50px] text-center border border-gray-300 rounded px-2 py-2"
               ></input>
 
               <button
                 onClick={increment}
                 type="button"
-                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
               >
                 <FontAwesomeIcon
                   icon={faPlus}
@@ -260,14 +267,18 @@ export const AppointmentForForm = ({ consulate, setView }: AppointmentForFormPro
 
         <button
           type="button"
-          onClick={() => {setView?.(1)}}
+          onClick={() => {
+            setView?.(1);
+          }}
           className="text-[#3466cc] border-2 border-[#3466cc] hover:text-white hover:border-[#e9e9e9] font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#d1d1d1] duration-150"
         >
           Regresar
         </button>
         <button
           type="button"
-          onClick={() => {setView?.(3)}}
+          onClick={() => {
+            setView?.(3);
+          }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Continuar
