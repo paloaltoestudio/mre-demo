@@ -49,34 +49,17 @@ export const VerificationCard = ({
     }
   };
 
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   const allowedKeys = [
-  //     "Backspace",
-  //     "ArrowLeft",
-  //     "ArrowRight",
-  //     "Delete",
-  //     "Tab",
-  //   ];
-  //   if (!allowedKeys.includes(e.key) && !/^[0-9]$/.test(e.key)) {
-  //     e.preventDefault();
-  //   }
-  // };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const { key, ctrlKey, metaKey, currentTarget } = e; // Destructura ctrlKey y metaKey
+    const { key, ctrlKey, metaKey, currentTarget } = e; 
 
-    // Permite explícitamente Ctrl+V (Windows/Linux) o Cmd+V (Mac)
     if ((ctrlKey || metaKey) && key === "v") {
-      // Si es Ctrl+V o Cmd+V, no hagas nada y deja que el evento onPaste se encargue.
       return;
     }
 
-    // Permite explícitamente Ctrl+A (seleccionar todo), Ctrl+C (copiar), Ctrl+X (cortar)
-    // Aunque no los manejes directamente, es bueno permitirlos para la UX
     if ((ctrlKey || metaKey) && (key === "a" || key === "c" || key === "x")) {
       return;
     }
 
-    // Tu lógica original para permitir solo dígitos y teclas de navegación/borrado
     const allowedKeys = [
       "Backspace",
       "ArrowLeft",

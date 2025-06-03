@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import {
   countryOptions,
@@ -63,12 +63,7 @@ export const AppointmentForForm = ({
   selectedOption = "Para mí",
   setSelectedOption,
 }: AppointmentForFormProps) => {
-  const [count, setCount] = useState(1);
-
-  const increment = () => setCount((prev) => prev + 1);
-  const decrement = () => setCount((prev) => (prev > 0 ? prev - 1 : 0));
-
-  const { control, register } = useFormContext();
+  const { control, setValue } = useFormContext();
 
   return (
     <section
@@ -167,7 +162,10 @@ export const AppointmentForForm = ({
           </h2>
           <div className="w-full flex flex-col lg:flex-row lg:justify-between items-center mt-4">
             <div
-              onClick={() => setSelectedOption("Para mí")}
+              onClick={() => {
+                setSelectedOption("Para mí");
+                setValue("dependientesCount", 0);
+              }}
               className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
     ${
       selectedOption === "Para mí"
@@ -226,33 +224,43 @@ export const AppointmentForForm = ({
               Cantidad de dependientes
             </h2>
             <div className="flex items-center gap-4">
-              <button
-                onClick={decrement}
-                type="button"
-                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
-              >
-                <FontAwesomeIcon
-                  icon={faMinus}
-                  className="text-gray-700 text-sm"
-                />
-              </button>
+              <Controller
+                name="dependientesCount"
+                control={control}
+                defaultValue={0}
+                render={({ field }) => (
+                  <div className="flex items-center gap-4">
+                    <span
+                      onClick={() =>
+                        field.onChange(Math.max(0, field.value - 1))
+                      }
+                      className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
+                    >
+                      <FontAwesomeIcon
+                        icon={faMinus}
+                        className="text-gray-700 text-sm"
+                      />
+                    </span>
 
-              <input
-                value={count}
-                {...register("dependientesCount")}
-                className="max-w-[50px] text-center border border-gray-300 rounded px-2 py-2"
-              ></input>
+                    <input
+                      {...field}
+                      type="text"
+                      disabled
+                      className="max-w-[50px] text-center border border-gray-300 rounded px-2 py-2"
+                    />
 
-              <button
-                onClick={increment}
-                type="button"
-                className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
-              >
-                <FontAwesomeIcon
-                  icon={faPlus}
-                  className="text-gray-700 text-sm"
-                />
-              </button>
+                    <span
+                      onClick={() => field.onChange(field.value + 1)}
+                      className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
+                    >
+                      <FontAwesomeIcon
+                        icon={faPlus}
+                        className="text-gray-700 text-sm"
+                      />
+                    </span>
+                  </div>
+                )}
+              />
             </div>
           </div>
         )}

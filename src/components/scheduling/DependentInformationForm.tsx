@@ -48,7 +48,10 @@ export const DependentInformationForm = ({
           Regresar
         </button>
         <button
-          type="submit"
+          type="button"
+          onClick={() => {
+            setView(5);
+          }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Continuar

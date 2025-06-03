@@ -186,17 +186,21 @@ export const proceduresOptions = [
   {
     value: "pasaporte",
     label: "Pasaporte",
+    requeriments: ["Requisito 1", "Requisito 2"],
   },
   {
     value: "visa",
     label: "Visa",
+    requeriments: ["Requisito 1", "Requisito 2"],
   },
   {
     value: "registroCivil",
     label: "Registro Civil",
+    requeriments: ["Requisito 1", "Requisito 2"],
   },
   {
     value: "tramiteConsular",
     label: "Trámite Consular",
+    requeriments: ["Requisito 1", "Requisito 2"],
   },
-]
+];

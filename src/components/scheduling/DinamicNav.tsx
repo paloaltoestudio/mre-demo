@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 
 type DinamicNavProps = {
   currentStep: number;
@@ -7,10 +9,26 @@ type DinamicNavProps = {
 
 export const DinamicNav = ({ currentStep, steps }: DinamicNavProps) => {
   const progress = ((currentStep - 1) / (steps.length - 1)) * 100;
+  const [showNavs, setShowNavs] = useState<string[]>([]);
+  const { watch } = useFormContext();
+  const dependentsWatch = watch("dependientesCount") || 0;
+
+  useEffect(() => {
+    const newSteps = steps.filter((step) => step !== "Datos dependientes");
+    setShowNavs(newSteps);
+  }, []);
+
+  useEffect(() => {
+    if (dependentsWatch > 0) setShowNavs(steps);
+    else {
+      const newSteps = steps.filter((step) => step !== "Datos dependientes");
+      setShowNavs(newSteps);
+    }
+  }, [dependentsWatch]);
 
   return (
-    <div className="w-full lg:w-10/12 px-4">
-      <div className="relative flex items-center justify-between">
+    <div className="w-full px-4 flex flex-col items-center">
+      <div className="relative w-full lg:w-11/12 flex items-center justify-between">
         <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-300 transform -translate-y-1/2 z-0" />
 
         <motion.div
@@ -20,7 +38,7 @@ export const DinamicNav = ({ currentStep, steps }: DinamicNavProps) => {
           transition={{ duration: 0.5 }}
         />
 
-        {steps.map((label, index) => {
+        {showNavs.map((label, index) => {
           const stepNumber = index + 1;
           const isCompleted = stepNumber < currentStep;
           const isActive = stepNumber === currentStep;

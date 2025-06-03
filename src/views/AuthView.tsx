@@ -6,6 +6,7 @@ import { LoginPasswordForm } from "../components/public/auth/LoginPasswordForm";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useRoutesStore } from "../stores/routesStore";
+import { SessionStore } from "../stores/sessionStore";
 
 type LoginCombinedType = LoginType | LoginPasswordType;
 
@@ -15,31 +16,36 @@ export const AuthView = () => {
   );
   const navigate = useNavigate();
   const [passwordView, setPasswordView] = useState(false);
-  // const [searchParams] = useSearchParams();
-  // const verified = searchParams.get('registry');
-  const {registry} = useParams();
-  const {setFromAuth}= useRoutesStore()
+  const { registry } = useParams();
+  const { setFromAuth } = useRoutesStore();
+  const { user, document, setDocument } = SessionStore();
 
   useEffect(() => {
     console.log(registry);
     if (registry === "verified") {
       setPasswordView(true);
     }
-    // setPasswordView(false);
   }, [registry]);
 
-  // Funciones para manejar el envío del formulario.
   const onSubmit = (data: LoginType) => {
-    // setPasswordView(true);
-    navigate("/auth/verified")
+    setDocument(data.documentNumber.toString());
+    navigate("/auth/verified");
     console.log("documentNumber", data.documentNumber);
   };
 
   const onSubmitPassword = (data: LoginPasswordType) => {
-    setFromAuth(true)
-    setPasswordView(false);
-    console.log("password",data.password);
-    navigate("/auth/verification-method")
+    const authUser = user.find(
+      (user) => user.documentNumber.toString() === document.toString()
+    );
+    
+    if (authUser && authUser.password === data.password) {
+      setFromAuth(true);
+      setPasswordView(false);
+      console.log("password", data.password);
+      navigate("/auth/verification-method");
+    } else {
+      alert("Contraseña incorrecta, por favor intente nuevamente.");
+    }
   };
 
   const handleSubmit = (data: LoginCombinedType) => {
@@ -57,9 +63,12 @@ export const AuthView = () => {
     >
       <AuthForm<LoginCombinedType> onSubmit={handleSubmit}>
         {!passwordView ? (
-          <LoginForm typeUser={typeUser} setTypeUser={setTypeUser}/>
+          <LoginForm typeUser={typeUser} setTypeUser={setTypeUser} />
         ) : (
-          <LoginPasswordForm typeUser={typeUser} setPasswordView={setPasswordView}/>
+          <LoginPasswordForm
+            typeUser={typeUser}
+            setPasswordView={setPasswordView}
+          />
         )}
       </AuthForm>
     </div>

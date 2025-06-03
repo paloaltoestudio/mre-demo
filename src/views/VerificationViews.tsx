@@ -3,6 +3,7 @@ import { AuthForm } from "../components/public/auth/AuthForm";
 import { VerificationCard } from "../components/public/auth/VerificationCard";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRoutesStore } from "../stores/routesStore";
+import { SessionStore } from "../stores/sessionStore";
 
 type formType = {
   code: number;
@@ -18,16 +19,21 @@ export const VerificationViews = () => {
     setMethod(methodSelected as "email" | "sms" | "whatsapp");
   }, [methodSelected]);
 
+  const { code } = SessionStore();
+
   const navigate = useNavigate();
   const onSubmit = (data: formType) => {
     console.log("Verification code:", data.code);
 
-    if (fromAuth === false) {
-      if (registry && typeUser === "Ciudadano") {
-        navigate("/access/verification-id");
-      } else navigate("/auth/verification-files");
-    } else {
-      navigate("/dashboard/appointments");
+    if (+data.code !== code) alert("Código de verificación incorrecto");
+    else {
+      if (fromAuth === false) {
+        if (registry && typeUser === "Ciudadano") {
+          navigate("/access/verification-id");
+        } else navigate("/auth/verification-files");
+      } else {
+        navigate("/dashboard/appointments");
+      }
     }
   };
 

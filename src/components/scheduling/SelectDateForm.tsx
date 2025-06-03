@@ -9,13 +9,19 @@ import { useFormContext } from "react-hook-form";
 type SelectDateFormProps = {
   consulate: ConsulatesType;
   setView: Dispatch<SetStateAction<number>>;
+  selectedOption?: string;
 };
 
-export const SelectDateForm = ({ consulate, setView }: SelectDateFormProps) => {
+export const SelectDateForm = ({
+  consulate,
+  setView,
+  selectedOption,
+}: SelectDateFormProps) => {
   const { watch } = useFormContext();
 
   const procedures = watch("tramites");
   const countDependents = watch("dependientesCount") || 0;
+  const dependentsWatch = watch("dependientesCount") || 0;
 
   return (
     <section
@@ -50,7 +56,11 @@ export const SelectDateForm = ({ consulate, setView }: SelectDateFormProps) => {
         </p>
         <p className="text-sm text-gray-600">
           Número de solicitantes:{" "}
-          {countDependents === 0 ? "1" : countDependents}
+          {countDependents === 0
+            ? "1"
+            : selectedOption === "Para mí y mis dependientes"
+            ? countDependents + 1
+            : countDependents}
         </p>
         <p className="text-sm text-gray-600">
           Trámites: {procedures?.map((p: any) => p.label).join(", ")}
@@ -86,7 +96,8 @@ export const SelectDateForm = ({ consulate, setView }: SelectDateFormProps) => {
         <button
           type="button"
           onClick={() => {
-            setView?.(4);
+            if (dependentsWatch > 0) setView?.(4);
+            else setView?.(5);
           }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
