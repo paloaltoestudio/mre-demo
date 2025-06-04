@@ -1,12 +1,35 @@
 import { useFormContext } from "react-hook-form";
-import { MethodsMock } from "../../../mocks/authMocks/MethodsMock";
+import { SessionStore, type UserType } from "../../../stores/sessionStore";
+import { useEffect, useState } from "react";
 
 type MethodType = "email" | "sms" | "whatsapp";
 
 export const VerificationMethod = () => {
+  const { user, document } = SessionStore();
   const methods = useFormContext();
   const selectedMethod = methods.watch("method");
   const isFormValid = !!selectedMethod;
+  const [methodList, setMethodList] = useState<MethodType[]>([]);
+  const [sessionUser, setSessionUser] = useState<UserType>();
+
+  useEffect(() => {
+    const methods: string[] = [];
+    const matchedUser = user.find(
+      (u) => u.documentNumber.toString() === document.toString()
+    );
+
+    if (!matchedUser) return;
+
+    const { email, phoneCode, phoneNumber, whatsappCode, whatsappNumber } =
+      matchedUser;
+
+    if (email) methods.push("email");
+    if (phoneCode && phoneNumber) methods.push("sms");
+    if (whatsappCode && whatsappNumber) methods.push("whatsapp");
+
+    setSessionUser(matchedUser);
+    setMethodList([...new Set(methods)] as MethodType[]);
+  }, []);
 
   const maskEmail = (email: string) => {
     const [name, domain] = email.split("@");
@@ -26,8 +49,6 @@ export const VerificationMethod = () => {
 
     return `${start}${masked}${end}`;
   };
-
-  const methodList: MethodType[] = ["email", "sms", "whatsapp"];
 
   return (
     <div className="mb-4 w-full">
@@ -52,7 +73,10 @@ export const VerificationMethod = () => {
               id={method}
               value={JSON.stringify({
                 type: method,
-                value: MethodsMock[method],
+                value:
+                  method === "email"
+                    ? maskEmail(sessionUser?.email || "")
+                    : maskPhone(sessionUser?.phoneNumber || ""),
               })}
               {...methods.register("method", {
                 required: "Debe seleccionar un método de verificación",
@@ -68,8 +92,10 @@ export const VerificationMethod = () => {
               </label>
               <span className="">
                 {method === "email"
-                  ? maskEmail(MethodsMock.email)
-                  : maskPhone(MethodsMock[method])}
+                  ? maskEmail(sessionUser?.email || "")
+                  : method === "sms"
+                  ? maskPhone(sessionUser?.phoneNumber || "")
+                  : maskPhone(sessionUser?.whatsappNumber || "")}
               </span>
             </div>
           </div>

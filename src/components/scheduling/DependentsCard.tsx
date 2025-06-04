@@ -25,10 +25,10 @@ const customStyles = {
 };
 
 type DependentsCardProps = {
-    aggregate?: number;
-}
+  aggregate?: number;
+};
 
-export const DependentsCard = ({aggregate}: DependentsCardProps) => {
+export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
   const { control } = useFormContext();
   const [uploadedFiles, setUploadedFiles] = useState<{
     [key: string]: boolean;
@@ -46,7 +46,9 @@ export const DependentsCard = ({aggregate}: DependentsCardProps) => {
   );
   return (
     <div className="w-full p-5 shadow-lg border border-gray-100 rounded-lg">
-      <h3 className="font-medium">Dependiente {aggregate ? aggregate + 1 : 1}</h3>
+      <h3 className="font-medium">
+        Dependiente {aggregate ? aggregate + 1 : 1}
+      </h3>
       <div className="relative w-full mt-4">
         <label
           htmlFor={`country-${aggregate}`}
@@ -112,8 +114,12 @@ export const DependentsCard = ({aggregate}: DependentsCardProps) => {
               <div>
                 <Select
                   inputId={`type-document-${aggregate}`}
+                  menuPortalTarget={document.body}
                   options={documentTypes}
-                  styles={customStyles}
+                  styles={{
+                    ...customStyles,
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                  }}
                   formatOptionLabel={({ label }) => <span>{label}</span>}
                   {...field}
                   onChange={(selected) => field.onChange(selected)}
@@ -267,7 +273,9 @@ export const DependentsCard = ({aggregate}: DependentsCardProps) => {
                     size="1x"
                     color={"#3466cc"}
                     onClick={() => {
-                      document.getElementById(`dropzone-${index}${aggregate}`)?.click();
+                      document
+                        .getElementById(`dropzone-${index}${aggregate}`)
+                        ?.click();
                     }}
                   />
                   <FontAwesomeIcon
@@ -282,7 +290,9 @@ export const DependentsCard = ({aggregate}: DependentsCardProps) => {
               ) : (
                 <span
                   onClick={() => {
-                    document.getElementById(`dropzone-${index}${aggregate}`)?.click();
+                    document
+                      .getElementById(`dropzone-${index}${aggregate}`)
+                      ?.click();
                   }}
                 >
                   Cargar archivo

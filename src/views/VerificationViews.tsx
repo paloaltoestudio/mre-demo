@@ -10,16 +10,36 @@ type formType = {
 };
 
 export const VerificationViews = () => {
-  // Setear en base al método de verificación;
-  const [method, setMethod] = useState<"email" | "sms" | "whatsapp">("email");
+  const [method, setMethod] = useState<{
+    type: "email" | "sms" | "whatsapp";
+    value: string;
+  }>({ type: "email", value: "default@email.com" });
   const { fromAuth, registry, typeUser } = useRoutesStore();
+  const { code, user, document } = SessionStore();
 
   const { methodSelected } = useParams();
   useEffect(() => {
-    setMethod(methodSelected as "email" | "sms" | "whatsapp");
-  }, [methodSelected]);
+    const matchedUser = user.find(
+      (u) => u.documentNumber.toString() === document?.toString()
+    );
 
-  const { code } = SessionStore();
+    if (!matchedUser) return;
+
+    const selectedMethod = methodSelected as "email" | "sms" | "whatsapp";
+    const contactValue =
+      methodSelected === "sms"
+        ? matchedUser.phoneNumber
+        : methodSelected === "whatsapp"
+        ? matchedUser.whatsappNumber
+        : matchedUser.email;
+
+    if (contactValue) {
+      setMethod({
+        type: selectedMethod,
+        value: contactValue,
+      });
+    }
+  }, [user, methodSelected]);
 
   const navigate = useNavigate();
   const onSubmit = (data: formType) => {
@@ -48,22 +68,22 @@ export const VerificationViews = () => {
       className="max-w-[500px] mx-auto flex flex-col items-center justify-start h-auto shadow-lg mt-10 border border-gray-100 rounded-lg"
     >
       <AuthForm<formType> onSubmit={onSubmit}>
-        {method === "email" ? (
+        {method.type === "email" ? (
           <VerificationCard
             title="Enviamos el correo de verificacion al correo"
-            site="correoejemplo@correo.com"
+            site={method.value}
             resendCode={resendCode}
           />
-        ) : method === "sms" ? (
+        ) : method.type === "sms" ? (
           <VerificationCard
             title="Enviamos el correo de verificacion al número"
-            site="+57 300 000 0000"
+            site={method.value}
             resendCode={resendCode}
           />
         ) : (
           <VerificationCard
             title="Enviamos el correo de verificacion al WhatsApp"
-            site="+57 300 000 0000"
+            site={method.value}
             resendCode={resendCode}
           />
         )}

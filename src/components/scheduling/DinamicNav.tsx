@@ -8,23 +8,21 @@ type DinamicNavProps = {
 };
 
 export const DinamicNav = ({ currentStep, steps }: DinamicNavProps) => {
-  const progress = ((currentStep - 1) / (steps.length - 1)) * 100;
   const [showNavs, setShowNavs] = useState<string[]>([]);
   const { watch } = useFormContext();
   const dependentsWatch = watch("dependientesCount") || 0;
 
   useEffect(() => {
-    const newSteps = steps.filter((step) => step !== "Datos dependientes");
-    setShowNavs(newSteps);
-  }, []);
-
-  useEffect(() => {
-    if (dependentsWatch > 0) setShowNavs(steps);
-    else {
+    if (dependentsWatch > 0) {
+      setShowNavs(steps);
+    } else {
       const newSteps = steps.filter((step) => step !== "Datos dependientes");
       setShowNavs(newSteps);
     }
-  }, [dependentsWatch]);
+  }, [dependentsWatch, steps]);
+
+  const progress =
+    showNavs.length > 1 ? ((currentStep - 1) / (showNavs.length - 1)) * 100 : 0;
 
   return (
     <div className="w-full px-4 flex flex-col items-center">
@@ -49,16 +47,14 @@ export const DinamicNav = ({ currentStep, steps }: DinamicNavProps) => {
               className="relative z-20 top-3 flex flex-col items-center w-full"
             >
               <div
-                className={`
-                  w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold border-5 border-white 
-                  ${
-                    isCompleted
-                      ? "bg-blue-600 text-white"
-                      : isActive
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-300 text-gray-500"
-                  }
-                `}
+                className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold border-5 border-white
+                ${
+                  isCompleted
+                    ? "bg-blue-600 text-white"
+                    : isActive
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-300 text-gray-500"
+                }`}
               >
                 {isCompleted ? "✓" : stepNumber}
               </div>

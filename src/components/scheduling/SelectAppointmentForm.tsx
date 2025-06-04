@@ -47,6 +47,7 @@ export const SelectAppointmentForm = ({
   const [showConsulates, setShowConsulates] = useState<
     ConsulatesType[] | undefined
   >();
+  const [selectedOption, setSelectedOption] = useState<ConsulatesType>();
 
   const { control } = useFormContext();
   const selectedCountry = useWatch({
@@ -203,8 +204,13 @@ export const SelectAppointmentForm = ({
             {showConsulates?.map((item) => (
               <div
                 key={item.consulate.address}
-                className="border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 max-h-[100px] justify-center flex flex-col"
+                className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 max-h-[100px] justify-center flex flex-col ${
+                  selectedOption === item
+                    ? "border-blue-500 bg-gray-200"
+                    : "border-gray-300"
+                }`}
                 onClick={() => {
+                  setSelectedOption(item);
                   setLocation(item.consulate.address);
                   setConsulate(item);
                 }}
@@ -241,6 +247,10 @@ export const SelectAppointmentForm = ({
         <button
           type="button"
           onClick={() => {
+            if (!selectedOption) {
+              alert("Por favor, selecciona un consulado.");
+              return;
+            }
             setView?.(2);
           }}
           className="bg-[#3466cc] text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8]"

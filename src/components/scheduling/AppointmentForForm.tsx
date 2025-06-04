@@ -32,7 +32,7 @@ const customStyles = {
   }),
   multiValue: (provided: any) => ({
     ...provided,
-    backgroundColor: "#e2e8f0", // light gray
+    backgroundColor: "#e2e8f0",
     borderRadius: "9999px",
     padding: "2px 6px",
   }),
@@ -120,17 +120,16 @@ export const AppointmentForForm = ({
                   isMulti
                   styles={{
                     ...customStyles,
-                    multiValue: () => ({ display: "none" }), // Oculta viñetas internas
+                    multiValue: () => ({ display: "none" }),
                     multiValueLabel: () => ({ display: "none" }),
                     multiValueRemove: () => ({ display: "none" }),
                   }}
-                  closeMenuOnSelect={false}
+                  closeMenuOnSelect={true}
                   {...field}
                   value={field.value}
                   onChange={(selected) => field.onChange(selected)}
                 />
 
-                {/* Chips debajo del Select */}
                 <div className="mt-2 flex flex-wrap">
                   {field.value?.map((option: any) => (
                     <Chip
@@ -167,11 +166,11 @@ export const AppointmentForForm = ({
                 setValue("dependientesCount", 0);
               }}
               className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
-    ${
-      selectedOption === "Para mí"
-        ? "border-blue-500 bg-gray-200"
-        : "border-gray-300"
-    }`}
+              ${
+                selectedOption === "Para mí"
+                  ? "border-blue-500 bg-gray-200"
+                  : "border-gray-300"
+              }`}
             >
               <FontAwesomeIcon icon={faUser} size="2x" />
               <span>
@@ -181,11 +180,11 @@ export const AppointmentForForm = ({
             <div
               onClick={() => setSelectedOption("Para mis dependientes")}
               className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
-    ${
-      selectedOption === "Para mis dependientes"
-        ? "border-blue-500 bg-gray-200"
-        : "border-gray-300"
-    }`}
+              ${
+                selectedOption === "Para mis dependientes"
+                  ? "border-blue-500 bg-gray-200"
+                  : "border-gray-300"
+              }`}
             >
               <FontAwesomeIcon icon={faSmile} size="2x" />
               <span>
@@ -198,11 +197,11 @@ export const AppointmentForForm = ({
             <div
               onClick={() => setSelectedOption("Para mí y mis dependientes")}
               className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
-    ${
-      selectedOption === "Para mí y mis dependientes"
-        ? "border-blue-500 bg-gray-200"
-        : "border-gray-300"
-    }`}
+              ${
+                selectedOption === "Para mí y mis dependientes"
+                  ? "border-blue-500 bg-gray-200"
+                  : "border-gray-300"
+              }`}
             >
               <FontAwesomeIcon icon={faPeopleGroup} size="2x" />
               <span>
