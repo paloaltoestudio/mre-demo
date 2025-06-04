@@ -46,7 +46,7 @@ export const DependentsCard = ({aggregate}: DependentsCardProps) => {
   );
   return (
     <div className="w-full p-5 shadow-lg border border-gray-100 rounded-lg">
-      <h3 className="font-medium">Dependiente 1</h3>
+      <h3 className="font-medium">Dependiente {aggregate ? aggregate + 1 : 1}</h3>
       <div className="relative w-full mt-4">
         <label
           htmlFor={`country-${aggregate}`}
@@ -55,19 +55,19 @@ export const DependentsCard = ({aggregate}: DependentsCardProps) => {
           Parentesco
         </label>
         <Controller
-          name={`country-${aggregate}`}
+          name={`parent-${aggregate}`}
           control={control}
           rules={{
-            required: "El país es obligatorio",
+            required: "El parentesco es obligatorio",
             validate: (value) => {
-              if (!value) return "Por favor, selecciona un país.";
+              if (!value) return "Por favor, selecciona un parentesco.";
               return true;
             },
           }}
           render={({ field, fieldState }) => (
             <div>
               <Select
-                inputId={`country-${aggregate}`}
+                inputId={`parent-${aggregate}`}
                 options={DependentInformationMock}
                 menuPortalTarget={document.body}
                 menuPosition="fixed"

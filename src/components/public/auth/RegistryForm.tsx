@@ -5,6 +5,7 @@ import {
 } from "../../../services/RegistryService";
 import { useNavigate } from "react-router-dom";
 import { useRoutesStore } from "../../../stores/routesStore";
+import { SessionStore } from "../../../stores/sessionStore";
 
 export const RegistryForm: React.FC = () => {
   const navigate = useNavigate();
@@ -152,7 +153,7 @@ export const RegistryForm: React.FC = () => {
     </li>
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitFunction = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validar cada condición por separado
@@ -208,7 +209,16 @@ export const RegistryForm: React.FC = () => {
     // Si todo está válido, proceder con el envío
     console.log("Formulario válido, enviando...", form);
     // Aquí tu lógica de envío
+
+    // Session - Store
+    setUser(form);
+
+    setFromAuth(false);
+    setRegistry(true);
+    navigate("/auth/verification-code/email");
   };
+
+  const { setUser } = SessionStore();
 
   return (
     <div className="flex justify-center">
@@ -217,7 +227,7 @@ export const RegistryForm: React.FC = () => {
           Registro
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form action={'#'} onSubmit={handleSubmitFunction} className="space-y-5">
           {/* Tipo de documento */}
           <select
             name="documentType"
@@ -502,11 +512,6 @@ export const RegistryForm: React.FC = () => {
           {/* Botones */}
           <button
             type="submit"
-            onClick={() => {
-              setFromAuth(false);
-              setRegistry(true)
-              navigate("/auth/verification-code/email");
-            }}
             className={`w-full rounded-full py-3 font-semibold shadow-lg transition ${
               form.acceptData &&
               form.acceptTerms &&

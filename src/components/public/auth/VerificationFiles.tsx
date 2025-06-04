@@ -32,7 +32,7 @@ export const VerificationFiles = () => {
                 color="#3466cc"
               />
             </span>
-            <DropzoneComponent text={item.text} onDrop={onDrop} identi="10"/>
+            <DropzoneComponent text={item.text} onDrop={onDrop} identi={"10"}/>
             <span className="ml-auto text-[#3466cc] underline">
               Cargar archivo
             </span>

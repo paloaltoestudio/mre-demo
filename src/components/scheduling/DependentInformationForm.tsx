@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import { DependentsCard } from "./DependentsCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { useFormContext } from "react-hook-form";
 
-export const DependentInformationForm = () => {
-  const [aggregate, setAggregate] = useState<number>(0);
+type DependentInformationFormProps = {
+  setView: Dispatch<SetStateAction<number>>;
+};
 
-  useEffect(() => {
-    setAggregate(3);
-  }, []);
+export const DependentInformationForm = ({
+  setView,
+}: DependentInformationFormProps) => {
+  const { watch } = useFormContext();
+  const countDependents = watch("dependientesCount") || 0;
 
   return (
     <section
@@ -21,7 +25,7 @@ export const DependentInformationForm = () => {
       </h2>
 
       <div className="max-w-[1200px] mx-auto flex flex-col items-center justify-start h-auto gap-10">
-        {Array.from({ length: aggregate }).map((_, index) => (
+        {Array.from({ length: parseInt(countDependents) }).map((_, index) => (
           <DependentsCard key={index} aggregate={index} />
         ))}
       </div>
@@ -33,15 +37,21 @@ export const DependentInformationForm = () => {
         >
           Cancelar
         </button>
-        
+
         <button
           type="button"
+          onClick={() => {
+            setView(3);
+          }}
           className="text-[#3466cc] border-2 border-[#3466cc] hover:text-white hover:border-[#e9e9e9] font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#d1d1d1] duration-150"
         >
           Regresar
         </button>
         <button
-          type="submit"
+          type="button"
+          onClick={() => {
+            setView(5);
+          }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Continuar

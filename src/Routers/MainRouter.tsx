@@ -9,7 +9,6 @@ import { AppointmentsView } from "../views/AppointmentsView";
 import { VerificationIDView } from "../views/VerificationIDView";
 import { AccessLayout } from "../layouts/AccessLayout";
 import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
-import { DependentInformationView } from "../views/DependentInformationView";
 export const MainRouter = () => {
   return (
     <BrowserRouter>
@@ -47,10 +46,6 @@ export const MainRouter = () => {
           <Route
             path="select-appointments"
             element={<SelectAppointmentsView />}
-          />
-          <Route
-            path="dependent-information"
-            element={<DependentInformationView />}
           />
         </Route>
       </Routes>

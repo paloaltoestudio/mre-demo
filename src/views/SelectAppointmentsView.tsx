@@ -2,18 +2,25 @@ import { useState } from "react";
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { SelectAppointmentForm } from "../components/scheduling/SelectAppointmentForm";
 import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
+import { AppointmentForForm } from "../components/scheduling/AppointmentForForm";
+import { SelectDateForm } from "../components/scheduling/SelectDateForm";
+import { DependentInformationForm } from "../components/scheduling/DependentInformationForm";
+import { DinamicNav } from "../components/scheduling/DinamicNav";
+import { Summary } from "../components/scheduling/Summary";
+import { SchedulingsStore } from "../stores/schedulingsStore";
+import { useNavigate } from "react-router-dom";
 
-type formType = {
-  country: string;
-  city: string;
-  consulate: {
-    name: string;
-    address: string; // Validar el tipo que traigamos de la API;
-    phone: number;
-  };
-};
+const steps = [
+  "Lugar de agendamiento",
+  "Tipo de trámite",
+  "Fecha y hora",
+  "Datos dependientes",
+  "Resumen",
+];
 
 export const SelectAppointmentsView = () => {
+  const [view, setView] = useState<number>(1);
+  const [selectedOption, setSelectedOption] = useState<string>();
   const [consulate, setConsulate] = useState<ConsulatesType>({
     country: "CO",
     city: "BOG",
@@ -24,21 +31,86 @@ export const SelectAppointmentsView = () => {
     },
   });
 
-  const onSubmit = (data: formType) => {
+  const { setScheduled } = SchedulingsStore();
+  const navigate = useNavigate();
+
+  const onSubmit = (data: any) => {
+    const dependentsCount = data.dependientesCount || 0;
+
+    let dependentsData;
+
+    if (dependentsCount > 0) {
+      dependentsData = Array.from({ length: dependentsCount }).map(
+        (_, index) => ({
+          names: data[`names-${index}`],
+          lastNames: data[`last-names-${index}`],
+          document: data[`document-number-dependent-${index}`],
+          typeDocument: data[`type-document-${index}`],
+        })
+      );
+    }
+
     const completedData = {
       ...data,
       consulate,
+      selectedOption,
+      parents: dependentsData,
+      state: "Agendada",
     };
+
+    setScheduled(completedData);
     console.log("Selected appointments:", completedData);
+    alert("Cita agendada exitosamente");
+    setTimeout(() => {
+      navigate("/dashboard/appointments");
+    }, 1000);
   };
+
   return (
     <div
       id="select-appointments-view"
       className="max-w-[1200px] mx-auto flex flex-col items-center"
     >
-      <div className="w-11/12">
-        <AuthForm<formType> onSubmit={onSubmit}>
-          <SelectAppointmentForm setConsulate={setConsulate} />
+      <div className="w-11/12 flex flex-col items-center justify-center">
+        <AuthForm<any> onSubmit={onSubmit}>
+          <DinamicNav currentStep={view} steps={steps} />
+          <div className="mt-10">
+            {/* Toda la info del tramite */}
+            {view === 1 ? (
+              <SelectAppointmentForm
+                setConsulate={setConsulate}
+                setView={setView}
+              />
+            ) : view === 2 ? (
+              <AppointmentForForm
+                consulate={consulate}
+                setView={setView}
+                selectedOption={selectedOption}
+                setSelectedOption={setSelectedOption}
+              />
+            ) : view === 3 ? (
+              <SelectDateForm
+                consulate={consulate}
+                setView={setView}
+                selectedOption={selectedOption}
+              />
+            ) : view === 4 ? (
+              <div
+                id="dependent-information-view"
+                className="max-w-[1200px] mx-auto flex flex-col items-center"
+              >
+                <DependentInformationForm setView={setView} />
+              </div>
+            ) : (
+              view === 5 && (
+                <Summary
+                  consulate={consulate}
+                  setView={setView}
+                  selectedOption={selectedOption!}
+                />
+              )
+            )}
+          </div>
         </AuthForm>
       </div>
     </div>
