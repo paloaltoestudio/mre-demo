@@ -134,9 +134,9 @@ export const AppointmentCards = () => {
                         .join(", ")}
                     </li>
                   ))}
-                  <li>
+                  {/* <li>
                     {activeUser?.firstName} {activeUser?.lastName}
-                  </li>
+                  </li> */}
                 </ul>
               </div>
             )}
