@@ -2,28 +2,31 @@ import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
 
-type SchedulingsStoreType = {
-  scheduled: {
-    city: { value: string; label: string };
-    consulate: ConsulatesType;
-    country: { value: string; label: string; icon: string };
-    date: Date;
-    dependientesCount: number;
-    parents: {
-      names: string;
-      lastNames: string;
-      document: string;
-      typeDocument: string;
-    }[];
-    hora: string;
-    selectedOption: string;
-    tramites: { value: string; label: string; requeriments: string[] }[];
-    state: string;
+export type SchedulingStoreType = {
+  city: { value: string; label: string };
+  consulate: ConsulatesType;
+  country: { value: string; label: string; icon: string };
+  date: Date;
+  dependientesCount: number;
+  parents: {
+    names: string;
+    lastNames: string;
+    document: string;
+    typeDocument: { value: string; label: string };
   }[];
+  hora: string;
+  selectedOption: string;
+  tramites: { value: string; label: string; requeriments: string[] }[];
+  state: string;
+};
+
+type SchedulingsStoreType = {
+  scheduled: SchedulingStoreType[];
 };
 // type ScheduledItem = SchedulingsStoreType["scheduled"][number];
 type SchedulingsStoreActions = {
   setScheduled: (scheduled: any) => void;
+  removeScheduled: (scheduled: SchedulingStoreType) => void;
 };
 
 export const SchedulingsStore = create(
@@ -33,6 +36,12 @@ export const SchedulingsStore = create(
         scheduled: [],
         setScheduled: (newScheduled) =>
           set((state) => ({ scheduled: [...state.scheduled, newScheduled] })),
+        removeScheduled: (scheduledToRemove) =>
+          set((state) => ({
+            scheduled: state.scheduled.filter(
+              (schedule) => schedule !== scheduledToRemove
+            ),
+          })),
       }),
       {
         name: "schedulings-store",

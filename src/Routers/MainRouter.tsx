@@ -9,6 +9,8 @@ import { AppointmentsView } from "../views/AppointmentsView";
 import { VerificationIDView } from "../views/VerificationIDView";
 import { AccessLayout } from "../layouts/AccessLayout";
 import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
+import { ToastContainer } from "react-toastify";
+
 export const MainRouter = () => {
   return (
     <BrowserRouter>
@@ -49,6 +51,11 @@ export const MainRouter = () => {
           />
         </Route>
       </Routes>
+      <ToastContainer
+        pauseOnHover={false}
+        pauseOnFocusLoss={false}
+        className={"mt-5 md:mt-20"}
+      />
     </BrowserRouter>
   );
 };

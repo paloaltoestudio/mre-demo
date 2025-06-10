@@ -4,6 +4,9 @@ import { VerificationCard } from "../components/public/auth/VerificationCard";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRoutesStore } from "../stores/routesStore";
 import { SessionStore } from "../stores/sessionStore";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 type formType = {
   code: number;
@@ -16,6 +19,7 @@ export const VerificationViews = () => {
   }>({ type: "email", value: "default@email.com" });
   const { fromAuth, registry, typeUser } = useRoutesStore();
   const { code, user, document } = SessionStore();
+  const [invalidCode, setInvalidCode] = useState(false);
 
   const { methodSelected } = useParams();
   useEffect(() => {
@@ -45,7 +49,7 @@ export const VerificationViews = () => {
   const onSubmit = (data: formType) => {
     console.log("Verification code:", data.code);
 
-    if (+data.code !== code) alert("Código de verificación incorrecto");
+    if (+data.code !== code) setInvalidCode(true);
     else {
       if (fromAuth === false) {
         if (registry && typeUser === "Ciudadano") {
@@ -58,8 +62,14 @@ export const VerificationViews = () => {
   };
 
   const resendCode = () => {
-    // Lógica para reenviar el código de verificación;
-    console.log("Código reenviado");
+    toast.success("Código enviado", {
+      icon: <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />,
+      autoClose: 3000,
+      draggable: true,
+      progress: undefined,
+      hideProgressBar: true,
+      className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+    });
   };
 
   return (
@@ -72,19 +82,25 @@ export const VerificationViews = () => {
           <VerificationCard
             title="Enviamos el correo de verificacion al correo"
             site={method.value}
+            methodType={method.type}
             resendCode={resendCode}
+            invalidCode={invalidCode}
           />
         ) : method.type === "sms" ? (
           <VerificationCard
             title="Enviamos el correo de verificacion al número"
             site={method.value}
+            methodType={method.type}
             resendCode={resendCode}
+            invalidCode={invalidCode}
           />
         ) : (
           <VerificationCard
             title="Enviamos el correo de verificacion al WhatsApp"
             site={method.value}
+            methodType={method.type}
             resendCode={resendCode}
+            invalidCode={invalidCode}
           />
         )}
       </AuthForm>

@@ -89,7 +89,7 @@ export const SelectAppointmentsView = () => {
                 setSelectedOption={setSelectedOption}
               />
             ) : view === 3 ? (
-              <SelectDateForm
+              <SelectDateForm  // Montar el reagendamiento;
                 consulate={consulate}
                 setView={setView}
                 selectedOption={selectedOption}

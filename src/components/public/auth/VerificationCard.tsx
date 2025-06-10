@@ -8,15 +8,18 @@ type VerificationCodeProps = {
   title: string;
   site: string;
   resendCode?: () => void;
+  invalidCode: boolean;
+  methodType: "email" | "sms" | "whatsapp";
 };
 
 export const VerificationCard = ({
   title,
   site,
   resendCode,
+  invalidCode,
+  methodType = "email",
 }: VerificationCodeProps) => {
   const navigate = useNavigate();
-
   const {
     register,
     formState: { errors },
@@ -50,7 +53,7 @@ export const VerificationCard = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const { key, ctrlKey, metaKey, currentTarget } = e; 
+    const { key, ctrlKey, metaKey, currentTarget } = e;
 
     if ((ctrlKey || metaKey) && key === "v") {
       return;
@@ -141,7 +144,7 @@ export const VerificationCard = ({
 
       <h4 className="w-full mt-7 text-center">Ingresar código</h4>
 
-      <div className="mt-2 flex gap-3 justify-center">
+      <div className="mt-4 flex gap-3 justify-center">
         {codeArray.map((digit, index) => {
           const { ref, ...rest } = register(`digit-${digit}-${index}`);
 
@@ -163,8 +166,9 @@ export const VerificationCard = ({
               inputMode="numeric"
               pattern="[0-9]*"
               onChange={(e) => handleChange(index, e.target.value)}
-              className={`w-[40px] h-[40px] text-center text-[24px] rounded-md border border-gray-400 hover:border-[#3466cc] focus:border-[#3466cc] focus:border-2 outline-none ${
-                errors.code && "border-red-500"
+              className={`font-medium w-[40px] h-[40px] text-center text-[24px] rounded-md border border-gray-400 hover:border-[#3466cc] focus:border-[#3466cc] focus:border-2 outline-none ${
+                (errors.code || invalidCode) &&
+                "border-red-500 border-2 text-black"
               }`}
               onKeyDown={handleKeyDown}
               onPaste={(e) => handlePaste(e, index)}
@@ -172,6 +176,13 @@ export const VerificationCard = ({
           );
         })}
       </div>
+      {(typeof errors.code?.message === "string" || invalidCode) && (
+        <span className="text-red-500 text-sm w-full pl-15 mt-2 font-medium">
+          {errors.code?.message
+            ? "Ingresa el código de verificación"
+            : "El codigo ingresado no es válido"}
+        </span>
+      )}
 
       <input
         type="hidden"
@@ -197,9 +208,15 @@ export const VerificationCard = ({
 
       <p
         onClick={resendCode}
-        className="mt-[10px] text-[#3466cc] hover:text-[#3734cc] hover:cursor-pointer text-center underline"
+        className="mt-[15px] text-[#3466cc] hover:text-[#3734cc] hover:cursor-pointer text-center underline"
       >
         Reenviar código &#x21bb;
+      </p>
+
+      <p className="mt-[15px] text-center">
+        {`Si ya no tienes acceso a este ${
+          methodType === "sms" ? "número de teléfono" : methodType
+        }, debes acudir a una oficina para recibir asistencia.`}
       </p>
     </div>
   );
