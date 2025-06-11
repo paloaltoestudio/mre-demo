@@ -1,35 +1,47 @@
 import { type Dispatch, type SetStateAction } from "react";
 import { Modal } from "../Modal";
 import type { Estado } from "../../types/dashboard/AppointmentTypes";
-import type { SchedulingStoreType } from "../../stores/schedulingsStore";
-import type { UserType } from "../../stores/sessionStore";
+import {
+  SchedulingsStore,
+  type SchedulingStoreType,
+} from "../../stores/schedulingsStore";
+import { SessionStore, type UserType } from "../../stores/sessionStore";
+import { estadoColor } from "../dashboard/Appointments";
+import { AuthForm } from "../public/auth/AuthForm";
+import { useNavigate } from "react-router-dom";
 
-const estadoColor: Record<Estado, string> = {
-  Agendada: "bg-green-100 text-green-700",
-  Cancelada: "bg-red-100 text-red-700",
-  Atendida: "bg-gray-100 text-gray-700",
-  Pendiente: "bg-yellow-100 text-yellow-700",
-};
-
-type ReschedulingProps = {
+export type ReschedulingProps = {
   scheduled: SchedulingStoreType;
+  toDelete: SchedulingStoreType;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   activeUser: UserType;
 };
 
-export const Rescheduling = ({
+export const ReschedulingResume = ({
   scheduled,
+  toDelete,
   isOpen,
   setIsOpen,
   activeUser,
 }: ReschedulingProps) => {
+  const { setToRemove, setToReplace } = SchedulingsStore();
+  const { setLocationVerification } = SessionStore();
+  const navigate = useNavigate();
   return (
+    <AuthForm<Record<string, never>>
+      onSubmit={() => {
+        setToRemove(toDelete); 
+        setToReplace(scheduled);
+        setLocationVerification("Reagendar");
+        navigate("/auth/verification-method");
+      }}
+    >
       <Modal
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         content={
-          <div className="w-[450px] bg-white border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-1">
+          <form className="w-[450px] bg-white border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-1">
             <div className="flex flex-row justify-between items-center">
               <h2 className="text-lg font-medium">Reagendar cita</h2>
               <span
@@ -42,7 +54,13 @@ export const Rescheduling = ({
             </div>
 
             <p className="text-sm text-gray-800">
-              Fecha: {`${scheduled.date ? scheduled.date.toString() : ""}`}
+              Fecha:{" "}
+              {`${
+                scheduled.date
+                  ? new Date(scheduled.date).toLocaleDateString("es-ES")
+                  : ""
+              }`}{" "}
+              {scheduled?.hora}
             </p>
             <p className="text-sm text-gray-800">
               Consulado: {scheduled.consulate.consulate.name}
@@ -59,12 +77,14 @@ export const Rescheduling = ({
               <ul className="list-none pl-2 mt-2">
                 {scheduled.parents?.map((s, idx) => (
                   <li key={idx}>
-                    {s.names} {s.lastNames}
+                    {s.names} {s.lastNames} - {s.typeDocument.value}{" "}
+                    {s.document}
                   </li>
                 ))}
                 {scheduled.selectedOption !== "Para mis dependientes" && (
                   <li>
-                    {activeUser?.firstName} {activeUser?.lastName}
+                    {activeUser?.firstName} {activeUser?.lastName} -{" "}
+                    {activeUser?.documentType} {activeUser?.documentNumber}
                   </li>
                 )}
               </ul>
@@ -90,7 +110,7 @@ export const Rescheduling = ({
                     Cancelar
                   </button>
                   <button
-                    type="button"
+                    type="submit"
                     className="text-white font-medium hover:cursor-pointer hover:bg- text-sm p-1 duration-150 hover:bg-blue-700 border-1 border-blue-600  bg-blue-600 rounded-full min-w-[100px]"
                   >
                     Reagendar
@@ -98,8 +118,9 @@ export const Rescheduling = ({
                 </>
               )}
             </div>
-          </div>
+          </form>
         }
       />
+    </AuthForm>
   );
 };

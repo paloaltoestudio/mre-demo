@@ -7,6 +7,7 @@ import { SessionStore } from "../stores/sessionStore";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import { SchedulingsStore } from "../stores/schedulingsStore";
 
 type formType = {
   code: number;
@@ -18,8 +19,9 @@ export const VerificationViews = () => {
     value: string;
   }>({ type: "email", value: "default@email.com" });
   const { fromAuth, registry, typeUser } = useRoutesStore();
-  const { code, user, document } = SessionStore();
+  const { code, user, document, locationVerification } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
+  const { toRemove, toReplace, rescheduling } = SchedulingsStore();
 
   const { methodSelected } = useParams();
   useEffect(() => {
@@ -47,8 +49,6 @@ export const VerificationViews = () => {
 
   const navigate = useNavigate();
   const onSubmit = (data: formType) => {
-    console.log("Verification code:", data.code);
-
     if (+data.code !== code) setInvalidCode(true);
     else {
       if (fromAuth === false) {
@@ -57,6 +57,23 @@ export const VerificationViews = () => {
         } else navigate("/auth/verification-files");
       } else {
         navigate("/dashboard/appointments");
+        if (locationVerification === "Reagendar") {
+          rescheduling(toRemove, toReplace);
+          toast.success("Cita reagendada correctamente", {
+            icon: (
+              <FontAwesomeIcon
+                icon={faCircleCheck}
+                className="text-green-500"
+              />
+            ),
+            autoClose: 3000,
+            draggable: true,
+            progress: undefined,
+            hideProgressBar: true,
+            className:
+              "border-l-5 border-green-500 bg-white text-black shadow-md",
+          });
+        }
       }
     }
   };

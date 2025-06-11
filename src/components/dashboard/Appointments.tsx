@@ -6,13 +6,14 @@ import {
   type SchedulingStoreType,
 } from "../../stores/schedulingsStore";
 import { useEffect, useState } from "react";
-import { Rescheduling } from "../scheduling/Rescheduling";
+import { ReschedulingResume } from "../scheduling/ReschedulingResume";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { CancelAppointment } from "../scheduling/CancelAppointment";
+import { ReschedulingForm } from "../scheduling/ReschedulingForm";
 
-const estadoColor: Record<Estado, string> = {
+export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
   Cancelada: "bg-red-100 text-red-700",
   Atendida: "bg-gray-100 text-gray-700",
@@ -27,6 +28,8 @@ export const AppointmentCards = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
   const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
+  const [rescheduledData, setRescheduledData] = useState<SchedulingStoreType>();
+  const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
   const [requestRemove, setRequestRemove] = useState<boolean>(false);
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
@@ -39,8 +42,11 @@ export const AppointmentCards = () => {
     setActiveUser(newUser);
   }, []);
 
+  useEffect(() => {
+    if (rescheduledData && isOpenResume) setIsOpen(false);
+  }, [rescheduledData, isOpenResume]);
+
   const handleRemove = () => {
-    console.log("handleRemove called")
     if (scheduledData && requestRemove) {
       removeScheduled(scheduledData);
       setIsOpenCancel(false);
@@ -87,7 +93,15 @@ export const AppointmentCards = () => {
             className="bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2"
           >
             <div className="flex justify-between items-center">
-              <p className="text-sm">Fecha: {`${appt.date}`}</p>
+              <p className="text-sm">
+                Fecha:{" "}
+                {`${
+                  appt.date
+                    ? new Date(appt.date).toLocaleDateString("es-ES")
+                    : ""
+                }`}{" "}
+                {appt?.hora}
+              </p>
               <span
                 className={`px-2 py-1 text-xs font-semibold rounded-full ${
                   estadoColor[appt.state as Estado]
@@ -113,7 +127,8 @@ export const AppointmentCards = () => {
               <ul className="list-none mt-1">
                 {appt.parents?.map((s, idx) => (
                   <li key={idx}>
-                    {s?.names} {s?.lastNames}. {s?.typeDocument.label }: {s?.document}
+                    {s?.names} {s?.lastNames}. {s?.typeDocument.label}:{" "}
+                    {s?.document}
                   </li>
                 ))}
                 <li>
@@ -134,9 +149,6 @@ export const AppointmentCards = () => {
                         .join(", ")}
                     </li>
                   ))}
-                  {/* <li>
-                    {activeUser?.firstName} {activeUser?.lastName}
-                  </li> */}
                 </ul>
               </div>
             )}
@@ -238,10 +250,21 @@ export const AppointmentCards = () => {
         ))}
       </div>
       {scheduledData && isOpen && (
-        <Rescheduling
+        <ReschedulingForm
           scheduled={scheduledData!}
+          setRescheduledData={setRescheduledData}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
+          activeUser={activeUser!}
+          setIsOpenResume={setIsOpenResume}
+        />
+      )}
+      {rescheduledData && isOpenResume && (
+        <ReschedulingResume
+          scheduled={rescheduledData!}
+          toDelete={scheduledData!}
+          isOpen={isOpenResume}
+          setIsOpen={setIsOpenResume}
           activeUser={activeUser!}
         />
       )}

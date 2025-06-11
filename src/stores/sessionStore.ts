@@ -23,11 +23,13 @@ type SessionStates = {
   user: UserType[];
   code: number;
   document: string;
+  locationVerification: string;
 };
 type SessionActions = {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   setUser: (user: UserType) => void;
   setDocument: (document: string) => void;
+  setLocationVerification: (message: string) => void;
 };
 
 export const SessionStore = create(
@@ -38,6 +40,7 @@ export const SessionStore = create(
         user: [] as UserType[],
         code: 123456,
         document: "",
+        locationVerification: "",
         setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
         setUser: (user) =>
           set((state) => {
@@ -48,6 +51,8 @@ export const SessionStore = create(
             };
           }),
         setDocument: (document) => set({ document }),
+        setLocationVerification: (message) =>
+          set({ locationVerification: message }),
       }),
       {
         name: "sessionStore",
