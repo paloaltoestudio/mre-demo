@@ -25,7 +25,7 @@ export const SelectAppointmentsView = () => {
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-20",
       phone: 2000000000,
     },

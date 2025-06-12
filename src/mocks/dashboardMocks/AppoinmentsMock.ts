@@ -5,7 +5,7 @@ export const appointments: Appointment[] = [
     id: 1,
     estado: "Agendada",
     fecha: "25/12/2024 - 10:34:27",
-    lugar: "Consulado General Central de Colombia en Madrid",
+    lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
     solicitantes: [
@@ -18,7 +18,7 @@ export const appointments: Appointment[] = [
     id: 2,
     estado: "Cancelada",
     fecha: "25/12/2024 - 10:34:27",
-    lugar: "Consulado General Central de Colombia en Madrid",
+    lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
     solicitantes: [
@@ -31,7 +31,7 @@ export const appointments: Appointment[] = [
     id: 3,
     estado: "Atendida",
     fecha: "25/12/2024 - 10:34:27",
-    lugar: "Consulado General Central de Colombia en Madrid",
+    lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
     solicitantes: ["María Fernanda Sánchez Ruiz - C.C. 1055979220"],
@@ -40,7 +40,7 @@ export const appointments: Appointment[] = [
     id: 4,
     estado: "Pendiente",
     fecha: "25/12/2024 - 10:34:27",
-    lugar: "Consulado General Central de Colombia en Madrid",
+    lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
     solicitantes: ["María Fernanda Sánchez Ruiz - C.C. 1055979220"],
@@ -76,7 +76,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "MED",
     consulate: {
-      name: "Consulado General MED",
+      name: "Oficina General MED",
       address: "Calle 42B N° 52-106",
       phone: 3000000000,
     },
@@ -85,7 +85,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-20",
       phone: 2000000000,
     },
@@ -94,7 +94,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-21",
       phone: 2000000000,
     },
@@ -103,7 +103,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-22",
       phone: 2000000000,
     },
@@ -112,7 +112,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-23",
       phone: 2000000000,
     },
@@ -121,7 +121,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-24",
       phone: 2000000000,
     },
@@ -130,7 +130,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-25",
       phone: 2000000000,
     },
@@ -139,7 +139,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-26",
       phone: 2000000000,
     },
@@ -148,7 +148,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-27",
       phone: 2000000000,
     },
@@ -157,7 +157,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-28",
       phone: 2000000000,
     },
@@ -166,7 +166,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-29",
       phone: 2000000000,
     },
@@ -175,7 +175,7 @@ export const consulatesOptions = [
     country: "CO",
     city: "BOG",
     consulate: {
-      name: "Consulado General BOG",
+      name: "Oficina General BOG",
       address: "Calle 110 #10-30",
       phone: 2000000000,
     },
