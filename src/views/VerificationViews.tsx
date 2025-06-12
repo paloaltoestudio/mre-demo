@@ -21,7 +21,7 @@ export const VerificationViews = () => {
   const { fromAuth, registry, typeUser } = useRoutesStore();
   const { code, user, document, locationVerification } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
-  const { toRemove, toReplace, rescheduling } = SchedulingsStore();
+  const { toRemove, toReplace, rescheduling, removeScheduled } = SchedulingsStore();
 
   const { methodSelected } = useParams();
   useEffect(() => {
@@ -60,6 +60,22 @@ export const VerificationViews = () => {
         if (locationVerification === "Reagendar") {
           rescheduling(toRemove, toReplace);
           toast.success("Cita reagendada correctamente", {
+            icon: (
+              <FontAwesomeIcon
+                icon={faCircleCheck}
+                className="text-green-500"
+              />
+            ),
+            autoClose: 3000,
+            draggable: true,
+            progress: undefined,
+            hideProgressBar: true,
+            className:
+              "border-l-5 border-green-500 bg-white text-black shadow-md",
+          });
+        }else if(locationVerification === "Eliminar agendamiento"){
+          removeScheduled(toRemove);
+          toast.success("Cita eliminada correctamente", {
             icon: (
               <FontAwesomeIcon
                 icon={faCircleCheck}

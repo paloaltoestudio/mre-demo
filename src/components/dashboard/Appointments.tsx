@@ -22,8 +22,8 @@ export const estadoColor: Record<Estado, string> = {
 
 export const AppointmentCards = () => {
   const navigate = useNavigate();
-  const { user, document } = SessionStore();
-  const { scheduled, removeScheduled } = SchedulingsStore();
+  const { user, document, setLocationVerification } = SessionStore();
+  const { scheduled, removeScheduled, setToRemove } = SchedulingsStore();
   const [activeUser, setActiveUser] = useState<UserType>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
@@ -48,10 +48,12 @@ export const AppointmentCards = () => {
 
   const handleRemove = () => {
     if (scheduledData && requestRemove) {
-      removeScheduled(scheduledData);
+      // removeScheduled(scheduledData);
+      setToRemove(scheduledData);
+      setLocationVerification("Eliminar agendamiento");
       setIsOpenCancel(false);
       setRequestRemove(false);
-      navigate("/dashboard/appointments");
+      navigate("/auth/verification-method");
     }
   };
 
