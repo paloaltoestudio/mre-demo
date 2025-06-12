@@ -117,7 +117,7 @@ export const AppointmentCards = () => {
               {appt.tramites?.map((tramite) => tramite.label).join(", ")}
             </p>
             <p className="text-sm">
-              Consulado: {appt.consulate.consulate.name}
+              Oficina: {appt.consulate.consulate.name}
             </p>
             <p className="text-sm">
               Dirección: {appt.consulate.consulate.address}

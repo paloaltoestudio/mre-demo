@@ -76,7 +76,7 @@ export const Summary = ({
             Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")}
           </p>
           <p className="text-sm text-gray-600">
-            Consulado: {consulate.consulate.name}
+            Oficina: {consulate.consulate.name}
           </p>
           <p className="text-sm text-gray-600">
             País:{" "}

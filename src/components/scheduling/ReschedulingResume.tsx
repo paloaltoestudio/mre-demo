@@ -63,7 +63,7 @@ export const ReschedulingResume = ({
               {scheduled?.hora}
             </p>
             <p className="text-sm text-gray-800">
-              Consulado: {scheduled.consulate.consulate.name}
+              Oficina: {scheduled.consulate.consulate.name}
             </p>
             <p className="text-sm text-gray-800">
               Dirección: {scheduled.consulate.consulate.address}

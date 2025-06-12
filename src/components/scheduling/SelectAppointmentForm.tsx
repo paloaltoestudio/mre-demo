@@ -194,7 +194,7 @@ export const SelectAppointmentForm = ({
       </div>
 
       <div id="appointments-options" className="mt-10">
-        <h2 className="mb-5 text-lg font-semibold">Consulado más cercano</h2>
+        <h2 className="mb-5 text-lg font-semibold">Oficina más cercana</h2>
         <div className="flex flex-col h-auto lg:flex-row gap-5">
           <div
             id="consulates"
@@ -248,7 +248,7 @@ export const SelectAppointmentForm = ({
           type="button"
           onClick={() => {
             if (!selectedOption) {
-              alert("Por favor, selecciona un consulado.");
+              alert("Por favor, selecciona una oficina.");
               return;
             }
             setView?.(2);
