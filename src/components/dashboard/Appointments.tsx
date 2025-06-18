@@ -84,11 +84,13 @@ export const AppointmentCards = () => {
           <span className="font-semibold">Nombres y apellidos:</span>{" "}
           {activeUser?.firstName
             ? `${activeUser.firstName} ${activeUser.lastName}`
-            : "Juan Pérez"}
+            : "Luis Alberto Diaz Castro"}
         </p>
         <p className="text-sm">
           <span className="font-semibold">Documento:</span>{" "}
-          {activeUser?.documentNumber}
+          {activeUser?.firstName
+            ? `${activeUser.documentNumber}`
+            : "10256341"}
         </p>
       </div>
 

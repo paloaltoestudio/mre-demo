@@ -44,7 +44,11 @@ export const SessionStore = create(
         setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
         setUser: (user) =>
           set((state) => {
-            const currentUsers = Array.isArray(state.user) ? state.user : [];
+            const currentUsers = Array.isArray(state.user)
+              ? state.user.filter(
+                  (completUsers) => completUsers.documentNumber !== user.documentNumber
+                )
+              : [];
             return {
               user: [...currentUsers, user],
               document: user.documentNumber.toString(),
