@@ -265,7 +265,7 @@ export const AppointmentForForm = ({
           </div>
         )}
       </div>
-      <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">
+      <div className="w-full flex flex-row gap-5 items-end justify-end mt-10 mb-10">
         <CancelBtn />
 
         <button

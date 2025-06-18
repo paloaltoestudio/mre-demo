@@ -268,7 +268,7 @@ SelectAppointmentFormProps) => {
           </div>
         </div>
       </div>
-      <div className="w-full flex flex-col items-end justify-end mt-10 mb-10">
+      <div className="w-full flex flex-row items-end justify-end mt-10 mb-10">
         <CancelBtn />
 
         <button
