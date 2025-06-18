@@ -3,6 +3,7 @@ import { DependentsCard } from "./DependentsCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useFormContext } from "react-hook-form";
+import { CancelBtn } from "./CancelBtn";
 
 type DependentInformationFormProps = {
   setView: Dispatch<SetStateAction<number>>;
@@ -31,12 +32,7 @@ export const DependentInformationForm = ({
       </div>
 
       <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">
-        <button
-          type="button"
-          className="mr-auto text-[#3466cc]  hover:text-[#343ecc] hover:underline  font-medium py-2 px-4 rounded-full hover:cursor-pointer duration-150"
-        >
-          Cancelar
-        </button>
+        <CancelBtn />
 
         <button
           type="button"

@@ -6,10 +6,18 @@ import {
 } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
+import { CancelBtn } from "./CancelBtn";
+import { toast } from "react-toastify";
+// import type {
+//   CountriesInfoType,
+//   CountryInfoType,
+// } from "../../types/dashboard/countryInfo";
+// import { getPublicRequest } from "../../services/fetchingService";
+// import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo";
 
 const customStyles = {
   control: (provided: any, state: any) => ({
@@ -35,14 +43,17 @@ const initialLocation = {
 type SelectAppointmentFormProps = {
   setConsulate: Dispatch<SetStateAction<ConsulatesType>>;
   setView?: Dispatch<SetStateAction<number>>;
+  // countries?: CountriesInfoType["data"];
 };
 
 export const SelectAppointmentForm = ({
   setConsulate,
   setView,
-}: SelectAppointmentFormProps) => {
+}: // countries,
+SelectAppointmentFormProps) => {
   const [mapLocation, setMapLocation] = useState(initialLocation);
   const [markerPosition, setMarkerPosition] = useState(initialLocation);
+  // const [country, setCountry] = useState<CountryInfoType>();
   const [location, setLocation] = useState<string>();
   const [showConsulates, setShowConsulates] = useState<
     ConsulatesType[] | undefined
@@ -59,6 +70,11 @@ export const SelectAppointmentForm = ({
     control,
     name: "city",
   });
+
+  // useEffect(() => {
+  //   requestCities();
+  //   setCountry(selectedCountry.value);
+  // }, [selectedCountry]);
 
   useEffect(() => {
     let filtered = consulatesOptions;
@@ -102,6 +118,15 @@ export const SelectAppointmentForm = ({
         console.error("Error en la solicitud de geocodificación:", error);
       });
   }, [location]);
+
+  // const requestCities = async () => {
+  //   const cities = await getPublicRequest({
+  //     url: `/City/by-country/${country?.id}`,
+  //     schema: CountriesInfoSchema,
+  //   });
+
+  //   console.log("Cities:", cities);
+  // };
 
   return (
     <section
@@ -244,11 +269,26 @@ export const SelectAppointmentForm = ({
         </div>
       </div>
       <div className="w-full flex flex-col items-end justify-end mt-10 mb-10">
+        <CancelBtn />
+
         <button
           type="button"
           onClick={() => {
             if (!selectedOption) {
-              alert("Por favor, selecciona una oficina.");
+              toast.error("Selecciona una oficina", {
+                icon: (
+                  <FontAwesomeIcon
+                    icon={faCircleExclamation}
+                    className="text-red-500"
+                  />
+                ),
+                autoClose: 1000,
+                draggable: true,
+                progress: undefined,
+                hideProgressBar: true,
+                className:
+                  "border-l-5 border-red-500 bg-white text-black shadow-md",
+              });
               return;
             }
             setView?.(2);

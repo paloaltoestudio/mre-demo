@@ -19,3 +19,5 @@ export type ConsulatesType = {
     phone: number;
   };
 };
+
+

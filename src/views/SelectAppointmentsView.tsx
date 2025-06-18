@@ -9,6 +9,12 @@ import { DinamicNav } from "../components/scheduling/DinamicNav";
 import { Summary } from "../components/scheduling/Summary";
 import { SchedulingsStore } from "../stores/schedulingsStore";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+// import { getPublicRequest } from "../services/fetchingService";
+// import { CountriesInfoSchema } from "../schemas/appointments/countryInfo";
+// import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 
 const steps = [
   "Lugar de agendamiento",
@@ -30,9 +36,22 @@ export const SelectAppointmentsView = () => {
       phone: 2000000000,
     },
   });
-
+  // const [countries, setCountries] = useState<CountriesInfoType["data"]>();
   const { setScheduled } = SchedulingsStore();
   const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   fetchCountryInfo();
+  // }, []);
+
+  // const fetchCountryInfo = async () => {
+  //   const countryInfo: CountriesInfoType = await getPublicRequest({
+  //     url: "/countries",
+  //     schema: CountriesInfoSchema,
+  //   });
+
+  //   setCountries(countryInfo.data);
+  // };
 
   const onSubmit = (data: any) => {
     const dependentsCount = data.dependientesCount || 0;
@@ -60,7 +79,14 @@ export const SelectAppointmentsView = () => {
 
     setScheduled(completedData);
     console.log("Selected appointments:", completedData);
-    alert("Cita agendada exitosamente");
+    toast.success("Cita agendada correctamente", {
+      icon: <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />,
+      autoClose: 3000,
+      draggable: true,
+      progress: undefined,
+      hideProgressBar: true,
+      className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+    });
     setTimeout(() => {
       navigate("/dashboard/appointments");
     }, 1000);
@@ -80,6 +106,7 @@ export const SelectAppointmentsView = () => {
               <SelectAppointmentForm
                 setConsulate={setConsulate}
                 setView={setView}
+                // countries={countries}
               />
             ) : view === 2 ? (
               <AppointmentForForm
@@ -89,7 +116,7 @@ export const SelectAppointmentsView = () => {
                 setSelectedOption={setSelectedOption}
               />
             ) : view === 3 ? (
-              <SelectDateForm  // Montar el reagendamiento;
+              <SelectDateForm // Montar el reagendamiento;
                 consulate={consulate}
                 setView={setView}
                 selectedOption={selectedOption}
