@@ -24,6 +24,7 @@ type SchedulingsStoreType = {
   scheduled: SchedulingStoreType[];
   toRemove: SchedulingStoreType;
   toReplace: SchedulingStoreType;
+  country: number;
 };
 
 type SchedulingsStoreActions = {
@@ -35,6 +36,7 @@ type SchedulingsStoreActions = {
     toRemove: SchedulingStoreType,
     scheduled: SchedulingStoreType
   ) => void;
+  setCountry: (country: number) => void;
 };
 
 export const SchedulingsStore = create(
@@ -44,6 +46,7 @@ export const SchedulingsStore = create(
         scheduled: [],
         toRemove: {} as SchedulingStoreType,
         toReplace: {} as SchedulingStoreType,
+        country: 0,
         setScheduled: (newScheduled) =>
           set((state) => ({ scheduled: [...state.scheduled, newScheduled] })),
         removeScheduled: (scheduledToRemove) =>
@@ -60,6 +63,7 @@ export const SchedulingsStore = create(
               schedule === scheduledToRemove ? scheduledToReplace : schedule
             ),
           })),
+        setCountry: (country) => set({ country }),
       }),
       {
         name: "schedulings-store",

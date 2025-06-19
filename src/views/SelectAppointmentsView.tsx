@@ -32,13 +32,11 @@ export const SelectAppointmentsView = ({
   const [view, setView] = useState<number>(1);
   const [selectedOption, setSelectedOption] = useState<string>();
   const [consulate, setConsulate] = useState<ConsulatesType>({
-    country: "CO",
-    city: "BOG",
-    consulate: {
-      name: "Oficina General BOG",
-      address: "Calle 110 #10-20",
-      phone: 2000000000,
-    },
+    id: 0,
+    name: "",
+    cityId: 0,
+    cityName: "",
+    direction: "",
   });
   const { setScheduled } = SchedulingsStore();
   const navigate = useNavigate();

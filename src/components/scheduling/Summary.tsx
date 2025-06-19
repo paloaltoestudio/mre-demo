@@ -1,13 +1,12 @@
 import { useFormContext } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
-import {
-  cityOptions,
-  countryOptions,
-  proceduresOptions,
-} from "../../mocks/dashboardMocks/AppoinmentsMock";
+import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { SessionStore, type UserType } from "../../stores/sessionStore";
 import { CancelBtn } from "./CancelBtn";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { useQueryClient } from "@tanstack/react-query";
+import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 
 type SummaryProps = {
   consulate: ConsulatesType;
@@ -26,6 +25,13 @@ export const Summary = ({
   const dependentsWatch = watch("dependientesCount") || 0;
   const { user, document } = SessionStore();
   const [activeUser, setActiveUser] = useState<UserType>();
+  const { country } = SchedulingsStore();
+  const queryClient = useQueryClient();
+  const countryOptions: CountriesInfoType = queryClient.getQueryData([
+    "countriesInfo",
+  ])!;
+  const cityOptions: CountriesInfoType =
+    queryClient.getQueryData(["citiesInfo"])!;
 
   useEffect(() => {
     const newUser = user.find(
@@ -76,26 +82,17 @@ export const Summary = ({
           <p className="text-sm text-gray-600">
             Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")}
           </p>
-          <p className="text-sm text-gray-600">
-            Oficina: {consulate.consulate.name}
-          </p>
+          <p className="text-sm text-gray-600">Oficina: {consulate.name}</p>
           <p className="text-sm text-gray-600">
             País:{" "}
-            {
-              countryOptions.filter(
-                (country) => country.value === consulate.country
-              )[0].label
-            }
+            {countryOptions?.data?.filter((c) => c.id === country)[0].name}
           </p>
           <p className="text-sm text-gray-600">
             Ciudad:{" "}
-            {
-              cityOptions.filter((city) => city.value === consulate.city)[0]
-                .label
-            }
+            {cityOptions?.data?.filter((city) => city.id === consulate.cityId)[0].name}
           </p>
           <p className="text-sm text-gray-600">
-            Dirección: {consulate.consulate.address}
+            Dirección: {consulate.direction}
           </p>
         </div>
         <div className="w-full md:w-[48%] border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md px-4 py-3 flex flex-col shadow-lg">

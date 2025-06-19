@@ -12,7 +12,6 @@ export const VerificationMethodsViews = () => {
   const onSubmit = (data: formType) => {
     const method = JSON.parse(data.method);
     navigate("/auth/verification-code/"+ method.type);
-    console.log(data.method);
   };
 
   return (

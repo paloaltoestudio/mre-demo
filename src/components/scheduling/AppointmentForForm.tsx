@@ -1,9 +1,6 @@
-import { type Dispatch, type SetStateAction } from "react";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
-import {
-  countryOptions,
-  proceduresOptions,
-} from "../../mocks/dashboardMocks/AppoinmentsMock";
+import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,6 +12,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 import { CancelBtn } from "./CancelBtn";
+import { useQueryClient } from "@tanstack/react-query";
+import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
@@ -64,7 +64,19 @@ export const AppointmentForForm = ({
   selectedOption = "Para mí",
   setSelectedOption,
 }: AppointmentForFormProps) => {
+  const queryClient = useQueryClient();
   const { control, setValue } = useFormContext();
+  const countryOptions: CountriesInfoType = queryClient.getQueryData([
+    "countriesInfo",
+  ])!;
+  const { country } = SchedulingsStore();
+
+  useEffect(() => {
+    console.log(
+      "country name",
+      countryOptions?.data?.filter((c) => c.id === 1)
+    );
+  }, []);
 
   return (
     <section
@@ -74,7 +86,7 @@ export const AppointmentForForm = ({
     >
       <div className="border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md w-full  px-4 py-3 justify-center flex flex-col shadow-lg">
         <h3 className="font-medium text-md flex items-center gap-1">
-          <span className="w-5 h-5 flex justify-center items-center">
+          {/* <span className="w-5 h-5 flex justify-center items-center">
             <img
               src={
                 countryOptions.filter(
@@ -83,20 +95,16 @@ export const AppointmentForForm = ({
               }
               alt={consulate.consulate.name}
             />
-          </span>
-          {
-            countryOptions.filter(
-              (country) => country.value === consulate.country
-            )[0].label
-          }
+          </span> */}
+          {countryOptions?.data?.filter((c) => c.id === country)?.[0].name}
         </h3>
-        <h3 className="font-medium text-md">{consulate.consulate.name}</h3>
+        <h3 className="font-medium text-md">{consulate.name}</h3>
         <p className="text-sm text-gray-600">
-          Dirección: {consulate.consulate.address}
+          Dirección: {consulate.direction}
         </p>
-        <p className="text-sm text-gray-600">
+        {/* <p className="text-sm text-gray-600">
           Teléfono: {consulate.consulate.phone}
-        </p>
+        </p> */}
       </div>
 
       <div className="mt-6 w-full">

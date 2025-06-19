@@ -61,7 +61,7 @@ export const ReschedulingForm = ({
               </p>
               <p className="text-sm text-gray-800">
                 <span className="font-medium">Oficina:</span>{" "}
-                {scheduled.consulate.consulate.name}
+                {scheduled.consulate.name}
               </p>
               <div className="text-sm">
                 <span className="font-medium">TD + Doc:</span>

@@ -11,13 +11,19 @@ export type Appointment = {
 };
 
 export type ConsulatesType = {
-  country: string;
-  city: string;
-  consulate: {
-    name: string;
-    address: string;
-    phone: number;
-  };
+  id: number;
+  name: string;
+  cityId: number;
+  cityName: string;
+  direction: string;
 };
 
-
+// export type ConsulatesType = {
+//   country: string;
+//   city: string;
+//   consulate: {
+//     name: string;
+//     address: string;
+//     phone: number;
+//   };
+// };

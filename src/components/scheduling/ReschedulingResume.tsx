@@ -63,10 +63,10 @@ export const ReschedulingResume = ({
               {scheduled?.hora}
             </p>
             <p className="text-sm text-gray-800">
-              Oficina: {scheduled.consulate.consulate.name}
+              Oficina: {scheduled.consulate.name}
             </p>
             <p className="text-sm text-gray-800">
-              Dirección: {scheduled.consulate.consulate.address}
+              Dirección: {scheduled.consulate.direction}
             </p>
             <p className="text-sm text-gray-800">
               Código de confirmación: 23423
