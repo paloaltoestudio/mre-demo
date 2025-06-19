@@ -12,7 +12,11 @@ export const getPublicRequest = async <T>({
   schema,
 }: GetPublicRequest): Promise<T> => {
   try {
-    const { data: requestData } = await axiosInstance.get(url);
+    const { data: requestData } = await axiosInstance.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+      }
+    });
 
     const parsedData = safeParse(schema, requestData);
 

@@ -10,8 +10,32 @@ import { VerificationIDView } from "../views/VerificationIDView";
 import { AccessLayout } from "../layouts/AccessLayout";
 import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
 import { ToastContainer } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+import type { CountriesInfoType } from "../types/dashboard/countryInfo";
+import { getPublicRequest } from "../services/fetchingService";
+import { CountriesInfoSchema } from "../schemas/appointments/countryInfo.schema";
+import { useEffect } from "react";
 
 export const MainRouter = () => {
+  const { data: countries } = useQuery<CountriesInfoType>({
+    queryKey: ["countriesInfo"],
+    queryFn: async () => {
+      return await getPublicRequest({
+        url: "/Countries",
+        schema: CountriesInfoSchema,
+      });
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 3,
+    structuralSharing: false,
+  });
+
+  useEffect(() => {
+    console.log("countries", countries);
+  }, [countries]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -44,10 +68,21 @@ export const MainRouter = () => {
           <Route path="verification-id" element={<VerificationIDView />} />
         </Route>
         <Route path="/schedulings" element={<AuthLayout />}>
-          <Route index element={<SelectAppointmentsView />} />
+          <Route
+            index
+            element={
+              <SelectAppointmentsView
+                countries={countries ? countries.data : []}
+              />
+            }
+          />
           <Route
             path="select-appointments"
-            element={<SelectAppointmentsView />}
+            element={
+              <SelectAppointmentsView
+                countries={countries ? countries.data : []}
+              />
+            }
           />
         </Route>
       </Routes>

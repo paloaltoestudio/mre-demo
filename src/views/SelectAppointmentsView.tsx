@@ -12,9 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
-// import { getPublicRequest } from "../services/fetchingService";
-// import { CountriesInfoSchema } from "../schemas/appointments/countryInfo";
-// import type { CountriesInfoType } from "../types/dashboard/countryInfo";
+import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 
 const steps = [
   "Lugar de agendamiento",
@@ -24,7 +22,13 @@ const steps = [
   "Resumen",
 ];
 
-export const SelectAppointmentsView = () => {
+type SelectAppointmentFormProps = {
+  countries: CountriesInfoType["data"];
+};
+
+export const SelectAppointmentsView = ({
+  countries,
+}: SelectAppointmentFormProps) => {
   const [view, setView] = useState<number>(1);
   const [selectedOption, setSelectedOption] = useState<string>();
   const [consulate, setConsulate] = useState<ConsulatesType>({
@@ -36,22 +40,8 @@ export const SelectAppointmentsView = () => {
       phone: 2000000000,
     },
   });
-  // const [countries, setCountries] = useState<CountriesInfoType["data"]>();
   const { setScheduled } = SchedulingsStore();
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   fetchCountryInfo();
-  // }, []);
-
-  // const fetchCountryInfo = async () => {
-  //   const countryInfo: CountriesInfoType = await getPublicRequest({
-  //     url: "/countries",
-  //     schema: CountriesInfoSchema,
-  //   });
-
-  //   setCountries(countryInfo.data);
-  // };
 
   const onSubmit = (data: any) => {
     const dependentsCount = data.dependientesCount || 0;
@@ -78,7 +68,6 @@ export const SelectAppointmentsView = () => {
     };
 
     setScheduled(completedData);
-    console.log("Selected appointments:", completedData);
     toast.success("Cita agendada correctamente", {
       icon: <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />,
       autoClose: 3000,
@@ -106,7 +95,7 @@ export const SelectAppointmentsView = () => {
               <SelectAppointmentForm
                 setConsulate={setConsulate}
                 setView={setView}
-                // countries={countries}
+                countries={countries}
               />
             ) : view === 2 ? (
               <AppointmentForForm

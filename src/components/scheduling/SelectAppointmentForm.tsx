@@ -6,12 +6,21 @@ import {
 } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { faArrowRight, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRight,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { CancelBtn } from "./CancelBtn";
 import { toast } from "react-toastify";
+import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
+import { useQuery } from "@tanstack/react-query";
+import { getPublicRequest } from "../../services/fetchingService";
+import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
+import type { OfficesInfoType } from "../../types/dashboard/officeInfo";
+import { OfficesInfoSchema } from "../../schemas/appointments/OfficeInfo.schema";
 // import type {
 //   CountriesInfoType,
 //   CountryInfoType,
@@ -43,14 +52,14 @@ const initialLocation = {
 type SelectAppointmentFormProps = {
   setConsulate: Dispatch<SetStateAction<ConsulatesType>>;
   setView?: Dispatch<SetStateAction<number>>;
-  // countries?: CountriesInfoType["data"];
+  countries?: CountriesInfoType["data"];
 };
 
 export const SelectAppointmentForm = ({
   setConsulate,
   setView,
-}: // countries,
-SelectAppointmentFormProps) => {
+  countries,
+}: SelectAppointmentFormProps) => {
   const [mapLocation, setMapLocation] = useState(initialLocation);
   const [markerPosition, setMarkerPosition] = useState(initialLocation);
   // const [country, setCountry] = useState<CountryInfoType>();
@@ -71,10 +80,37 @@ SelectAppointmentFormProps) => {
     name: "city",
   });
 
-  // useEffect(() => {
-  //   requestCities();
-  //   setCountry(selectedCountry.value);
-  // }, [selectedCountry]);
+  const { data: citiesData } = useQuery<CountriesInfoType>({
+    queryKey: ["citiesInfo", selectedCountry],
+    queryFn: async () => {
+      return await getPublicRequest({
+        url: `/City/by-country/${selectedCountry}`,
+        schema: CountriesInfoSchema,
+      });
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 3,
+    structuralSharing: false,
+    enabled: !!selectedCountry,
+  });
+
+  const { data: officeData } = useQuery<OfficesInfoType>({
+    queryKey: ["officeInfo", selectedCountry, selectedCity],
+    queryFn: async () => {
+      return await getPublicRequest({
+        url: `/City/by-country/${selectedCountry}`,
+        schema: OfficesInfoSchema,
+      });
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 3,
+    structuralSharing: false,
+    enabled: !!selectedCountry && !!selectedCity,
+  });
 
   useEffect(() => {
     let filtered = consulatesOptions;
@@ -119,15 +155,6 @@ SelectAppointmentFormProps) => {
       });
   }, [location]);
 
-  // const requestCities = async () => {
-  //   const cities = await getPublicRequest({
-  //     url: `/City/by-country/${country?.id}`,
-  //     schema: CountriesInfoSchema,
-  //   });
-
-  //   console.log("Cities:", cities);
-  // };
-
   return (
     <section
       id="select-appointment-form"
@@ -154,32 +181,36 @@ SelectAppointmentFormProps) => {
                 return true;
               },
             }}
-            render={({ field, fieldState }) => (
-              <div>
-                <Select
-                  inputId="country"
-                  options={countryOptions}
-                  styles={customStyles}
-                  formatOptionLabel={({ label, icon }) => (
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={icon}
-                        alt={label}
-                        className="w-[20px] h-[15px]"
-                      />
-                      <span>{label}</span>
-                    </div>
+            render={({ field, fieldState }) => {
+              const selectedCountry = countries?.find(
+                (c) => c.id === field.value
+              );
+              return (
+                <div>
+                  <Select
+                    inputId="country"
+                    options={countries}
+                    styles={customStyles}
+                    formatOptionLabel={({ name }) => (
+                      <div className="flex items-center gap-2">
+                        <span>{name}</span>
+                      </div>
+                    )}
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => option.id.toString()}
+                    value={selectedCountry || null}
+                    onChange={(selected) =>
+                      field.onChange(selected?.id || null)
+                    }
+                  />
+                  {fieldState.error && (
+                    <span className="text-red-500 text-sm">
+                      {fieldState.error.message}
+                    </span>
                   )}
-                  {...field}
-                  onChange={(selected) => field.onChange(selected)}
-                />
-                {fieldState.error && (
-                  <span className="text-red-500 text-sm">
-                    {fieldState.error.message}
-                  </span>
-                )}
-              </div>
-            )}
+                </div>
+              );
+            }}
           />
         </div>
         <div className="relative w-[48%] xl:w-[600px]">
@@ -193,27 +224,36 @@ SelectAppointmentFormProps) => {
                 return true;
               },
             }}
-            render={({ field, fieldState }) => (
-              <div>
-                <Select
-                  inputId="city"
-                  options={cityOptions}
-                  styles={customStyles}
-                  formatOptionLabel={({ label }) => (
-                    <div className="flex items-center gap-2">
-                      <span>{label}</span>
-                    </div>
+            render={({ field, fieldState }) => {
+              const selectedCity = citiesData?.data?.find(
+                (c) => c.id === field.value
+              );
+              return (
+                <div>
+                  <Select
+                    inputId="city"
+                    options={citiesData?.data}
+                    styles={customStyles}
+                    formatOptionLabel={({ name }) => (
+                      <div className="flex items-center gap-2">
+                        <span>{name}</span>
+                      </div>
+                    )}
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => option.id.toString()}
+                    value={selectedCity || null}
+                    onChange={(selected) =>
+                      field.onChange(selected?.id || null)
+                    }
+                  />
+                  {fieldState.error && (
+                    <span className="text-red-500 text-sm">
+                      {fieldState.error.message}
+                    </span>
                   )}
-                  {...field}
-                  onChange={(selected) => field.onChange(selected)}
-                />
-                {fieldState.error && (
-                  <span className="text-red-500 text-sm">
-                    {fieldState.error.message}
-                  </span>
-                )}
-              </div>
-            )}
+                </div>
+              );
+            }}
           />
         </div>
       </div>
@@ -226,29 +266,45 @@ SelectAppointmentFormProps) => {
             aria-label="consulates"
             className="flex flex-wrap flex-row rounded-sm gap-3 w-full lg:w-[550px] h-[400px] overflow-auto"
           >
-            {showConsulates?.map((item) => (
+            {selectedCountry && selectedCity ? (
+              showConsulates?.map((item) => (
+                <div
+                  key={item.consulate.address}
+                  className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 max-h-[100px] justify-center flex flex-col ${
+                    selectedOption === item
+                      ? "border-blue-500 bg-gray-200"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedOption(item);
+                    setLocation(item.consulate.address);
+                    setConsulate(item);
+                  }}
+                >
+                  <h3 className="font-medium text-md">{item.consulate.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    Dirección: {item.consulate.address}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Teléfono: {item.consulate.phone}
+                  </p>
+                </div>
+              ))
+            ) : (
               <div
-                key={item.consulate.address}
-                className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 max-h-[100px] justify-center flex flex-col ${
-                  selectedOption === item
-                    ? "border-blue-500 bg-gray-200"
-                    : "border-gray-300"
-                }`}
-                onClick={() => {
-                  setSelectedOption(item);
-                  setLocation(item.consulate.address);
-                  setConsulate(item);
-                }}
+                className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md flex-1 text-center  p-2 max-h-[100px] justify-center flex flex-col`}
               >
-                <h3 className="font-medium text-md">{item.consulate.name}</h3>
+                <h3 className="font-medium text-md">Ten presente que:</h3>
                 <p className="text-sm text-gray-600">
-                  Dirección: {item.consulate.address}
+                  Para ver las oficinas disponibles, primero debes seleccionar
+                  un país y una ciudad.
                 </p>
+                {/*
                 <p className="text-sm text-gray-600">
                   Teléfono: {item.consulate.phone}
-                </p>
+                </p> */}
               </div>
-            ))}
+            )}
           </div>
 
           <div
@@ -274,7 +330,7 @@ SelectAppointmentFormProps) => {
         <button
           type="button"
           onClick={() => {
-            if (!selectedOption) {
+            if (!selectedOption || (!selectedCity && !selectedCountry)) {
               toast.error("Selecciona una oficina", {
                 icon: (
                   <FontAwesomeIcon
