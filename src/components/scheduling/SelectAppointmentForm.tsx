@@ -6,7 +6,10 @@ import {
 } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { faArrowRight, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRight,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
@@ -197,7 +200,9 @@ SelectAppointmentFormProps) => {
               <div>
                 <Select
                   inputId="city"
-                  options={cityOptions}
+                  options={cityOptions.filter(
+                    (option) => option.country === (selectedCountry?.value || "CO")
+                  ) || []}
                   styles={customStyles}
                   formatOptionLabel={({ label }) => (
                     <div className="flex items-center gap-2">
@@ -226,29 +231,45 @@ SelectAppointmentFormProps) => {
             aria-label="consulates"
             className="flex flex-wrap flex-row rounded-sm gap-3 w-full lg:w-[550px] h-[400px] overflow-auto"
           >
-            {showConsulates?.map((item) => (
+            {selectedCountry && selectedCity ? (
+              showConsulates?.map((item) => (
+                <div
+                  key={item.consulate.address}
+                  className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 max-h-[100px] justify-center flex flex-col ${
+                    selectedOption === item
+                      ? "border-blue-500 bg-gray-200"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedOption(item);
+                    setLocation(item.consulate.address);
+                    setConsulate(item);
+                  }}
+                >
+                  <h3 className="font-medium text-md">{item.consulate.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    Dirección: {item.consulate.address}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Teléfono: {item.consulate.phone}
+                  </p>
+                </div>
+              ))
+            ) : (
               <div
-                key={item.consulate.address}
-                className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 max-h-[100px] justify-center flex flex-col ${
-                  selectedOption === item
-                    ? "border-blue-500 bg-gray-200"
-                    : "border-gray-300"
-                }`}
-                onClick={() => {
-                  setSelectedOption(item);
-                  setLocation(item.consulate.address);
-                  setConsulate(item);
-                }}
+                className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md flex-1 text-center  p-2 max-h-[100px] justify-center flex flex-col`}
               >
-                <h3 className="font-medium text-md">{item.consulate.name}</h3>
+                <h3 className="font-medium text-md">Ten presente que:</h3>
                 <p className="text-sm text-gray-600">
-                  Dirección: {item.consulate.address}
+                  Para ver las oficinas disponibles, primero debes seleccionar
+                  un país y una ciudad.
                 </p>
+                {/*
                 <p className="text-sm text-gray-600">
                   Teléfono: {item.consulate.phone}
-                </p>
+                </p> */}
               </div>
-            ))}
+            )}
           </div>
 
           <div
