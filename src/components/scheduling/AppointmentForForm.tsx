@@ -1,11 +1,12 @@
 import { useEffect, type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRight,
+  faCircleExclamation,
   faPeopleGroup,
   faSmile,
   faUser,
@@ -15,6 +16,7 @@ import { CancelBtn } from "./CancelBtn";
 import { useQueryClient } from "@tanstack/react-query";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { toast } from "react-toastify";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
@@ -61,7 +63,7 @@ const Chip = ({ label, onRemove }: ChipProps) => (
 export const AppointmentForForm = ({
   consulate,
   setView,
-  selectedOption = "Para mí",
+  selectedOption,
   setSelectedOption,
 }: AppointmentForFormProps) => {
   const queryClient = useQueryClient();
@@ -70,13 +72,7 @@ export const AppointmentForForm = ({
     "countriesInfo",
   ])!;
   const { country } = SchedulingsStore();
-
-  useEffect(() => {
-    console.log(
-      "country name",
-      countryOptions?.data?.filter((c) => c.id === 1)
-    );
-  }, []);
+  const procedureWatcher = useWatch({ control, name: ["tramites"] });
 
   return (
     <section
@@ -120,13 +116,12 @@ export const AppointmentForForm = ({
             name="tramites"
             control={control}
             rules={{
-              required: "Selecciona al menos un trámite",
+              required: "Selecciona un trámite",
             }}
             render={({ field, fieldState }) => (
               <div className="w-full mt-4">
                 <Select
                   options={proceduresOptions}
-                  isMulti
                   styles={{
                     ...customStyles,
                     multiValue: () => ({ display: "none" }),
@@ -140,18 +135,15 @@ export const AppointmentForForm = ({
                 />
 
                 <div className="mt-2 flex flex-wrap">
-                  {field.value?.map((option: any) => (
+                  {field.value && (
                     <Chip
-                      key={option.value}
-                      label={option.label}
+                      key={field.value.value}
+                      label={field.value.label}
                       onRemove={() => {
-                        const newValue = field.value.filter(
-                          (o: any) => o.value !== option.value
-                        );
-                        field.onChange(newValue);
+                        field.onChange(null);
                       }}
                     />
-                  ))}
+                  )}
                 </div>
 
                 {fieldState.error && (
@@ -288,6 +280,23 @@ export const AppointmentForForm = ({
         <button
           type="button"
           onClick={() => {
+            if (!procedureWatcher || !selectedOption) {
+              toast.error("Completa el formulario", {
+                icon: (
+                  <FontAwesomeIcon
+                    icon={faCircleExclamation}
+                    className="text-red-500"
+                  />
+                ),
+                autoClose: 1000,
+                draggable: true,
+                progress: undefined,
+                hideProgressBar: true,
+                className:
+                  "border-l-5 border-red-500 bg-white text-black shadow-md",
+              });
+              return;
+            }
             setView?.(3);
           }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"

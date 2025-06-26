@@ -22,14 +22,12 @@ export const SelectDateForm = ({
 }: SelectDateFormProps) => {
   const { watch } = useFormContext();
   const queryClient = useQueryClient();
-
   const procedures = watch("tramites");
   const countDependents = watch("dependientesCount") || 0;
   const dependentsWatch = watch("dependientesCount") || 0;
-
-  const countryOptions: CountriesInfoType =
-    queryClient.getQueryData(["countriesInfo"])!;
-
+  const countryOptions: CountriesInfoType = queryClient.getQueryData([
+    "countriesInfo",
+  ])!;
   const { country } = SchedulingsStore();
 
   return (
@@ -40,25 +38,12 @@ export const SelectDateForm = ({
     >
       <div className="border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md w-full  px-4 py-3 justify-center flex flex-col shadow-lg">
         <h3 className="font-medium text-md flex items-center gap-1">
-          {/* <span className="w-5 h-5 flex justify-center items-center">
-            <img
-              src={
-                countryOptions.filter(
-                  (country) => country.value === consulate.country
-                )[0].icon
-              }
-              alt={consulate.consulate.name}
-            />
-          </span> */}
           {countryOptions?.data?.filter((c) => c.id === country)[0].name}
         </h3>
         <h3 className="font-medium text-md">{consulate.name}</h3>
         <p className="text-sm text-gray-600">
           Dirección: {consulate.direction}
         </p>
-        {/* <p className="text-sm text-gray-600">
-          Teléfono: {consulate.consulate.phone}
-        </p> */}
         <p className="text-sm text-gray-600">
           Número de solicitantes:{" "}
           {countDependents === 0
@@ -67,9 +52,7 @@ export const SelectDateForm = ({
             ? countDependents + 1
             : countDependents}
         </p>
-        <p className="text-sm text-gray-600">
-          Trámites: {procedures?.map((p: any) => p.label).join(", ")}
-        </p>
+        <p className="text-sm text-gray-600">Trámite: {procedures.value}</p>
       </div>
 
       <div className="mt-6 w-full">

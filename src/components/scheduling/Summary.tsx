@@ -23,6 +23,7 @@ export const Summary = ({
   const dateWatch = watch("date");
   const proceduresWatch = watch("tramites");
   const dependentsWatch = watch("dependientesCount") || 0;
+  const cityWatch = watch("city");
   const { user, document } = SessionStore();
   const [activeUser, setActiveUser] = useState<UserType>();
   const { country } = SchedulingsStore();
@@ -30,8 +31,9 @@ export const Summary = ({
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
   ])!;
-  const cityOptions: CountriesInfoType =
-    queryClient.getQueryData(["citiesInfo"])!;
+  // const cityOptions: CountriesInfoType = queryClient.getQueryData([
+  //   "citiesInfo",
+  // ])!;
 
   useEffect(() => {
     const newUser = user.find(
@@ -80,7 +82,8 @@ export const Summary = ({
               : "No seleccionada"}
           </p>
           <p className="text-sm text-gray-600">
-            Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")}
+            Trámites: {proceduresWatch.value}
+            {/* Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")} */}
           </p>
           <p className="text-sm text-gray-600">Oficina: {consulate.name}</p>
           <p className="text-sm text-gray-600">
@@ -88,8 +91,7 @@ export const Summary = ({
             {countryOptions?.data?.filter((c) => c.id === country)[0].name}
           </p>
           <p className="text-sm text-gray-600">
-            Ciudad:{" "}
-            {cityOptions?.data?.filter((city) => city.id === consulate.cityId)[0].name}
+            Ciudad: {cityWatch.value || cityWatch}
           </p>
           <p className="text-sm text-gray-600">
             Dirección: {consulate.direction}
@@ -131,12 +133,12 @@ export const Summary = ({
           Debes tener en cuenta los requisitos para los siguientes trámites:
         </p>
 
-        {proceduresWatch?.length > 0 &&
+        {/* Integrar con la API */}
+        {proceduresWatch &&
           proceduresOptions
-            .filter((procedureOption) =>
-              proceduresWatch.some(
-                (p: any) => p.value === procedureOption.value
-              )
+            .filter(
+              (procedureOption) =>
+                proceduresWatch.value === procedureOption.value
             )
             ?.map((procedure: any, index: number) => (
               <div key={index} className="mt-2">

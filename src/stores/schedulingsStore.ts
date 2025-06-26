@@ -16,7 +16,7 @@ export type SchedulingStoreType = {
   }[];
   hora: string;
   selectedOption: string;
-  tramites: { value: string; label: string; requeriments: string[] }[];
+  tramites: { value: string; label: string; requeriments: string[] };
   state: string;
 };
 
@@ -30,6 +30,7 @@ type SchedulingsStoreType = {
 type SchedulingsStoreActions = {
   setScheduled: (scheduled: any) => void;
   removeScheduled: (scheduled: SchedulingStoreType) => void;
+  updateState: (scheduled: SchedulingStoreType) => void;
   setToRemove: (toRemove: SchedulingStoreType) => void;
   setToReplace: (toReplace: SchedulingStoreType) => void;
   rescheduling: (
@@ -54,6 +55,18 @@ export const SchedulingsStore = create(
             scheduled: state.scheduled.filter(
               (schedule) => schedule !== scheduledToRemove
             ),
+          })),
+        updateState: (scheduledToUpdate) =>
+          set((state) => ({
+            scheduled: state.scheduled.map((scheduled) => {
+              if (scheduled === scheduledToUpdate) {
+                return {
+                  ...scheduled,
+                  state: "Cancelada",
+                };
+              }
+              return scheduled;
+            }),
           })),
         setToRemove: (toRemove) => set({ toRemove }),
         setToReplace: (toReplace) => set({ toReplace }),

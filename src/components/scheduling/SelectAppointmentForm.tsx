@@ -63,7 +63,7 @@ export const SelectAppointmentForm = ({
   const [mapLocation, setMapLocation] = useState(initialLocation);
   const [markerPosition, setMarkerPosition] = useState(initialLocation);
   // const [country, setCountry] = useState<CountryInfoType>();
-  const [location, setLocation] = useState<string>();
+  const [address, setAddress] = useState<string>("");
   const [showConsulates, setShowConsulates] = useState<
     OfficesDirectionInfoType["data"] | undefined
   >();
@@ -135,13 +135,13 @@ export const SelectAppointmentForm = ({
   }, [officeData]);
 
   useEffect(() => {
-    if (!location) return;
+    if (!address) return;
 
     const apiKey = import.meta.env.VITE_MAPS_API_KEY;
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-        location
+        address
       )}&key=${apiKey}`
     )
       .then((res) => res.json())
@@ -157,7 +157,41 @@ export const SelectAppointmentForm = ({
       .catch((error) => {
         console.error("Error en la solicitud de geocodificación:", error);
       });
-  }, [location]);
+  }, [address]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setMapLocation({ lat: latitude, lng: longitude });
+          setMarkerPosition({ lat: latitude, lng: longitude });
+
+          const geocoder = new window.google.maps.Geocoder();
+          const latLng = { lat: latitude, lng: longitude };
+
+          console.log("Obteniendo dirección para la ubicación actual...", latLng);
+
+          geocoder.geocode({ location: latLng }, (results, status) => {
+            if (status === "OK") {
+              if (results?.[0]) {
+                console.log("Dirección:", results[0].formatted_address);
+                setAddress(results[0].formatted_address);
+                console.log("Ubicación actual:", results[0].formatted_address);
+              } else {
+                console.warn("No se encontraron resultados");
+              }
+            } else {
+              console.error("Geocoder falló debido a:", status);
+            }
+          });
+        },
+        (error) => {
+          console.error("Error obteniendo ubicación:", error);
+        }
+      );
+    }
+  }, []);
 
   return (
     <section
@@ -282,7 +316,7 @@ export const SelectAppointmentForm = ({
                     }`}
                     onClick={() => {
                       setSelectedOption(item);
-                      setLocation(item.direction);
+                      // setPosition(item.direction);
                       setConsulate(item);
                     }}
                   >
@@ -329,23 +363,23 @@ export const SelectAppointmentForm = ({
         <button
           type="button"
           onClick={() => {
-            if (!selectedOption || (!selectedCity && !selectedCountry)) {
-              toast.error("Selecciona una oficina", {
-                icon: (
-                  <FontAwesomeIcon
-                    icon={faCircleExclamation}
-                    className="text-red-500"
-                  />
-                ),
-                autoClose: 1000,
-                draggable: true,
-                progress: undefined,
-                hideProgressBar: true,
-                className:
-                  "border-l-5 border-red-500 bg-white text-black shadow-md",
-              });
-              return;
-            }
+            // if (!selectedOption || (!selectedCity && !selectedCountry)) {
+            //   toast.error("Selecciona una oficina", {
+            //     icon: (
+            //       <FontAwesomeIcon
+            //         icon={faCircleExclamation}
+            //         className="text-red-500"
+            //       />
+            //     ),
+            //     autoClose: 1000,
+            //     draggable: true,
+            //     progress: undefined,
+            //     hideProgressBar: true,
+            //     className:
+            //       "border-l-5 border-red-500 bg-white text-black shadow-md",
+            //   });
+            //   return;
+            // }
             setView?.(2);
           }}
           className="bg-[#3466cc] text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8]"

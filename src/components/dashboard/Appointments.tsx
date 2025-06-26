@@ -23,7 +23,7 @@ export const estadoColor: Record<Estado, string> = {
 export const AppointmentCards = () => {
   const navigate = useNavigate();
   const { user, document, setLocationVerification } = SessionStore();
-  const { scheduled, removeScheduled, setToRemove } = SchedulingsStore();
+  const { scheduled, removeScheduled, updateState } = SchedulingsStore();
   const [activeUser, setActiveUser] = useState<UserType>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
@@ -52,7 +52,10 @@ export const AppointmentCards = () => {
 
   const handleRemove = () => {
     if (scheduledData && requestRemove) {
-      setToRemove(scheduledData);
+      if (scheduledData.state === "Agendada") updateState(scheduledData);
+      else if (scheduledData.state === "Cancelada")
+        removeScheduled(scheduledData);
+
       setLocationVerification("Eliminar agendamiento");
       setIsOpenCancel(false);
       setRequestRemove(false);
@@ -88,9 +91,7 @@ export const AppointmentCards = () => {
         </p>
         <p className="text-sm">
           <span className="font-semibold">Documento:</span>{" "}
-          {activeUser?.firstName
-            ? `${activeUser.documentNumber}`
-            : "10256341"}
+          {activeUser?.firstName ? `${activeUser.documentNumber}` : "10256341"}
         </p>
       </div>
 
@@ -120,16 +121,9 @@ export const AppointmentCards = () => {
                     {appt.state}
                   </span>
                 </div>
-                <p className="text-sm">
-                  Trámite:{" "}
-                  {appt.tramites?.map((tramite) => tramite.label).join(", ")}
-                </p>
-                <p className="text-sm">
-                  Oficina: {appt.consulate.name}
-                </p>
-                <p className="text-sm">
-                  Dirección: {appt.consulate.direction}
-                </p>
+                <p className="text-sm">Trámite: {appt.tramites?.label}</p>
+                <p className="text-sm">Oficina: {appt.consulate.name}</p>
+                <p className="text-sm">Dirección: {appt.consulate.direction}</p>
                 <p className="text-sm">Código de confirmación: 23423</p>
 
                 <div className="text-sm mt-3">
@@ -152,12 +146,8 @@ export const AppointmentCards = () => {
                   <div className="text-sm mt-3">
                     <span className="font-semibold">Requisitos:</span>
                     <ul className="list-none mt-1">
-                      {appt.tramites.map((s, idx) => (
-                        <li key={idx}>
-                          {s.requeriments
-                            ?.map((requirement) => requirement)
-                            .join(", ")}
-                        </li>
+                      {appt.tramites.requeriments.map((s, idx) => (
+                        <li key={idx}>{s}</li>
                       ))}
                     </ul>
                   </div>
@@ -214,11 +204,11 @@ export const AppointmentCards = () => {
                         setIsOpenCancel(true);
                         setScheduledData(appt);
                       }}
-                      className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                      className="text-blue-600 text-sm py-[5px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
                       <FontAwesomeIcon
                         icon={faTrash}
-                        className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                        className="text-blue-500 text-lg mr-2"
                       />
                       Archivar
                     </button>
