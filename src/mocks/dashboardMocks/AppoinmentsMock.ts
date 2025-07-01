@@ -1,4 +1,4 @@
-import type { Appointment } from "../../types/dashboard/AppointmentTypes";
+import type { Appointment } from "../../types/dashboard/appointmentTypes";
 
 export const appointments: Appointment[] = [
   {
@@ -123,117 +123,6 @@ export const consulatesOptions = [
   },
 ];
 
-// export const consulatesOptions = [
-//   {
-//     country: "CO",
-//     city: "MED",
-//     consulate: {
-//       name: "Oficina General MED",
-//       address: "Calle 42B N° 52-106",
-//       phone: 3000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-20",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-21",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-22",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-23",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-24",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-25",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-26",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-27",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-28",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-29",
-//       phone: 2000000000,
-//     },
-//   },
-//   {
-//     country: "CO",
-//     city: "BOG",
-//     consulate: {
-//       name: "Oficina General BOG",
-//       address: "Calle 110 #10-30",
-//       phone: 2000000000,
-//     },
-//   },
-// ];
-
 export const proceduresOptions = [
   {
     value: "pasaporte",
@@ -245,14 +134,4 @@ export const proceduresOptions = [
     label: "Visa",
     requeriments: ["Requisito 1", "Requisito 2"],
   },
-  // {
-  //   value: "registroCivil",
-  //   label: "Registro Civil",
-  //   requeriments: ["Requisito 1", "Requisito 2"],
-  // },
-  // {
-  //   value: "tramiteConsular",
-  //   label: "Trámite Consular",
-  //   requeriments: ["Requisito 1", "Requisito 2"],
-  // },
 ];

@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction } from "react";
 import { Modal } from "../Modal";
-import type { Estado } from "../../types/dashboard/AppointmentTypes";
+import type { Estado } from "../../types/dashboard/appointmentTypes";
 import {
   SchedulingsStore,
   type SchedulingStoreType,

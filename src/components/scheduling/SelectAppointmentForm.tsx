@@ -4,14 +4,13 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import {
   faArrowRight,
   faCircleExclamation,
+  // faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
-import { useQuery } from "@tanstack/react-query";
-import { getPublicRequest } from "../../services/fetchingService";
 import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
 import type {
   OfficeDirectionInfoType,
@@ -19,14 +18,11 @@ import type {
   OfficesDirectionInfoType,
   OfficesInfoType,
 } from "../../types/dashboard/officeInfo";
-import { OfficesInfoSchema } from "../../schemas/appointments/OfficeInfo.schema";
+import { OfficesInfoSchema } from "../../schemas/appointments/officeInfo.schema";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
-// import type {
-//   CountriesInfoType,
-//   CountryInfoType,
-// } from "../../types/dashboard/countryInfo";
-// import { getPublicRequest } from "../../services/fetchingService";
-// import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { useGeocod } from "../../hooks/useGeocod";
+import { toast } from "react-toastify";
 
 const customStyles = {
   control: (provided: any, state: any) => ({
@@ -62,7 +58,6 @@ export const SelectAppointmentForm = ({
 }: SelectAppointmentFormProps) => {
   const [mapLocation, setMapLocation] = useState(initialLocation);
   const [markerPosition, setMarkerPosition] = useState(initialLocation);
-  // const [country, setCountry] = useState<CountryInfoType>();
   const [address, setAddress] = useState<string>("");
   const [showConsulates, setShowConsulates] = useState<
     OfficesDirectionInfoType["data"] | undefined
@@ -70,7 +65,7 @@ export const SelectAppointmentForm = ({
   const [selectedOption, setSelectedOption] = useState<OfficeInfoType>();
   const { setCountry } = SchedulingsStore();
 
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
   const selectedCountry = useWatch({
     control,
     name: "country",
@@ -85,36 +80,54 @@ export const SelectAppointmentForm = ({
     setCountry(selectedCountry);
   }, [selectedCountry]);
 
-  const { data: citiesData } = useQuery<CountriesInfoType>({
-    queryKey: ["citiesInfo", selectedCountry],
-    queryFn: async () => {
-      return await getPublicRequest({
-        url: `/City/by-country/${selectedCountry}`,
-        schema: CountriesInfoSchema,
-      });
+  // const { data: citiesData } = useQuery<CountriesInfoType>({
+  //   queryKey: ["citiesInfo", selectedCountry],
+  //   queryFn: async () => {
+  //     return await getPublicRequest({
+  //       url: `/City/by-country/${selectedCountry}`,
+  //       schema: CountriesInfoSchema,
+  //     });
+  //   },
+  //   refetchOnWindowFocus: false,
+  //   staleTime: 0,
+  //   gcTime: 0,
+  //   retry: 1,
+  //   structuralSharing: false,
+  //   enabled: !!selectedCountry,
+  // });
+
+  // const { data: officeData } = useQuery<OfficesInfoType>({
+  //   queryKey: ["officeInfo", selectedCountry, selectedCity],
+  //   queryFn: async () => {
+  //     return await getPublicRequest({
+  //       url: `/Office/by-city/${selectedCity}`,
+  //       schema: OfficesInfoSchema,
+  //     });
+  //   },
+  //   refetchOnWindowFocus: false,
+  //   staleTime: 0,
+  //   gcTime: 0,
+  //   retry: 1,
+  //   structuralSharing: false,
+  //   enabled: !!selectedCountry && !!selectedCity,
+  // });
+
+  const { data: citiesData } = usePublicQuery<CountriesInfoType>({
+    key: ["citiesInfo", selectedCountry],
+    url: `/City/by-country/${selectedCountry}`,
+    schema: CountriesInfoSchema,
+    options: {
+      enabled: !!selectedCountry,
     },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-    gcTime: 0,
-    retry: 1,
-    structuralSharing: false,
-    enabled: !!selectedCountry,
   });
 
-  const { data: officeData } = useQuery<OfficesInfoType>({
-    queryKey: ["officeInfo", selectedCountry, selectedCity],
-    queryFn: async () => {
-      return await getPublicRequest({
-        url: `/Office/by-city/${selectedCity}`,
-        schema: OfficesInfoSchema,
-      });
+  const { data: officeData } = usePublicQuery<OfficesInfoType>({
+    key: ["officeInfo", selectedCountry, selectedCity],
+    url: `/Office/by-city/${selectedCity}`,
+    schema: OfficesInfoSchema,
+    options: {
+      enabled: !!selectedCountry && !!selectedCity,
     },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-    gcTime: 0,
-    retry: 1,
-    structuralSharing: false,
-    enabled: !!selectedCountry && !!selectedCity,
   });
 
   useEffect(() => {
@@ -154,8 +167,20 @@ export const SelectAppointmentForm = ({
           console.error("Error al geocodificar:", data.status);
         }
       })
-      .catch((error) => {
-        console.error("Error en la solicitud de geocodificación:", error);
+      .catch(() => {
+        toast.error("Error al obtener la geocodificación", {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 1000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
       });
   }, [address]);
 
@@ -166,28 +191,31 @@ export const SelectAppointmentForm = ({
           const { latitude, longitude } = position.coords;
           setMapLocation({ lat: latitude, lng: longitude });
           setMarkerPosition({ lat: latitude, lng: longitude });
-
-          const geocoder = new window.google.maps.Geocoder();
           const latLng = { lat: latitude, lng: longitude };
 
-          console.log("Obteniendo dirección para la ubicación actual...", latLng);
-
-          geocoder.geocode({ location: latLng }, (results, status) => {
-            if (status === "OK") {
-              if (results?.[0]) {
-                console.log("Dirección:", results[0].formatted_address);
-                setAddress(results[0].formatted_address);
-                console.log("Ubicación actual:", results[0].formatted_address);
-              } else {
-                console.warn("No se encontraron resultados");
-              }
-            } else {
-              console.error("Geocoder falló debido a:", status);
-            }
+          useGeocod({
+            latLng,
+            countries: countries || [],
+            setAddress,
+            setCountry,
+            setValue,
           });
         },
-        (error) => {
-          console.error("Error obteniendo ubicación:", error);
+        () => {
+          toast.error("Error al obtener la geocodificación", {
+            icon: (
+              <FontAwesomeIcon
+                icon={faCircleExclamation}
+                className="text-red-500"
+              />
+            ),
+            autoClose: 1000,
+            draggable: true,
+            progress: undefined,
+            hideProgressBar: true,
+            className:
+              "border-l-5 border-red-500 bg-white text-black shadow-md",
+          });
         }
       );
     }

@@ -1,6 +1,5 @@
-import { useEffect, type Dispatch, type SetStateAction } from "react";
-import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
-import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,12 +16,19 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { toast } from "react-toastify";
+import type {
+  ProceduresType,
+  requerimentsType,
+} from "../../types/dashboard/proceduresTypes";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { requerimentsSchema } from "../../schemas/appointments/proceduresInfo.schema";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
   setView?: Dispatch<SetStateAction<number>>;
   selectedOption: string | undefined;
   setSelectedOption: Dispatch<SetStateAction<string | undefined>>;
+  procedures: ProceduresType;
 };
 
 const customStyles = {
@@ -65,14 +71,40 @@ export const AppointmentForForm = ({
   setView,
   selectedOption,
   setSelectedOption,
+  procedures,
 }: AppointmentForFormProps) => {
+  const [watched, setWatched] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const { control, setValue } = useFormContext();
+  const { setRequeriments } = SchedulingsStore();
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
   ])!;
   const { country } = SchedulingsStore();
   const procedureWatcher = useWatch({ control, name: ["tramites"] });
+
+  const { data: Requirements } = usePublicQuery<requerimentsType>({
+    key: `requirements-${procedureWatcher}`,
+    url: `/Requirements/${procedureWatcher}`,
+    schema: requerimentsSchema,
+    options: {
+      enabled: !!procedureWatcher,
+    },
+  });
+
+  useEffect(() => {
+    if (procedureWatcher) {
+      setWatched(true);
+    }
+
+    if (Requirements && watched) {
+      setRequeriments(Requirements); // Cambiar por el .data correspondiente;
+    }
+  }, [procedureWatcher, Requirements]);
+
+  useEffect(() => {
+    console.log(procedureWatcher);
+  }, []);
 
   return (
     <section
@@ -121,7 +153,7 @@ export const AppointmentForForm = ({
             render={({ field, fieldState }) => (
               <div className="w-full mt-4">
                 <Select
-                  options={proceduresOptions}
+                  options={procedures}
                   styles={{
                     ...customStyles,
                     multiValue: () => ({ display: "none" }),
@@ -280,7 +312,7 @@ export const AppointmentForForm = ({
         <button
           type="button"
           onClick={() => {
-            if (!procedureWatcher || !selectedOption) {
+            if (procedureWatcher[0] === undefined || !selectedOption) {
               toast.error("Completa el formulario", {
                 icon: (
                   <FontAwesomeIcon

@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
+import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
 import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { SessionStore, type UserType } from "../../stores/sessionStore";

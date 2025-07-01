@@ -5,8 +5,13 @@ import { es } from "date-fns/locale";
 import { Box } from "@mui/material";
 import { horarios } from "../mocks/dashboardMocks/DatePickerMocks";
 import { Controller, useFormContext } from "react-hook-form";
+import type { DatesType } from "../types/dashboard/dateTypes";
 
-export const DatePickerComponent = () => {
+type DatePickerComponentProps = {
+  dateInfo: DatesType;
+};
+
+export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
   const { control } = useFormContext();
 
   return (
@@ -17,11 +22,23 @@ export const DatePickerComponent = () => {
           control={control}
           defaultValue={new Date()}
           render={({ field }) => (
+            // <StaticDatePicker
+            //   displayStaticWrapperAs="desktop"
+            //   value={field.value}
+            //   onChange={(newDate) => field.onChange(newDate)}
+            //   slots={{ actionBar: () => null }}
+            // />
             <StaticDatePicker
               displayStaticWrapperAs="desktop"
               value={field.value}
               onChange={(newDate) => field.onChange(newDate)}
               slots={{ actionBar: () => null }}
+              shouldDisableDate={(date) => {
+                const format = (d: Date) => d.toISOString().split("T")[0];
+                return !dateInfo.some(
+                  (able) => format(able.date) === format(date as Date)
+                );
+              }}
             />
           )}
         />

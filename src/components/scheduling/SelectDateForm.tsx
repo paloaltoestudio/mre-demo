@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
+import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -8,6 +8,9 @@ import { CancelBtn } from "./CancelBtn";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { useQueryClient } from "@tanstack/react-query";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { DatesSchema } from "../../schemas/appointments/dates.schema";
+import type { DatesType } from "../../types/dashboard/dateTypes";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -29,6 +32,12 @@ export const SelectDateForm = ({
     "countriesInfo",
   ])!;
   const { country } = SchedulingsStore();
+
+  const { data: DatesData } = usePublicQuery<DatesType>({
+    key: ["dates"],
+    url: `/DateTimeAvailable/by-${procedures}-${country}`,
+    schema: DatesSchema,
+  });
 
   return (
     <section
@@ -61,7 +70,7 @@ export const SelectDateForm = ({
         </h2>
 
         <div className="w-full px-5 mt-5">
-          <DatePickerComponent />
+          <DatePickerComponent dateInfo={DatesData || ([] as DatesType)} />
         </div>
       </div>
       <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">

@@ -4,7 +4,7 @@ import type {
   OfficeSchema,
   OfficesDirectionInfoSchema,
   OfficesInfoSchema,
-} from "../../schemas/appointments/OfficeInfo.schema";
+} from "../../schemas/appointments/officeInfo.schema";
 
 export type OfficesInfoType = InferInput<typeof OfficesInfoSchema>;
 export type OfficeInfoType = InferInput<typeof OfficeSchema>;

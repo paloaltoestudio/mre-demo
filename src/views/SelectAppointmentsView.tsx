@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { SelectAppointmentForm } from "../components/scheduling/SelectAppointmentForm";
-import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
+import type { ConsulatesType } from "../types/dashboard/appointmentTypes";
 import { AppointmentForForm } from "../components/scheduling/AppointmentForForm";
 import { SelectDateForm } from "../components/scheduling/SelectDateForm";
 import { DependentInformationForm } from "../components/scheduling/DependentInformationForm";
@@ -13,6 +13,9 @@ import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
+import { ProceduresSchema } from "../schemas/appointments/proceduresInfo.schema";
+import { usePublicQuery } from "../hooks/usePublicQuery";
+import type { ProceduresType } from "../types/dashboard/proceduresTypes";
 
 const steps = [
   "Lugar de agendamiento",
@@ -40,6 +43,12 @@ export const SelectAppointmentsView = ({
   });
   const { setScheduled } = SchedulingsStore();
   const navigate = useNavigate();
+
+  const { data: Procedures } = usePublicQuery<ProceduresType>({
+    key: ["procedures"],
+    url: `/Procedures`,
+    schema: ProceduresSchema,
+  });
 
   const onSubmit = (data: any) => {
     const dependentsCount = data.dependientesCount || 0;
@@ -88,12 +97,11 @@ export const SelectAppointmentsView = ({
         <AuthForm<any> onSubmit={onSubmit}>
           <DinamicNav currentStep={view} steps={steps} />
           <div className="mt-10">
-            {/* Toda la info del tramite */}
             {view === 1 ? (
               <SelectAppointmentForm
                 setConsulate={setConsulate}
                 setView={setView}
-                countries={countries}
+                countries={countries || ([] as CountriesInfoType["data"])}
               />
             ) : view === 2 ? (
               <AppointmentForForm
@@ -101,6 +109,7 @@ export const SelectAppointmentsView = ({
                 setView={setView}
                 selectedOption={selectedOption}
                 setSelectedOption={setSelectedOption}
+                procedures={Procedures || ([] as ProceduresType)}
               />
             ) : view === 3 ? (
               <SelectDateForm // Montar el reagendamiento;

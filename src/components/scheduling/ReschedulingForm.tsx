@@ -4,8 +4,11 @@ import { AuthForm } from "../public/auth/AuthForm";
 import type { SchedulingStoreType } from "../../stores/schedulingsStore";
 import type { UserType } from "../../stores/sessionStore";
 import { estadoColor } from "../dashboard/Appointments";
-import type { Estado } from "../../types/dashboard/AppointmentTypes";
+import type { Estado } from "../../types/dashboard/appointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import type { DatesType } from "../../types/dashboard/dateTypes";
+import { DatesSchema } from "../../schemas/appointments/dates.schema";
 
 type formType = {
   date: Date;
@@ -27,7 +30,7 @@ export const ReschedulingForm = ({
   isOpen,
   setIsOpen,
   activeUser,
-  setIsOpenResume
+  setIsOpenResume,
 }: ReschedulingProps) => {
   const onSubmit = (data: formType) => {
     const scheduledData: SchedulingStoreType = {
@@ -39,6 +42,12 @@ export const ReschedulingForm = ({
     setRescheduledData(scheduledData);
     setIsOpenResume(true);
   };
+
+  const { data: DatesData } = usePublicQuery<DatesType>({
+    key: ["dates"],
+    url: `/DateTimeAvailable/by-${scheduled.tramites.id}-${scheduled.country}`,
+    schema: DatesSchema,
+  });
 
   return (
     <AuthForm<formType> onSubmit={onSubmit}>
@@ -104,11 +113,14 @@ export const ReschedulingForm = ({
               </div>
               <div className="text-sm mt-3">
                 <span className="font-semibold">Tipo de trámite:</span>
-                <ul className="list-none pl-2 mt-2">
+                {/* <ul className="list-none pl-2 mt-2">
                   {scheduled.tramites?.map((s, idx) => (
                     <li key={idx}>{s.label}</li>
                   ))}
-                </ul>
+                </ul> */}
+                <p className="text-sm text-gray-600">
+                  Trámite: {scheduled.tramites.label}
+                </p>
               </div>
             </div>
 
@@ -118,7 +130,9 @@ export const ReschedulingForm = ({
               </h2>
 
               <div className="w-full px-5 mt-5">
-                <DatePickerComponent />
+                <DatePickerComponent
+                  dateInfo={DatesData || ([] as DatesType)}
+                />
               </div>
             </div>
 

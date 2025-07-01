@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { Estado } from "../../types/dashboard/AppointmentTypes";
+import type { Estado } from "../../types/dashboard/appointmentTypes";
 import { SessionStore, type UserType } from "../../stores/sessionStore";
 import {
   SchedulingsStore,

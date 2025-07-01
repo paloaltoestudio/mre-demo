@@ -10,26 +10,16 @@ import { VerificationIDView } from "../views/VerificationIDView";
 import { AccessLayout } from "../layouts/AccessLayout";
 import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
 import { ToastContainer } from "react-toastify";
-import { useQuery } from "@tanstack/react-query";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
-import { getPublicRequest } from "../services/fetchingService";
 import { CountriesInfoSchema } from "../schemas/appointments/countryInfo.schema";
 import { useEffect } from "react";
+import { usePublicQuery } from "../hooks/usePublicQuery";
 
 export const MainRouter = () => {
-  const { data: countries } = useQuery<CountriesInfoType>({
-    queryKey: ["countriesInfo"],
-    queryFn: async () => {
-      return await getPublicRequest({
-        url: "/Countries",
-        schema: CountriesInfoSchema,
-      });
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-    gcTime: 0,
-    retry: 3,
-    structuralSharing: false,
+  const { data: countries } = usePublicQuery<CountriesInfoType>({
+    key: ["countriesInfo"],
+    url: "/Countries",
+    schema: CountriesInfoSchema,
   });
 
   useEffect(() => {

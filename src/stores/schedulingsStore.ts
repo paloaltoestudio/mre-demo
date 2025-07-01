@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
-import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
+import type { ConsulatesType } from "../types/dashboard/appointmentTypes";
+import type { requerimentsType } from "../types/dashboard/proceduresTypes";
 
 export type SchedulingStoreType = {
   city: { value: string; label: string };
@@ -16,7 +17,12 @@ export type SchedulingStoreType = {
   }[];
   hora: string;
   selectedOption: string;
-  tramites: { value: string; label: string; requeriments: string[] };
+  tramites: {
+    id: string;
+    value: string;
+    label: string;
+    requeriments: string[];
+  };
   state: string;
 };
 
@@ -25,6 +31,7 @@ type SchedulingsStoreType = {
   toRemove: SchedulingStoreType;
   toReplace: SchedulingStoreType;
   country: number;
+  requeriments: requerimentsType;
 };
 
 type SchedulingsStoreActions = {
@@ -38,6 +45,7 @@ type SchedulingsStoreActions = {
     scheduled: SchedulingStoreType
   ) => void;
   setCountry: (country: number) => void;
+  setRequeriments: (setRequeriments: requerimentsType) => void;
 };
 
 export const SchedulingsStore = create(
@@ -48,6 +56,7 @@ export const SchedulingsStore = create(
         toRemove: {} as SchedulingStoreType,
         toReplace: {} as SchedulingStoreType,
         country: 0,
+        requeriments: [] as requerimentsType,
         setScheduled: (newScheduled) =>
           set((state) => ({ scheduled: [...state.scheduled, newScheduled] })),
         removeScheduled: (scheduledToRemove) =>
@@ -77,6 +86,8 @@ export const SchedulingsStore = create(
             ),
           })),
         setCountry: (country) => set({ country }),
+        setRequeriments: (setRequeriments) =>
+          set({ requeriments: setRequeriments }),
       }),
       {
         name: "schedulings-store",
