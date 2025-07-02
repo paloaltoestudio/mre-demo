@@ -44,7 +44,24 @@ export const AppointmentCards = () => {
     const newUser = user.find(
       (user) => user.documentNumber.toString() === document.toString()
     );
-    setActiveUser(newUser);
+    setActiveUser(
+      newUser || {
+        documentType: "CC",
+        documentNumber: "10256341",
+        firstName: "Luis Alberto",
+        lastName: "Diaz Castro",
+        birthDate: "1990-01-01",
+        email: "arquitecto@italm.com.co",
+        phoneCode: "+57",
+        phoneNumber: "3125642169",
+        whatsappCode: "+57",
+        whatsappNumber: "3125642169",
+        password: "10256341",
+        confirmPassword: "10256341",
+        acceptData: true,
+        acceptTerms: true,
+      }
+    );
     setTimeout(() => {
       setLoader(false);
     }, 500);
@@ -89,13 +106,12 @@ export const AppointmentCards = () => {
         </div>
         <p className="text-sm">
           <span className="font-semibold">Nombres y apellidos:</span>{" "}
-          {activeUser?.firstName
-            ? `${activeUser.firstName} ${activeUser.lastName}`
-            : "Luis Alberto Diaz Castro"}
+          {activeUser?.firstName &&
+            `${activeUser.firstName} ${activeUser.lastName}`}
         </p>
         <p className="text-sm">
           <span className="font-semibold">Documento:</span>{" "}
-          {activeUser?.firstName ? `${activeUser.documentNumber}` : "10256341"}
+          {activeUser?.firstName && `${activeUser.documentNumber}`}
         </p>
       </div>
 
