@@ -1,14 +1,21 @@
-import { type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { Modal } from "../Modal";
 import { AuthForm } from "../public/auth/AuthForm";
-import type { SchedulingStoreType } from "../../stores/schedulingsStore";
+import {
+  SchedulingsStore,
+  type SchedulingStoreType,
+} from "../../stores/schedulingsStore";
 import type { UserType } from "../../stores/sessionStore";
 import { estadoColor } from "../dashboard/Appointments";
 import type { Estado } from "../../types/dashboard/appointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
-import { usePublicQuery } from "../../hooks/usePublicQuery";
-import type { DatesType } from "../../types/dashboard/dateTypes";
-import { DatesSchema } from "../../schemas/appointments/dates.schema";
+import type { DateSchemaType } from "../../types/dashboard/dateTypes";
+import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postPublicRequest } from "../../services/fetchingService";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 type formType = {
   date: Date;
@@ -32,6 +39,8 @@ export const ReschedulingForm = ({
   activeUser,
   setIsOpenResume,
 }: ReschedulingProps) => {
+  const [dates, setDates] = useState<DateSchemaType[]>();
+
   const onSubmit = (data: formType) => {
     const scheduledData: SchedulingStoreType = {
       ...scheduled,
@@ -43,11 +52,54 @@ export const ReschedulingForm = ({
     setIsOpenResume(true);
   };
 
-  const { data: DatesData } = usePublicQuery<DatesType>({
-    key: ["dates"],
-    url: `/DateTimeAvailable/by-${scheduled.tramites.id}-${scheduled.country}`,
-    schema: DatesSchema,
+  const { procedure } = SchedulingsStore();
+
+  // const { data: DatesData } = usePublicQuery<DatesType>({
+  //   key: ["dates"],
+  //   url: `/DateTimeAvailable/by-${scheduled.tramites.id}-${scheduled.country}`,
+  //   schema: DatesSchema,
+  // });
+  const queryClient = useQueryClient();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: postPublicRequest<DateSchemaType[]>,
+    onSuccess: (data: DateSchemaType[]) => {
+      queryClient.setQueryData(["all-dates"], data);
+      console.log("Fechas", data);
+      setDates(data);
+    },
+    onError: () => {
+      toast.error("Error al hacer la petición", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
   });
+
+  const handleDates = async () => {
+    const data = {
+      url: "/DateTimeAvailable/by-officeId-proceduresId",
+      schema: outputDatesSchema,
+      body: {
+        officeId: scheduled.consulate.id,
+        proceduresId: [1],
+      },
+    };
+    await mutateAsync(data);
+  };
+
+  useEffect(() => {
+    handleDates();
+  }, []);
 
   return (
     <AuthForm<formType> onSubmit={onSubmit}>
@@ -118,9 +170,7 @@ export const ReschedulingForm = ({
                     <li key={idx}>{s.label}</li>
                   ))}
                 </ul> */}
-                <p className="text-sm text-gray-600">
-                  Trámite: {scheduled.tramites.label}
-                </p>
+                <p className="text-sm text-gray-600">Trámite: {procedure}</p>
               </div>
             </div>
 
@@ -131,7 +181,7 @@ export const ReschedulingForm = ({
 
               <div className="w-full px-5 mt-5">
                 <DatePickerComponent
-                  dateInfo={DatesData || ([] as DatesType)}
+                  dateInfo={dates || ([] as DateSchemaType[])}
                 />
               </div>
             </div>

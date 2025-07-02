@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
 import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
@@ -7,6 +7,8 @@ import { CancelBtn } from "./CancelBtn";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { useQueryClient } from "@tanstack/react-query";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
 
 type SummaryProps = {
   consulate: ConsulatesType;
@@ -21,19 +23,21 @@ export const Summary = ({
 }: SummaryProps) => {
   const { watch } = useFormContext();
   const dateWatch = watch("date");
-  const proceduresWatch = watch("tramites");
   const dependentsWatch = watch("dependientesCount") || 0;
   const cityWatch = watch("city");
   const { user, document } = SessionStore();
   const [activeUser, setActiveUser] = useState<UserType>();
-  const { country } = SchedulingsStore();
+  const { country, procedure } = SchedulingsStore();
   const queryClient = useQueryClient();
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
   ])!;
-  // const cityOptions: CountriesInfoType = queryClient.getQueryData([
-  //   "citiesInfo",
-  // ])!;
+  const { control } = useFormContext();
+  const [nameCity, setNameCity] = useState<string>("");
+  const selectedCountry = useWatch({
+    control,
+    name: "country",
+  });
 
   useEffect(() => {
     const newUser = user.find(
@@ -51,6 +55,12 @@ export const Summary = ({
     }[]
   >();
 
+  const { data: citiesData } = usePublicQuery<CountriesInfoType>({
+    key: ["all-cities", selectedCountry],
+    url: `/City/by-country/${country}`,
+    schema: CountriesInfoSchema,
+  });
+
   useEffect(() => {
     if (dependentsWatch > 0) {
       const dependentsData = Array.from({ length: dependentsWatch }).map(
@@ -64,6 +74,12 @@ export const Summary = ({
       setDependentsInfo(dependentsData);
     }
   }, []);
+
+  useEffect(() => {
+    const cityName = citiesData?.data?.filter((c) => c.id === cityWatch)[0]
+      ?.name;
+    setNameCity(cityName || "");
+  }, [citiesData]);
 
   return (
     <section
@@ -82,7 +98,7 @@ export const Summary = ({
               : "No seleccionada"}
           </p>
           <p className="text-sm text-gray-600">
-            Trámites: {proceduresWatch.value}
+            Trámites: {procedure}
             {/* Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")} */}
           </p>
           <p className="text-sm text-gray-600">Oficina: {consulate.name}</p>
@@ -90,11 +106,9 @@ export const Summary = ({
             País:{" "}
             {countryOptions?.data?.filter((c) => c.id === country)[0].name}
           </p>
+          <p className="text-sm text-gray-600">Ciudad: {nameCity}</p>
           <p className="text-sm text-gray-600">
-            Ciudad: {cityWatch.value || cityWatch}
-          </p>
-          <p className="text-sm text-gray-600">
-            Dirección: {consulate.direction}
+            Dirección: {consulate.address}
           </p>
         </div>
         <div className="w-full md:w-[48%] border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md px-4 py-3 flex flex-col shadow-lg">
@@ -132,28 +146,20 @@ export const Summary = ({
         <p className="text-sm text-gray-600">
           Debes tener en cuenta los requisitos para los siguientes trámites:
         </p>
-
-        {/* Integrar con la API */}
-        {proceduresWatch &&
-          proceduresOptions
-            .filter(
-              (procedureOption) =>
-                proceduresWatch.value === procedureOption.value
-            )
-            ?.map((procedure: any, index: number) => (
-              <div key={index} className="mt-2">
-                <h3 className="font-medium text-md">{procedure.label}</h3>
-                <ul className="list-disc pl-5 mb-1 p-2">
-                  {procedure.requeriments?.map(
-                    (req: string, reqIndex: number) => (
-                      <li key={reqIndex} className="text-sm text-gray-600 ml-2">
-                        {req}
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            ))}
+        {
+          <div className="mt-2">
+            <h3 className="font-medium text-md">{procedure}</h3>
+            <ul className="list-disc pl-5 mb-1 p-2">
+              {proceduresOptions[0].requeriments?.map(
+                (req: string, reqIndex: number) => (
+                  <li key={reqIndex} className="text-sm text-gray-600 ml-2">
+                    {req}
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+        }
       </div>
       <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">
         <CancelBtn />

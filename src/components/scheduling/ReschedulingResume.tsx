@@ -25,9 +25,10 @@ export const ReschedulingResume = ({
   setIsOpen,
   activeUser,
 }: ReschedulingProps) => {
-  const { setToRemove, setToReplace } = SchedulingsStore();
+  const { setToRemove, setToReplace, procedure } = SchedulingsStore();
   const { setLocationVerification } = SessionStore();
   const navigate = useNavigate();
+
   return (
     <AuthForm<Record<string, never>>
       onSubmit={() => {
@@ -66,7 +67,7 @@ export const ReschedulingResume = ({
               Oficina: {scheduled.consulate.name}
             </p>
             <p className="text-sm text-gray-800">
-              Dirección: {scheduled.consulate.direction}
+              Dirección: {scheduled.consulate.address}
             </p>
             <p className="text-sm text-gray-800">
               Código de confirmación: 23423
@@ -92,11 +93,7 @@ export const ReschedulingResume = ({
 
             <div className="text-sm mt-3">
               <span className="font-semibold">Tipo de trámite:</span>
-              <ul className="list-none pl-2 mt-2">
-                {scheduled.tramites?.map((s, idx) => (
-                  <li key={idx}>{s.label}</li>
-                ))}
-              </ul>
+              {procedure}
             </div>
 
             <div className="flex justify-end mt-3 gap-2">

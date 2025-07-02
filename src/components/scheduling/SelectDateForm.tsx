@@ -1,16 +1,21 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRight,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { useFormContext } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
-import { usePublicQuery } from "../../hooks/usePublicQuery";
-import { DatesSchema } from "../../schemas/appointments/dates.schema";
-import type { DatesType } from "../../types/dashboard/dateTypes";
+import type { DateSchemaType } from "../../types/dashboard/dateTypes";
+import { postPublicRequest } from "../../services/fetchingService";
+import { toast } from "react-toastify";
+import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
+import type { ProceduresResponseType } from "../../types/dashboard/proceduresTypes";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -31,13 +36,64 @@ export const SelectDateForm = ({
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
   ])!;
-  const { country } = SchedulingsStore();
+  const [procedureName, setProcedureName] = useState<string>("");
+  const { country, setProcedure } = SchedulingsStore();
+  const [dates, setDates] = useState<DateSchemaType[]>();
 
-  const { data: DatesData } = usePublicQuery<DatesType>({
-    key: ["dates"],
-    url: `/DateTimeAvailable/by-${procedures}-${country}`,
-    schema: DatesSchema,
+  const { mutateAsync } = useMutation({
+    mutationFn: postPublicRequest<DateSchemaType[]>,
+    onSuccess: (data: DateSchemaType[]) => {
+      queryClient.setQueryData(["all-dates"], data);
+      console.log("Fechas", data);
+      setDates(data);
+    },
+    onError: () => {
+      toast.error("Error al hacer la petición", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
   });
+
+  const handleDates = async () => {
+    const data = {
+      url: "/DateTimeAvailable/by-officeId-proceduresId",
+      schema: outputDatesSchema,
+      body: {
+        officeId: consulate.id,
+        proceduresId: [procedures],
+      },
+    };
+    await mutateAsync(data);
+  };
+
+  useEffect(() => {
+    handleDates();
+    const proceduresData = queryClient.getQueryData(["procedures"]);
+
+    const nameProcedure: ProceduresResponseType | undefined = proceduresData
+      ? (proceduresData as ProceduresResponseType)
+      : undefined;
+
+    if (nameProcedure) {
+      setProcedureName(
+        nameProcedure.data.filter((p) => p.id === procedures)[0].name
+      );
+
+      setProcedure(
+        nameProcedure.data.filter((p) => p.id === procedures)[0].name
+      );
+    }
+  }, []);
 
   return (
     <section
@@ -50,9 +106,7 @@ export const SelectDateForm = ({
           {countryOptions?.data?.filter((c) => c.id === country)[0].name}
         </h3>
         <h3 className="font-medium text-md">{consulate.name}</h3>
-        <p className="text-sm text-gray-600">
-          Dirección: {consulate.direction}
-        </p>
+        <p className="text-sm text-gray-600">Dirección: {consulate.address}</p>
         <p className="text-sm text-gray-600">
           Número de solicitantes:{" "}
           {countDependents === 0
@@ -61,7 +115,7 @@ export const SelectDateForm = ({
             ? countDependents + 1
             : countDependents}
         </p>
-        <p className="text-sm text-gray-600">Trámite: {procedures.value}</p>
+        <p className="text-sm text-gray-600">Trámite: {procedureName}</p>
       </div>
 
       <div className="mt-6 w-full">
@@ -70,7 +124,7 @@ export const SelectDateForm = ({
         </h2>
 
         <div className="w-full px-5 mt-5">
-          <DatePickerComponent dateInfo={DatesData || ([] as DatesType)} />
+          <DatePickerComponent dateInfo={dates || ([] as DateSchemaType[])} />
         </div>
       </div>
       <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">

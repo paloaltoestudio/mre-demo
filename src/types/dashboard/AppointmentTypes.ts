@@ -15,7 +15,7 @@ export type ConsulatesType = {
   name: string;
   cityId: number;
   cityName: string;
-  direction: string;
+  address: string;
 };
 
 // export type ConsulatesType = {

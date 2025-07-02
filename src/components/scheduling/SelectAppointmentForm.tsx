@@ -4,24 +4,20 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import {
   faArrowRight,
   faCircleExclamation,
-  // faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
-// import { toast } from "react-toastify";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
 import type {
-  OfficeDirectionInfoType,
   OfficeInfoType,
-  OfficesDirectionInfoType,
   OfficesInfoType,
 } from "../../types/dashboard/officeInfo";
 import { OfficesInfoSchema } from "../../schemas/appointments/officeInfo.schema";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
-import { useGeocod } from "../../hooks/useGeocod";
+import { useGeocod, useSetPosition } from "../../hooks/useGeocod";
 import { toast } from "react-toastify";
 
 const customStyles = {
@@ -46,7 +42,7 @@ const initialLocation = {
 };
 
 type SelectAppointmentFormProps = {
-  setConsulate: Dispatch<SetStateAction<OfficeDirectionInfoType>>;
+  setConsulate: Dispatch<SetStateAction<OfficeInfoType>>;
   setView?: Dispatch<SetStateAction<number>>;
   countries?: CountriesInfoType["data"];
 };
@@ -59,11 +55,12 @@ export const SelectAppointmentForm = ({
   const [mapLocation, setMapLocation] = useState(initialLocation);
   const [markerPosition, setMarkerPosition] = useState(initialLocation);
   const [address, setAddress] = useState<string>("");
-  const [showConsulates, setShowConsulates] = useState<
-    OfficesDirectionInfoType["data"] | undefined
-  >();
+  // const [showConsulates, setShowConsulates] = useState<
+  //   OfficesInfoType["data"] | undefined
+  // >();
   const [selectedOption, setSelectedOption] = useState<OfficeInfoType>();
-  const { setCountry } = SchedulingsStore();
+  const { setCountry, country } = SchedulingsStore();
+  const [city, setCity] = useState<string>();
 
   const { control, setValue } = useFormContext();
   const selectedCountry = useWatch({
@@ -80,44 +77,12 @@ export const SelectAppointmentForm = ({
     setCountry(selectedCountry);
   }, [selectedCountry]);
 
-  // const { data: citiesData } = useQuery<CountriesInfoType>({
-  //   queryKey: ["citiesInfo", selectedCountry],
-  //   queryFn: async () => {
-  //     return await getPublicRequest({
-  //       url: `/City/by-country/${selectedCountry}`,
-  //       schema: CountriesInfoSchema,
-  //     });
-  //   },
-  //   refetchOnWindowFocus: false,
-  //   staleTime: 0,
-  //   gcTime: 0,
-  //   retry: 1,
-  //   structuralSharing: false,
-  //   enabled: !!selectedCountry,
-  // });
-
-  // const { data: officeData } = useQuery<OfficesInfoType>({
-  //   queryKey: ["officeInfo", selectedCountry, selectedCity],
-  //   queryFn: async () => {
-  //     return await getPublicRequest({
-  //       url: `/Office/by-city/${selectedCity}`,
-  //       schema: OfficesInfoSchema,
-  //     });
-  //   },
-  //   refetchOnWindowFocus: false,
-  //   staleTime: 0,
-  //   gcTime: 0,
-  //   retry: 1,
-  //   structuralSharing: false,
-  //   enabled: !!selectedCountry && !!selectedCity,
-  // });
-
   const { data: citiesData } = usePublicQuery<CountriesInfoType>({
     key: ["citiesInfo", selectedCountry],
-    url: `/City/by-country/${selectedCountry}`,
+    url: `/City/by-country/${country}`,
     schema: CountriesInfoSchema,
     options: {
-      enabled: !!selectedCountry,
+      enabled: country !== 0 || city !== "" || selectedCountry !== 0,
     },
   });
 
@@ -129,23 +94,6 @@ export const SelectAppointmentForm = ({
       enabled: !!selectedCountry && !!selectedCity,
     },
   });
-
-  useEffect(() => {
-    let filtered: {
-      id: number;
-      name: string;
-      cityId: number;
-      cityName: string;
-      direction: string;
-    }[] = [];
-
-    filtered =
-      officeData?.data?.map((item) => {
-        return { ...item, direction: "Carrera 45 # 16 Sur - 44" }; // Pedir las direcciones en caso de que vayan;
-      }) || [];
-
-    setShowConsulates(filtered);
-  }, [officeData]);
 
   useEffect(() => {
     if (!address) return;
@@ -161,8 +109,8 @@ export const SelectAppointmentForm = ({
       .then((data) => {
         if (data.status === "OK") {
           const loc = data.results[0].geometry.location;
-          setMapLocation(loc); // Centra el mapa
-          setMarkerPosition(loc); // Posiciona el marcador
+          setMapLocation(loc);
+          setMarkerPosition(loc);
         } else {
           console.error("Error al geocodificar:", data.status);
         }
@@ -195,10 +143,11 @@ export const SelectAppointmentForm = ({
 
           useGeocod({
             latLng,
-            countries: countries || [],
+            countries: countries!,
             setAddress,
             setCountry,
             setValue,
+            setCity,
           });
         },
         () => {
@@ -220,6 +169,16 @@ export const SelectAppointmentForm = ({
       );
     }
   }, []);
+
+  useEffect(() => {
+    if (city !== "") {
+      const cityId = citiesData?.data?.filter(
+        (c) => c.name.toLowerCase() === city?.toLowerCase()
+      )[0]?.id;
+
+      if (cityId) setValue("city", cityId);
+    }
+  }, [city]);
 
   return (
     <section
@@ -334,7 +293,7 @@ export const SelectAppointmentForm = ({
           >
             <div className="flex flex-wrap flex-row gap-3">
               {selectedCountry && selectedCity ? (
-                showConsulates?.map((item) => (
+                officeData?.data?.map((item) => (
                   <div
                     key={item.name}
                     className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 min-h-[100px] justify-center flex flex-col ${
@@ -342,15 +301,17 @@ export const SelectAppointmentForm = ({
                         ? "border-blue-500 bg-gray-200"
                         : "border-gray-300"
                     }`}
-                    onClick={() => {
+                    onClick={async () => {
+                      const position = await useSetPosition(item.address);
                       setSelectedOption(item);
-                      // setPosition(item.direction);
+                      setMarkerPosition(position);
+                      setMapLocation(position);
                       setConsulate(item);
                     }}
                   >
                     <h3 className="font-medium text-md">{item.name}</h3>
                     <p className="text-sm text-gray-600">
-                      Dirección: {item.direction}
+                      Dirección: {item.address}
                     </p>
                   </div>
                 ))

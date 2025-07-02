@@ -15,7 +15,7 @@ export const getPublicRequest = async <T>({
     const { data: requestData } = await axiosInstance.get(url, {
       headers: {
         "Content-Type": "application/json",
-      }
+      },
     });
 
     const parsedData = safeParse(schema, requestData);
@@ -28,6 +28,35 @@ export const getPublicRequest = async <T>({
           .join(", ")}`
       );
     }
+  } catch (error) {
+    if (isAxiosError(error)) throw new Error(`Axios error: ${error.message}`);
+    else
+      throw new Error(
+        `Unexpected error: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+  }
+};
+
+export type PostPublicRequestProps = {
+  url: string;
+  schema: BaseSchema<any, any, any>;
+  body: object;
+};
+
+export const postPublicRequest = async <T>({
+  url,
+  schema,
+  body,
+}: PostPublicRequestProps): Promise<T> => {
+  try {
+    const parsedData = safeParse(schema, body);
+    const { data: requestData } = await axiosInstance.post(
+      url,
+      parsedData.output
+    );
+    return requestData.data;
   } catch (error) {
     if (isAxiosError(error)) throw new Error(`Axios error: ${error.message}`);
     else

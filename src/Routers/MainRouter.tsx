@@ -12,7 +12,6 @@ import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
 import { ToastContainer } from "react-toastify";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 import { CountriesInfoSchema } from "../schemas/appointments/countryInfo.schema";
-import { useEffect } from "react";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 
 export const MainRouter = () => {
@@ -21,11 +20,7 @@ export const MainRouter = () => {
     url: "/Countries",
     schema: CountriesInfoSchema,
   });
-
-  useEffect(() => {
-    console.log("countries", countries);
-  }, [countries]);
-
+  
   return (
     <BrowserRouter>
       <Routes>

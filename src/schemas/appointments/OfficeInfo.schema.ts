@@ -5,6 +5,7 @@ export const OfficeSchema = object({
   name: string(),
   cityId: number(), 
   cityName: string(),
+  address: string(),
 });
 
 export const OfficeDirectionSchema = object({
@@ -12,7 +13,7 @@ export const OfficeDirectionSchema = object({
   name: string(),
   cityId: number(), 
   cityName: string(),
-  direction: string(),
+  address: string(),
 });
 
 export const OfficesInfoSchema = object({

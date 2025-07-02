@@ -12,6 +12,9 @@ import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { CancelAppointment } from "../scheduling/CancelAppointment";
 import { ReschedulingForm } from "../scheduling/ReschedulingForm";
+import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
+import { format } from "date-fns";
+import { toDate } from "../../configs/formats";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -23,7 +26,8 @@ export const estadoColor: Record<Estado, string> = {
 export const AppointmentCards = () => {
   const navigate = useNavigate();
   const { user, document, setLocationVerification } = SessionStore();
-  const { scheduled, removeScheduled, updateState } = SchedulingsStore();
+  const { scheduled, removeScheduled, updateState, procedure } =
+    SchedulingsStore();
   const [activeUser, setActiveUser] = useState<UserType>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
@@ -111,7 +115,7 @@ export const AppointmentCards = () => {
                         ? new Date(appt.date).toLocaleDateString("es-ES")
                         : ""
                     }`}{" "}
-                    {appt?.hora}
+                    {format(toDate(appt?.hora), "hh:mm a")}
                   </p>
                   <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -121,9 +125,9 @@ export const AppointmentCards = () => {
                     {appt.state}
                   </span>
                 </div>
-                <p className="text-sm">Trámite: {appt.tramites?.label}</p>
+                <p className="text-sm">Trámite: {procedure}</p>
                 <p className="text-sm">Oficina: {appt.consulate.name}</p>
-                <p className="text-sm">Dirección: {appt.consulate.direction}</p>
+                <p className="text-sm">Dirección: {appt.consulate.address}</p>
                 <p className="text-sm">Código de confirmación: 23423</p>
 
                 <div className="text-sm mt-3">
@@ -146,9 +150,12 @@ export const AppointmentCards = () => {
                   <div className="text-sm mt-3">
                     <span className="font-semibold">Requisitos:</span>
                     <ul className="list-none mt-1">
-                      {appt.tramites.requeriments.map((s, idx) => (
+                      {proceduresOptions[0].requeriments.map((s, idx) => (
                         <li key={idx}>{s}</li>
                       ))}
+                      {/* {appt.tramites.requeriments.map((s, idx) => (
+                        <li key={idx}>{s}</li>
+                      ))} */}
                     </ul>
                   </div>
                 )}

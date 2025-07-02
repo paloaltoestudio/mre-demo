@@ -13,9 +13,6 @@ import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
-import { ProceduresSchema } from "../schemas/appointments/proceduresInfo.schema";
-import { usePublicQuery } from "../hooks/usePublicQuery";
-import type { ProceduresType } from "../types/dashboard/proceduresTypes";
 
 const steps = [
   "Lugar de agendamiento",
@@ -39,16 +36,10 @@ export const SelectAppointmentsView = ({
     name: "",
     cityId: 0,
     cityName: "",
-    direction: "",
+    address: "",
   });
-  const { setScheduled } = SchedulingsStore();
+  const { setScheduled, procedure } = SchedulingsStore();
   const navigate = useNavigate();
-
-  const { data: Procedures } = usePublicQuery<ProceduresType>({
-    key: ["procedures"],
-    url: `/Procedures`,
-    schema: ProceduresSchema,
-  });
 
   const onSubmit = (data: any) => {
     const dependentsCount = data.dependientesCount || 0;
@@ -72,6 +63,7 @@ export const SelectAppointmentsView = ({
       selectedOption,
       parents: dependentsData,
       state: "Agendada",
+      tramites: [procedure]
     };
 
     setScheduled(completedData);
@@ -109,7 +101,6 @@ export const SelectAppointmentsView = ({
                 setView={setView}
                 selectedOption={selectedOption}
                 setSelectedOption={setSelectedOption}
-                procedures={Procedures || ([] as ProceduresType)}
               />
             ) : view === 3 ? (
               <SelectDateForm // Montar el reagendamiento;

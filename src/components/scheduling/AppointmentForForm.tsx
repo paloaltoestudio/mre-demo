@@ -1,6 +1,6 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
-import { Controller, useFormContext, useWatch } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -16,19 +16,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { toast } from "react-toastify";
-import type {
-  ProceduresType,
-  requerimentsType,
-} from "../../types/dashboard/proceduresTypes";
+import type { ProceduresResponseType } from "../../types/dashboard/proceduresTypes";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
-import { requerimentsSchema } from "../../schemas/appointments/proceduresInfo.schema";
+import { ProcedureResponseSchema } from "../../schemas/appointments/proceduresInfo.schema";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
   setView?: Dispatch<SetStateAction<number>>;
   selectedOption: string | undefined;
   setSelectedOption: Dispatch<SetStateAction<string | undefined>>;
-  procedures: ProceduresType;
 };
 
 const customStyles = {
@@ -71,40 +67,33 @@ export const AppointmentForForm = ({
   setView,
   selectedOption,
   setSelectedOption,
-  procedures,
 }: AppointmentForFormProps) => {
-  const [watched, setWatched] = useState<boolean>(false);
   const queryClient = useQueryClient();
-  const { control, setValue } = useFormContext();
-  const { setRequeriments } = SchedulingsStore();
+  const { control, setValue, watch } = useFormContext();
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
   ])!;
   const { country } = SchedulingsStore();
-  const procedureWatcher = useWatch({ control, name: ["tramites"] });
+  const procedureWatcher = watch("tramites");
 
-  const { data: Requirements } = usePublicQuery<requerimentsType>({
-    key: `requirements-${procedureWatcher}`,
-    url: `/Requirements/${procedureWatcher}`,
-    schema: requerimentsSchema,
-    options: {
-      enabled: !!procedureWatcher,
-    },
+  const { data: procedures } = usePublicQuery<ProceduresResponseType>({
+    key: ["procedures"],
+    url: `/Procedure/by-office/${consulate.id}`,
+    schema: ProcedureResponseSchema,
   });
 
-  useEffect(() => {
-    if (procedureWatcher) {
-      setWatched(true);
-    }
+  // const { data: Requirements } = usePublicQuery<requerimentsType>({
+  //   key: ["requirements", procedureWatcher],
+  //   url: `/Requirements/${procedureWatcher}`,
+  //   schema: requerimentsSchema,
+  //   options: {
+  //     enabled: !!procedureWatcher,
+  //   },
+  // });
 
-    if (Requirements && watched) {
-      setRequeriments(Requirements); // Cambiar por el .data correspondiente;
-    }
-  }, [procedureWatcher, Requirements]);
-
-  useEffect(() => {
-    console.log(procedureWatcher);
-  }, []);
+  // useEffect(() => {
+  //   console.log("Requirements data:", Requirements);
+  // }, [Requirements]);
 
   return (
     <section
@@ -114,25 +103,10 @@ export const AppointmentForForm = ({
     >
       <div className="border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md w-full  px-4 py-3 justify-center flex flex-col shadow-lg">
         <h3 className="font-medium text-md flex items-center gap-1">
-          {/* <span className="w-5 h-5 flex justify-center items-center">
-            <img
-              src={
-                countryOptions.filter(
-                  (country) => country.value === consulate.country
-                )[0].icon
-              }
-              alt={consulate.consulate.name}
-            />
-          </span> */}
           {countryOptions?.data?.filter((c) => c.id === country)?.[0].name}
         </h3>
         <h3 className="font-medium text-md">{consulate.name}</h3>
-        <p className="text-sm text-gray-600">
-          Dirección: {consulate.direction}
-        </p>
-        {/* <p className="text-sm text-gray-600">
-          Teléfono: {consulate.consulate.phone}
-        </p> */}
+        <p className="text-sm text-gray-600">Dirección: {consulate.address}</p>
       </div>
 
       <div className="mt-6 w-full">
@@ -148,43 +122,61 @@ export const AppointmentForForm = ({
             name="tramites"
             control={control}
             rules={{
-              required: "Selecciona un trámite",
+              required: "El trámite es obligatorio",
+              validate: (value) => {
+                if (!value) return "Por favor, selecciona un trámite.";
+                return true;
+              },
             }}
-            render={({ field, fieldState }) => (
-              <div className="w-full mt-4">
-                <Select
-                  options={procedures}
-                  styles={{
-                    ...customStyles,
-                    multiValue: () => ({ display: "none" }),
-                    multiValueLabel: () => ({ display: "none" }),
-                    multiValueRemove: () => ({ display: "none" }),
-                  }}
-                  closeMenuOnSelect={true}
-                  {...field}
-                  value={field.value}
-                  onChange={(selected) => field.onChange(selected)}
-                />
+            render={({ field, fieldState }) => {
+              const selectedProcedure = procedures?.data?.find(
+                (procedure) => procedure.id === field.value
+              );
+              return (
+                <div className="w-full mt-4">
+                  <Select
+                    options={procedures?.data}
+                    styles={{
+                      ...customStyles,
+                      multiValue: () => ({ display: "none" }),
+                      multiValueLabel: () => ({ display: "none" }),
+                      multiValueRemove: () => ({ display: "none" }),
+                    }}
+                    formatOptionLabel={({ name }) => (
+                      <div className="flex items-center gap-2">
+                        <span>{name}</span>
+                      </div>
+                    )}
+                    closeMenuOnSelect={true}
+                    {...field}
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => option.id.toString()}
+                    value={selectedProcedure || null}
+                    onChange={(selected) => {
+                      field.onChange(selected?.id || null);
+                    }}
+                  />
 
-                <div className="mt-2 flex flex-wrap">
-                  {field.value && (
-                    <Chip
-                      key={field.value.value}
-                      label={field.value.label}
-                      onRemove={() => {
-                        field.onChange(null);
-                      }}
-                    />
+                  <div className="mt-2 flex flex-wrap">
+                    {selectedProcedure?.id && (
+                      <Chip
+                        key={selectedProcedure?.id}
+                        label={selectedProcedure?.name || ""}
+                        onRemove={() => {
+                          field.onChange(null);
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  {fieldState.error && (
+                    <span className="text-red-500 text-sm">
+                      {fieldState.error.message}
+                    </span>
                   )}
                 </div>
-
-                {fieldState.error && (
-                  <span className="text-red-500 text-sm">
-                    {fieldState.error.message}
-                  </span>
-                )}
-              </div>
-            )}
+              );
+            }}
           />
         </div>
 
@@ -312,7 +304,7 @@ export const AppointmentForForm = ({
         <button
           type="button"
           onClick={() => {
-            if (procedureWatcher[0] === undefined || !selectedOption) {
+            if (procedureWatcher === undefined || !selectedOption) {
               toast.error("Completa el formulario", {
                 icon: (
                   <FontAwesomeIcon
