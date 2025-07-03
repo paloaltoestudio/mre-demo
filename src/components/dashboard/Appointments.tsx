@@ -14,13 +14,6 @@ import { CancelAppointment } from "../scheduling/CancelAppointment";
 import { ReschedulingForm } from "../scheduling/ReschedulingForm";
 import { format } from "date-fns";
 import { toDate } from "../../configs/formats";
-import { usePublicQuery } from "../../hooks/usePublicQuery";
-import {
-  unicProcedureResponseSchema
-} from "../../schemas/appointments/proceduresInfo.schema";
-import type {
-  unicProceduresResponseType
-} from "../../types/dashboard/proceduresTypes";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -32,7 +25,7 @@ export const estadoColor: Record<Estado, string> = {
 export const AppointmentCards = () => {
   const navigate = useNavigate();
   const { user, document, setLocationVerification } = SessionStore();
-  const { scheduled, removeScheduled, updateState, procedure } =
+  const { scheduled, removeScheduled, updateState } =
     SchedulingsStore();
   const [activeUser, setActiveUser] = useState<UserType>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -45,7 +38,6 @@ export const AppointmentCards = () => {
     Record<string, boolean>
   >({});
   const [loader, setLoader] = useState<boolean>(true);
-  const [selectedProcedure, setSelectedProcedure] = useState<string[]>();
 
   useEffect(() => {
     const newUser = user.find(
