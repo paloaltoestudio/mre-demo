@@ -27,7 +27,7 @@ export const Summary = ({
   const cityWatch = watch("city");
   const { user, document } = SessionStore();
   const [activeUser, setActiveUser] = useState<UserType>();
-  const { country, procedure } = SchedulingsStore();
+  const { country } = SchedulingsStore();
   const queryClient = useQueryClient();
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
