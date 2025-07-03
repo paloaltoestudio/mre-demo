@@ -38,7 +38,7 @@ export const SelectAppointmentsView = ({
     cityName: "",
     address: "",
   });
-  const { setScheduled, procedure } = SchedulingsStore();
+  const { setScheduled } = SchedulingsStore();
   const navigate = useNavigate();
 
   const onSubmit = (data: any) => {
@@ -63,7 +63,6 @@ export const SelectAppointmentsView = ({
       selectedOption,
       parents: dependentsData,
       state: "Agendada",
-      tramites: [procedure]
     };
 
     setScheduled(completedData);

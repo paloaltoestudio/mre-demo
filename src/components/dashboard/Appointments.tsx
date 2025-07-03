@@ -12,7 +12,6 @@ import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { CancelAppointment } from "../scheduling/CancelAppointment";
 import { ReschedulingForm } from "../scheduling/ReschedulingForm";
-import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { format } from "date-fns";
 import { toDate } from "../../configs/formats";
 
@@ -26,7 +25,7 @@ export const estadoColor: Record<Estado, string> = {
 export const AppointmentCards = () => {
   const navigate = useNavigate();
   const { user, document, setLocationVerification } = SessionStore();
-  const { scheduled, removeScheduled, updateState, procedure } =
+  const { scheduled, removeScheduled, updateState } =
     SchedulingsStore();
   const [activeUser, setActiveUser] = useState<UserType>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -38,7 +37,7 @@ export const AppointmentCards = () => {
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
   >({});
-  const [loader, setLoader] = useState<boolean>(true); // Cambiar por el isLoading real con axios o tanstack;
+  const [loader, setLoader] = useState<boolean>(true);
 
   useEffect(() => {
     const newUser = user.find(
@@ -73,14 +72,15 @@ export const AppointmentCards = () => {
 
   const handleRemove = () => {
     if (scheduledData && requestRemove) {
-      if (scheduledData.state === "Agendada") updateState(scheduledData);
-      else if (scheduledData.state === "Cancelada")
+      if (scheduledData.state === "Agendada") {
+        setLocationVerification("Eliminar agendamiento");
+        updateState(scheduledData);
+        navigate("/auth/verification-method");
+      } else if (scheduledData.state === "Cancelada")
         removeScheduled(scheduledData);
 
-      setLocationVerification("Eliminar agendamiento");
       setIsOpenCancel(false);
       setRequestRemove(false);
-      navigate("/auth/verification-method");
     }
   };
 
@@ -141,7 +141,7 @@ export const AppointmentCards = () => {
                     {appt.state}
                   </span>
                 </div>
-                <p className="text-sm">Trámite: {procedure}</p>
+                <p className="text-sm">Trámite: {appt.tramites.name}</p>
                 <p className="text-sm">Oficina: {appt.consulate.name}</p>
                 <p className="text-sm">Dirección: {appt.consulate.address}</p>
                 <p className="text-sm">Código de confirmación: 23423</p>
@@ -163,31 +163,37 @@ export const AppointmentCards = () => {
                 </div>
 
                 {showRequirementsMap[appt.date.toString() + index] && (
-                  <div className="text-sm mt-3">
-                    <span className="font-semibold">Requisitos:</span>
-                    <ul className="list-none mt-1">
-                      {proceduresOptions[0].requeriments.map((s, idx) => (
-                        <li key={idx}>{s}</li>
-                      ))}
-                      {/* {appt.tramites.requeriments.map((s, idx) => (
-                        <li key={idx}>{s}</li>
-                      ))} */}
-                    </ul>
-                  </div>
-                )}
+                    <div className="text-sm mt-3">
+                      <span className="font-semibold">Requisitos:</span>
+                      <ul className="list-none mt-1">
+                        {appt.tramites.requirements
+                          .split(",")
+                          .map((req: string, reqIndex: number) => (
+                            <li
+                              key={reqIndex}
+                              className="text-sm text-gray-600 ml-2"
+                            >
+                              {req}
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  )}
 
                 <div className="flex justify-end mt-3 gap-2">
                   {appt.state === "Agendada" && (
                     <>
                       <button
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
                           setShowRequirementsMap((prev) => ({
                             ...prev,
                             [appt.date.toString() + index]:
                               !prev[appt.date.toString() + index],
-                          }))
-                        }
+                          }));
+
+                          console.log(appt.tramites)
+                        }}
                         className="text-blue-600 hover:underline text-sm font-medium mr-auto"
                       >
                         {showRequirementsMap[appt.date.toString() + index]

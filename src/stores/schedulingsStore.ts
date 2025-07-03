@@ -19,9 +19,8 @@ export type SchedulingStoreType = {
   selectedOption: string;
   tramites: {
     id: string;
-    value: string;
-    label: string;
-    requeriments: string[];
+    name: string;
+    requirements: string;
   };
   state: string;
 };

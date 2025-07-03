@@ -15,7 +15,9 @@ import type { DateSchemaType } from "../../types/dashboard/dateTypes";
 import { postPublicRequest } from "../../services/fetchingService";
 import { toast } from "react-toastify";
 import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
-import type { ProceduresResponseType } from "../../types/dashboard/proceduresTypes";
+import type {
+  unicProceduresResponseType
+} from "../../types/dashboard/proceduresTypes";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -30,14 +32,13 @@ export const SelectDateForm = ({
 }: SelectDateFormProps) => {
   const { watch } = useFormContext();
   const queryClient = useQueryClient();
-  const procedures = watch("tramites");
   const countDependents = watch("dependientesCount") || 0;
   const dependentsWatch = watch("dependientesCount") || 0;
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
   ])!;
-  const [procedureName, setProcedureName] = useState<string>("");
-  const { country, setProcedure } = SchedulingsStore();
+  // const [procedureName, setProcedureName] = useState<string>("");
+  const { country } = SchedulingsStore();
   const [dates, setDates] = useState<DateSchemaType[]>();
 
   const { mutateAsync } = useMutation({
@@ -64,13 +65,16 @@ export const SelectDateForm = ({
     },
   });
 
+  const procedureWatcher: unicProceduresResponseType["data"] =
+    watch("tramites");
+
   const handleDates = async () => {
     const data = {
       url: "/DateTimeAvailable/by-officeId-proceduresId",
       schema: outputDatesSchema,
       body: {
         officeId: consulate.id,
-        proceduresId: [procedures],
+        proceduresId: [procedureWatcher.id],
       },
     };
     await mutateAsync(data);
@@ -78,21 +82,6 @@ export const SelectDateForm = ({
 
   useEffect(() => {
     handleDates();
-    const proceduresData = queryClient.getQueryData(["procedures"]);
-
-    const nameProcedure: ProceduresResponseType | undefined = proceduresData
-      ? (proceduresData as ProceduresResponseType)
-      : undefined;
-
-    if (nameProcedure) {
-      setProcedureName(
-        nameProcedure.data.filter((p) => p.id === procedures)[0].name
-      );
-
-      setProcedure(
-        nameProcedure.data.filter((p) => p.id === procedures)[0].name
-      );
-    }
   }, []);
 
   return (
@@ -115,7 +104,9 @@ export const SelectDateForm = ({
             ? countDependents + 1
             : countDependents}
         </p>
-        <p className="text-sm text-gray-600">Trámite: {procedureName}</p>
+        <p className="text-sm text-gray-600">
+          Trámite: {procedureWatcher.name}
+        </p>
       </div>
 
       <div className="mt-6 w-full">
