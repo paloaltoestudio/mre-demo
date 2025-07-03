@@ -1,6 +1,5 @@
 import { useFormContext, useWatch } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
-import { proceduresOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { SessionStore, type UserType } from "../../stores/sessionStore";
 import { CancelBtn } from "./CancelBtn";
@@ -9,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
+import type { unicProceduresResponseType } from "../../types/dashboard/proceduresTypes";
 
 type SummaryProps = {
   consulate: ConsulatesType;
@@ -39,11 +39,30 @@ export const Summary = ({
     name: "country",
   });
 
+  const selectedProcedure: unicProceduresResponseType["data"] = useWatch({
+    control,
+    name: "tramites",
+  });
+
+  // const { data: Procedure } = usePublicQuery<unicProceduresResponseType>({
+  //   key: ["SelectedProcedure", selectedProcedure],
+  //   url: `/Procedure/getProcedure/${selectedProcedure}`,
+  //   schema: unicProcedureResponseSchema,
+  //   options: {
+  //     enabled: !!selectedProcedure,
+  //   },
+  // });
+
+  // useEffect(() => {
+  //   console.log("Procedure", Procedure);
+  // }, [Procedure]);
+
   useEffect(() => {
     const newUser = user.find(
       (user) => user.documentNumber.toString() === document.toString()
     );
     setActiveUser(newUser);
+    console.log("active tramit", selectedProcedure);
   }, []);
 
   const [dependentsInfo, setDependentsInfo] = useState<
@@ -98,7 +117,7 @@ export const Summary = ({
               : "No seleccionada"}
           </p>
           <p className="text-sm text-gray-600">
-            Trámites: {procedure}
+            Trámites: {selectedProcedure?.name}
             {/* Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")} */}
           </p>
           <p className="text-sm text-gray-600">Oficina: {consulate.name}</p>
@@ -148,15 +167,15 @@ export const Summary = ({
         </p>
         {
           <div className="mt-2">
-            <h3 className="font-medium text-md">{procedure}</h3>
+            <h3 className="font-medium text-md">{selectedProcedure.name}</h3>
             <ul className="list-disc pl-5 mb-1 p-2">
-              {proceduresOptions[0].requeriments?.map(
-                (req: string, reqIndex: number) => (
+              {selectedProcedure.requirements
+                .split(",")
+                .map((req: string, reqIndex: number) => (
                   <li key={reqIndex} className="text-sm text-gray-600 ml-2">
                     {req}
                   </li>
-                )
-              )}
+                ))}
             </ul>
           </div>
         }

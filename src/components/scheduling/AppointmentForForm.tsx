@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction } from "react";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
@@ -95,6 +95,8 @@ export const AppointmentForForm = ({
   //   console.log("Requirements data:", Requirements);
   // }, [Requirements]);
 
+  useEffect(() => {console.log("pro", procedureWatcher)}, [procedureWatcher])
+
   return (
     <section
       id="appointment-for-form"
@@ -129,9 +131,10 @@ export const AppointmentForForm = ({
               },
             }}
             render={({ field, fieldState }) => {
-              const selectedProcedure = procedures?.data?.find(
-                (procedure) => procedure.id === field.value
-              );
+              // const selectedProcedure = procedures?.data?.find(
+              //   (procedure) => procedure.id === field.value
+              // );
+              const selectedProcedure = field.value;
               return (
                 <div className="w-full mt-4">
                   <Select
@@ -153,14 +156,14 @@ export const AppointmentForForm = ({
                     getOptionValue={(option) => option.id.toString()}
                     value={selectedProcedure || null}
                     onChange={(selected) => {
-                      field.onChange(selected?.id || null);
+                      field.onChange(selected);
                     }}
                   />
 
                   <div className="mt-2 flex flex-wrap">
-                    {selectedProcedure?.id && (
+                    {selectedProcedure && (
                       <Chip
-                        key={selectedProcedure?.id}
+                        key={selectedProcedure.id}
                         label={selectedProcedure?.name || ""}
                         onRemove={() => {
                           field.onChange(null);
