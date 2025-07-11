@@ -157,6 +157,10 @@ export const AppointmentCards = () => {
     },
   });
 
+  useEffect(() => {
+    console.log("Active User: ", activeUser)
+  },[activeUser])
+
   const handleHash = async () => {
     if (hash) {
       await MutateHash({
@@ -227,9 +231,9 @@ export const AppointmentCards = () => {
 
   const handleAppointment = async () => {
     const postData = {
-      firstName: "Luis",
-      lastName: "Diaz",
-      documentNumber: "10256341",
+      firstName: activeUser?.firstName,
+      lastName: activeUser?.lastName,
+      documentNumber: String(activeUser?.documentNumber),
     };
 
     return await mutateAsync({
@@ -241,7 +245,7 @@ export const AppointmentCards = () => {
 
   useEffect(() => {
     handleAppointment();
-  }, []);
+  }, [activeUser]);
 
   return (
     <div className="p-6">
@@ -305,12 +309,12 @@ export const AppointmentCards = () => {
                   <span className="font-semibold">Solicitantes:</span>
                   <ul className="list-none mt-1">
                     <li>
-                      {sche.applicant?.firstName} {sche.applicant?.lastName}.
+                      {sche.applicant?.firstName} {sche.applicant?.lastName} <br />
                       {sche.applicant?.documentNumber}
                     </li>
                     {appt.dependent.map((s, idx) => (
                       <li key={idx}>
-                        {s?.firstNames} {s?.lastNames}. {s?.documentNumber}
+                        {s?.firstNames} {s?.lastNames} / {s?.documentNumber}
                       </li>
                     ))}
                   </ul>

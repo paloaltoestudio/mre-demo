@@ -192,12 +192,6 @@ export const SelectAppointmentsView = ({
   const { userId } = SessionStore();
 
   useEffect(() => {
-    if (appointmentId) {
-      handleAppointment();
-    }
-  }, [appointmentId]);
-
-  useEffect(() => {
     if (toSchedule) {
       handlePreAppointment();
     }
