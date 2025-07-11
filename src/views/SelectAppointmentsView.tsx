@@ -209,13 +209,13 @@ export const SelectAppointmentsView = ({
       body: {
         userId: activeUser?.documentNumber,
         availabilityBlockId: toSavedDate, // id de la hora;
-        dependents: toSchedule?.parents?.map((parent) => ({
+        dependents: toSchedule?.parents ? toSchedule?.parents?.map((parent) => ({
           relationshipTypeId: 1,
           documentTypeId: parent.typeDocument,
           documentNumber: 1,
           firstNames: parent.names,
           lastNames: parent.lastNames,
-        })),
+        })) : [],
         tramiteId: toSchedule?.tramites.id,
       },
     });
