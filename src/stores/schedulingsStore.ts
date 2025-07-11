@@ -32,6 +32,7 @@ type SchedulingsStoreType = {
   country: number;
   requeriments: requerimentsType;
   procedure: string;
+  toSavedDate: number;
 };
 
 type SchedulingsStoreActions = {
@@ -47,6 +48,8 @@ type SchedulingsStoreActions = {
   setCountry: (country: number) => void;
   setRequeriments: (setRequeriments: requerimentsType) => void;
   setProcedure: (procedure: string) => void;
+  setToSavedDate: (toSavedDate: number) => void;
+  setRemoveSavedDate: () => void;
 };
 
 export const SchedulingsStore = create(
@@ -59,6 +62,7 @@ export const SchedulingsStore = create(
         country: 0,
         requeriments: [] as requerimentsType,
         procedure: "",
+        toSavedDate: 0,
         setScheduled: (newScheduled) =>
           set((state) => ({ scheduled: [...state.scheduled, newScheduled] })),
         removeScheduled: (scheduledToRemove) =>
@@ -91,6 +95,8 @@ export const SchedulingsStore = create(
         setRequeriments: (setRequeriments) =>
           set({ requeriments: setRequeriments }),
         setProcedure: (procedure) => set({ procedure }),
+        setToSavedDate: (toSavedDate) => set({ toSavedDate }),
+        setRemoveSavedDate: () => set({ toSavedDate: 0 }),
       }),
       {
         name: "schedulings-store",

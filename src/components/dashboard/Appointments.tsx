@@ -18,8 +18,15 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { postPublicRequest } from "../../services/fetchingService";
 import { postAppointmentSchema } from "../../schemas/appointments/appointments";
-import type { ResponseHashType } from "../../types/auth/hashSchemas";
-import { CreateHashSchema } from "../../schemas/Auth/hashSchemas";
+import type {
+  ResponseHashType,
+  ResponsesTokenType,
+  ResponseTokenType,
+} from "../../types/auth/hashSchemas";
+import {
+  CreateHashSchema,
+  CreateTokenSchema,
+} from "../../schemas/Auth/hashSchemas";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -30,9 +37,9 @@ export const estadoColor: Record<Estado, string> = {
 
 export const AppointmentCards = () => {
   const navigate = useNavigate();
-  const { user, document } = SessionStore();
+  // const { user, document } = SessionStore();
   // const { scheduled, removeScheduled, updateState } = SchedulingsStore();
-  const [activeUser, setActiveUser] = useState<UserType>();
+  const [activeUser, setActiveUser] = useState<ResponseTokenType>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
   const [scheduledData, setScheduledData] = useState<AppointmentsType>();
@@ -47,34 +54,49 @@ export const AppointmentCards = () => {
   const [sche, setSche] = useState<AppointmentsType>();
   const [searchParams] = useSearchParams();
   const [hash, setHash] = useState<string | null>();
+  const [token, setToken] = useState<ResponseHashType>();
+
+  // useEffect(() => {
+  //   const newUser = user.find(
+  //     (user) => user.documentNumber.toString() === document.toString()
+  //   );
+  //   // setActiveUser(
+  //   //   newUser || {
+  //   //     documentType: "CC",
+  //   //     documentNumber: "10256341",
+  //   //     firstName: "Luis Alberto",
+  //   //     lastName: "Diaz Castro",
+  //   //     birthDate: "1990-01-01",
+  //   //     email: "arquitecto@italm.com.co",
+  //   //     phoneCode: "+57",
+  //   //     phoneNumber: "3125642169",
+  //   //     whatsappCode: "+57",
+  //   //     whatsappNumber: "3125642169",
+  //   //     password: "10256341",
+  //   //     confirmPassword: "10256341",
+  //   //     acceptData: true,
+  //   //     acceptTerms: true,
+  //   //   }
+  //   // );
+  //   setTimeout(() => {
+  //     setLoader(false);
+  //   }, 500);
+  // }, []);
 
   useEffect(() => {
-    const newUser = user.find(
-      (user) => user.documentNumber.toString() === document.toString()
-    );
-    setActiveUser(
-      newUser || {
-        documentType: "CC",
-        documentNumber: "10256341",
-        firstName: "Luis Alberto",
-        lastName: "Diaz Castro",
-        birthDate: "1990-01-01",
-        email: "arquitecto@italm.com.co",
-        phoneCode: "+57",
-        phoneNumber: "3125642169",
-        whatsappCode: "+57",
-        whatsappNumber: "3125642169",
-        password: "10256341",
-        confirmPassword: "10256341",
-        acceptData: true,
-        acceptTerms: true,
-      }
-    );
+    const rawHash = searchParams.get("hash");
+
+    if (rawHash) {
+      const corrected = rawHash.replace(/ /g, "+");
+      const decoded = decodeURIComponent(corrected);
+      setHash(decoded);
+    } else {
+      setHash(null);
+    }
+
     setTimeout(() => {
       setLoader(false);
     }, 500);
-
-    setHash(searchParams.get("hash") || null);
   }, []);
 
   useEffect(() => {
@@ -82,12 +104,39 @@ export const AppointmentCards = () => {
       handleHash();
     }
   }, [hash]);
+  useEffect(() => {
+    if (token) {
+      handleToken();
+    }
+  }, [token]);
 
   const { mutateAsync: MutateHash } = useMutation({
     mutationFn: postPublicRequest<ResponseHashType>,
     onSuccess: (data: ResponseHashType) => {
-      console.log("token", data);
-      setHash(data.token ? data.token : null);
+      console.log("token hash", data);
+      setToken(data);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en la generación del token", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const { mutateAsync: MutateToken } = useMutation({
+    mutationFn: postPublicRequest<ResponsesTokenType>,
+    onSuccess: (data: ResponsesTokenType) => {
+      setActiveUser(data[0]);
     },
     onError: () => {
       toast.error("Ocurrió un error en la generación del token", {
@@ -109,9 +158,19 @@ export const AppointmentCards = () => {
   const handleHash = async () => {
     if (hash) {
       await MutateHash({
-        url: "Token/decrypt",
+        url: "/Token/decrypt",
         schema: CreateHashSchema,
         body: { hash: hash! },
+      });
+    }
+  };
+
+  const handleToken = async () => {
+    if (token) {
+      await MutateToken({
+        url: "/User/external",
+        schema: CreateTokenSchema,
+        body: { externalId: token?.externalId! },
       });
     }
   };

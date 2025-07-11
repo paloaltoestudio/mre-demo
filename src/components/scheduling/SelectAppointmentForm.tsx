@@ -302,11 +302,14 @@ export const SelectAppointmentForm = ({
                         : "border-gray-300"
                     }`}
                     onClick={async () => {
-                      const position = await useSetPosition(item.address);
                       setSelectedOption(item);
-                      setMarkerPosition(position);
-                      setMapLocation(position);
                       setConsulate(item);
+
+                      const position = await useSetPosition(item.address);
+                      if (position) {
+                        setMarkerPosition(position);
+                        setMapLocation(position);
+                      }
                     }}
                   >
                     <h3 className="font-medium text-md">{item.name}</h3>

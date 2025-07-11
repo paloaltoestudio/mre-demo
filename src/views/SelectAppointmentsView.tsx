@@ -10,7 +10,10 @@ import { SelectDateForm } from "../components/scheduling/SelectDateForm";
 import { DependentInformationForm } from "../components/scheduling/DependentInformationForm";
 import { DinamicNav } from "../components/scheduling/DinamicNav";
 import { Summary } from "../components/scheduling/Summary";
-import { type SchedulingStoreType } from "../stores/schedulingsStore";
+import {
+  SchedulingsStore,
+  type SchedulingStoreType,
+} from "../stores/schedulingsStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -55,7 +58,6 @@ export const SelectAppointmentsView = ({
     address: "",
   });
   const navigate = useNavigate();
-  const [dateBlocks, setDateBlocks] = useState<ResponseDateBlocksType>();
   const [toSchedule, setToSchedule] = useState<SchedulingStoreType>();
   const [appointmentId, setAppointmentId] = useState<number>(0);
   const [activeUser, setActiveUser] = useState<UserType>();
@@ -86,28 +88,28 @@ export const SelectAppointmentsView = ({
   }, []);
 
   // Fetching para dateBlocks;
-  const { mutateAsync } = useMutation({
-    mutationFn: postPublicRequest<ResponseDateBlocksType>,
-    onSuccess: (data: ResponseDateBlocksType) => {
-      console.log(data);
-      setDateBlocks(data);
-    },
-    onError() {
-      toast.error("Ocurrió un error en los horarios", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-red-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-      });
-    },
-  });
+  // const { mutateAsync } = useMutation({
+  //   mutationFn: postPublicRequest<ResponseDateBlocksType>,
+  //   onSuccess: (data: ResponseDateBlocksType) => {
+  //     console.log(data);
+  //     setDateBlocks(data);
+  //   },
+  //   onError() {
+  //     toast.error("Ocurrió un error en los horarios", {
+  //       icon: (
+  //         <FontAwesomeIcon
+  //           icon={faCircleExclamation}
+  //           className="text-red-500"
+  //         />
+  //       ),
+  //       autoClose: 1000,
+  //       draggable: true,
+  //       progress: undefined,
+  //       hideProgressBar: true,
+  //       className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+  //     });
+  //   },
+  // });
 
   const { mutateAsync: mutatePreAppointment } = useMutation({
     mutationFn: postPublicRequest<ResponsePreAppointmentType>,
@@ -168,26 +170,37 @@ export const SelectAppointmentsView = ({
   });
 
   useEffect(() => {
-    if (dateBlocks) {
-      handlePreAppointment();
-    }
     if (appointmentId) {
       handleAppointment();
     }
-  }, [dateBlocks, appointmentId]);
+  }, [appointmentId]);
 
-  const handleDateBlocks = async (completedData: SchedulingStoreType) => {
-    await mutateAsync({
-      url: "/date-blocks/CreaetOrUpdate",
-      schema: CreateDateBlockSchema,
-      body: {
-        officeId: completedData.consulate.id,
-        date: completedData.date.toString(),
-        description: "",
-        active: true,
-      },
-    });
-  };
+  // const handleDateBlocks = async (completedData: SchedulingStoreType) => {
+  //   await mutateAsync({
+  //     url: "/date-blocks/CreateOrUpdate",
+  //     schema: CreateDateBlockSchema,
+  //     body: {
+  //       officeId: completedData.consulate.id,
+  //       date: completedData.date.toISOString(),
+  //       description: "",
+  //       active: true,
+  //     },
+  //   });
+  // };
+
+  const { toSavedDate } = SchedulingsStore();
+
+  useEffect(() => {
+    if (appointmentId) {
+      handleAppointment();
+    }
+  }, [appointmentId]);
+
+  useEffect(() => {
+    if (toSchedule) {
+      handlePreAppointment();
+    }
+  }, [toSchedule]);
 
   const handlePreAppointment = async () => {
     await mutatePreAppointment({
@@ -195,7 +208,7 @@ export const SelectAppointmentsView = ({
       schema: CreatePreAppointmentSchema,
       body: {
         userId: activeUser?.documentNumber,
-        availabilityBlockId: dateBlocks?.availabilityBlockId,
+        availabilityBlockId: toSavedDate, // id de la hora;
         dependents: toSchedule?.parents?.map((parent) => ({
           relationshipTypeId: 1,
           documentTypeId: parent.typeDocument,
@@ -210,7 +223,7 @@ export const SelectAppointmentsView = ({
 
   const handleAppointment = async () => {
     await mutateAppointment({
-      url: `/Appintment/confirm-preappointment${appointmentId}`,
+      url: `/Appointment/confirm-preappointment${appointmentId}`,
     });
   };
 
@@ -238,8 +251,6 @@ export const SelectAppointmentsView = ({
       state: "Agendada",
       city: 1,
     };
-
-    handleDateBlocks(completedData);
     setToSchedule(completedData);
   };
 
