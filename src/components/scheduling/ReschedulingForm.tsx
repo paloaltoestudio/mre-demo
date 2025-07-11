@@ -7,7 +7,7 @@ import {
 } from "../../stores/schedulingsStore";
 import type { UserType } from "../../stores/sessionStore";
 import { estadoColor } from "../dashboard/Appointments";
-import type { Estado } from "../../types/dashboard/appointmentTypes";
+import type { Estado } from "../../types/dashboard/AppointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
 import type { DateSchemaType } from "../../types/dashboard/dateTypes";
 import { outputDatesSchema } from "../../schemas/appointments/dates.schema";

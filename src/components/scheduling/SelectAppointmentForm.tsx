@@ -14,7 +14,7 @@ import type {
   OfficeInfoType,
   OfficesInfoType,
 } from "../../types/dashboard/officeInfo";
-import { OfficesInfoSchema } from "../../schemas/appointments/officeInfo.schema";
+import { OfficesInfoSchema } from "../../schemas/appointments/OfficeInfo.schema";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { useGeocod, useSetPosition } from "../../hooks/useGeocod";
