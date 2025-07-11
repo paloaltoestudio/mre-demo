@@ -13,6 +13,8 @@ import { ToastContainer } from "react-toastify";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 import { CountriesInfoSchema } from "../schemas/appointments/countryInfo.schema";
 import { usePublicQuery } from "../hooks/usePublicQuery";
+import { HomeView } from "../views/HomeView";
+
 
 export const MainRouter = () => {
   const { data: countries } = usePublicQuery<CountriesInfoType>({
@@ -27,6 +29,7 @@ export const MainRouter = () => {
         {/* Public Routes */}
         <Route path="/" element={<AuthLayout />}>
           <Route index element={<AuthView />} />
+          <Route path="/home" element={<HomeView />} />
           <Route path="/auth" element={<AuthView />} />
           <Route path="/auth/:registry" element={<AuthView />} />
           <Route
