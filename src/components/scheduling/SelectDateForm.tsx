@@ -105,7 +105,7 @@ export const SelectDateForm = ({
             : countDependents}
         </p>
         <p className="text-sm text-gray-600">
-          Trámite: {procedureWatcher.name}
+          Trámite: {procedureWatcher?.name}
         </p>
       </div>
 

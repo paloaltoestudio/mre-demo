@@ -82,19 +82,6 @@ export const AppointmentForForm = ({
     schema: ProcedureResponseSchema,
   });
 
-  // const { data: Requirements } = usePublicQuery<requerimentsType>({
-  //   key: ["requirements", procedureWatcher],
-  //   url: `/Requirements/${procedureWatcher}`,
-  //   schema: requerimentsSchema,
-  //   options: {
-  //     enabled: !!procedureWatcher,
-  //   },
-  // });
-
-  // useEffect(() => {
-  //   console.log("Requirements data:", Requirements);
-  // }, [Requirements]);
-
   useEffect(() => {console.log("pro", procedureWatcher)}, [procedureWatcher])
 
   return (

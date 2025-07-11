@@ -19,7 +19,7 @@ export const VerificationViews = () => {
     value: string;
   }>({ type: "email", value: "default@email.com" });
   const { fromAuth, registry, typeUser } = useRoutesStore();
-  const { code, user, document, locationVerification } = SessionStore();
+  const { code, user, document, locationVerification, official } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
   const { toRemove, toReplace, rescheduling, removeScheduled } = SchedulingsStore();
 
@@ -56,8 +56,9 @@ export const VerificationViews = () => {
           navigate("/access/verification-id");
         } else navigate("/auth/verification-files");
       } else {
-        navigate("/dashboard/appointments");
-        if (locationVerification === "Reagendar") {
+        if(official) navigate("/auth/official")
+        else navigate("/dashboard/appointments");
+        if (locationVerification === "Reagendar" ) {
           rescheduling(toRemove, toReplace);
           toast.success("Cita reagendada correctamente", {
             icon: (
@@ -73,7 +74,7 @@ export const VerificationViews = () => {
             className:
               "border-l-5 border-green-500 bg-white text-black shadow-md",
           });
-        }else if(locationVerification === "Eliminar agendamiento"){
+        }else if(locationVerification === "Eliminar agendamiento" && !official){
           removeScheduled(toRemove);
           toast.success("Cita eliminada correctamente", {
             icon: (

@@ -1,19 +1,32 @@
-import { useNavigate } from "react-router-dom";
-import type { Estado } from "../../types/dashboard/appointmentTypes";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import type {
+  AppointmentsType,
+  Estado,
+} from "../../types/dashboard/appointmentTypes";
 import { SessionStore, type UserType } from "../../stores/sessionStore";
-import {
-  SchedulingsStore,
-  type SchedulingStoreType,
-} from "../../stores/schedulingsStore";
 import { useEffect, useState } from "react";
-import { ReschedulingResume } from "../scheduling/ReschedulingResume";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendar } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCalendar,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { CancelAppointment } from "../scheduling/CancelAppointment";
-import { ReschedulingForm } from "../scheduling/ReschedulingForm";
 import { format } from "date-fns";
 import { toDate } from "../../configs/formats";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { postPublicRequest } from "../../services/fetchingService";
+import { postAppointmentSchema } from "../../schemas/appointments/appointments";
+import type {
+  ResponseHashType,
+  ResponsesTokenType,
+  ResponseTokenType,
+} from "../../types/auth/hashSchemas";
+import {
+  CreateHashSchema,
+  CreateTokenSchema,
+} from "../../schemas/Auth/hashSchemas";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -24,69 +37,211 @@ export const estadoColor: Record<Estado, string> = {
 
 export const AppointmentCards = () => {
   const navigate = useNavigate();
-  const { user, document, setLocationVerification } = SessionStore();
-  const { scheduled, removeScheduled, updateState } =
-    SchedulingsStore();
-  const [activeUser, setActiveUser] = useState<UserType>();
+  // const { user, document } = SessionStore();
+  // const { scheduled, removeScheduled, updateState } = SchedulingsStore();
+  const [activeUser, setActiveUser] = useState<ResponseTokenType>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
-  const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
-  const [rescheduledData, setRescheduledData] = useState<SchedulingStoreType>();
-  const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
+  const [scheduledData, setScheduledData] = useState<AppointmentsType>();
+  // const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
+  // const [rescheduledData, setRescheduledData] = useState<AppointmentsType>();
+  // const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
   const [requestRemove, setRequestRemove] = useState<boolean>(false);
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
   >({});
   const [loader, setLoader] = useState<boolean>(true);
+  const [sche, setSche] = useState<AppointmentsType>();
+  const [searchParams] = useSearchParams();
+  const [hash, setHash] = useState<string | null>();
+  const [token, setToken] = useState<ResponseHashType>();
+
+  // useEffect(() => {
+  //   const newUser = user.find(
+  //     (user) => user.documentNumber.toString() === document.toString()
+  //   );
+  //   // setActiveUser(
+  //   //   newUser || {
+  //   //     documentType: "CC",
+  //   //     documentNumber: "10256341",
+  //   //     firstName: "Luis Alberto",
+  //   //     lastName: "Diaz Castro",
+  //   //     birthDate: "1990-01-01",
+  //   //     email: "arquitecto@italm.com.co",
+  //   //     phoneCode: "+57",
+  //   //     phoneNumber: "3125642169",
+  //   //     whatsappCode: "+57",
+  //   //     whatsappNumber: "3125642169",
+  //   //     password: "10256341",
+  //   //     confirmPassword: "10256341",
+  //   //     acceptData: true,
+  //   //     acceptTerms: true,
+  //   //   }
+  //   // );
+  //   setTimeout(() => {
+  //     setLoader(false);
+  //   }, 500);
+  // }, []);
 
   useEffect(() => {
-    const newUser = user.find(
-      (user) => user.documentNumber.toString() === document.toString()
-    );
-    setActiveUser(
-      newUser || {
-        documentType: "CC",
-        documentNumber: "10256341",
-        firstName: "Luis Alberto",
-        lastName: "Diaz Castro",
-        birthDate: "1990-01-01",
-        email: "arquitecto@italm.com.co",
-        phoneCode: "+57",
-        phoneNumber: "3125642169",
-        whatsappCode: "+57",
-        whatsappNumber: "3125642169",
-        password: "10256341",
-        confirmPassword: "10256341",
-        acceptData: true,
-        acceptTerms: true,
-      }
-    );
+    const rawHash = searchParams.get("hash");
+
+    if (rawHash) {
+      const corrected = rawHash.replace(/ /g, "+");
+      const decoded = decodeURIComponent(corrected);
+      setHash(decoded);
+    } else {
+      setHash(null);
+    }
+
     setTimeout(() => {
       setLoader(false);
     }, 500);
   }, []);
 
   useEffect(() => {
-    if (rescheduledData && isOpenResume) setIsOpen(false);
-  }, [rescheduledData, isOpenResume]);
+    if (hash) {
+      handleHash();
+    }
+  }, [hash]);
+  useEffect(() => {
+    if (token) {
+      handleToken();
+    }
+  }, [token]);
+
+  const { mutateAsync: MutateHash } = useMutation({
+    mutationFn: postPublicRequest<ResponseHashType>,
+    onSuccess: (data: ResponseHashType) => {
+      console.log("token hash", data);
+      setToken(data);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en la generación del token", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const { setUserId } = SessionStore();
+  const { mutateAsync: MutateToken } = useMutation({
+    mutationFn: postPublicRequest<ResponsesTokenType>,
+    onSuccess: (data: ResponsesTokenType) => {
+      setActiveUser(data[0]);
+      setUserId(data[0].id);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en la generación del token", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const handleHash = async () => {
+    if (hash) {
+      await MutateHash({
+        url: "/Token/decrypt",
+        schema: CreateHashSchema,
+        body: { hash: hash! },
+      });
+    }
+  };
+
+  const handleToken = async () => {
+    if (token) {
+      await MutateToken({
+        url: "/User/external",
+        schema: CreateTokenSchema,
+        body: { externalId: token?.externalId! },
+      });
+    }
+  };
+
+  // useEffect(() => {
+  //   if (rescheduledData && isOpenResume) setIsOpen(false);
+  // }, [rescheduledData, isOpenResume]);
 
   const handleRemove = () => {
-    if (scheduledData && requestRemove) {
-      if (scheduledData.state === "Agendada") {
-        setLocationVerification("Eliminar agendamiento");
-        updateState(scheduledData);
-        navigate("/auth/verification-method");
-      } else if (scheduledData.state === "Cancelada")
-        removeScheduled(scheduledData);
-
-      setIsOpenCancel(false);
-      setRequestRemove(false);
-    }
+    // if (scheduledData && requestRemove) {
+    //   if (scheduledData.state === "Agendada") {
+    //     setLocationVerification("Eliminar agendamiento");
+    //     updateState(scheduledData);
+    //     navigate("/auth/verification-method");
+    //   } else if (scheduledData.state === "Cancelada")
+    //     removeScheduled(scheduledData);
+    //   setIsOpenCancel(false);
+    //   setRequestRemove(false);
+    // }
   };
 
   useEffect(() => {
     handleRemove();
-  }, [requestRemove, scheduledData, removeScheduled]);
+  }, [
+    requestRemove,
+    scheduledData,
+    // removeScheduled
+  ]);
+
+  const { mutateAsync } = useMutation({
+    mutationFn: postPublicRequest<AppointmentsType>,
+    onSuccess: (data: AppointmentsType) => {
+      console.log("Agendamientos", data);
+      setSche(data);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error al traer los agendamientos", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const handleAppointment = async () => {
+    const postData = {
+      firstName: "Luis",
+      lastName: "Diaz",
+      documentNumber: "10256341",
+    };
+
+    return await mutateAsync({
+      url: "/Appointment/by-user",
+      schema: postAppointmentSchema,
+      body: postData,
+    });
+  };
+
+  useEffect(() => {
+    handleAppointment();
+  }, []);
 
   return (
     <div className="p-6">
@@ -117,8 +272,8 @@ export const AppointmentCards = () => {
 
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        {scheduled && !loader
-          ? scheduled.map((appt, index) => (
+        {sche && !loader
+          ? sche.appointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
                 className="bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2"
@@ -131,24 +286,35 @@ export const AppointmentCards = () => {
                         ? new Date(appt.date).toLocaleDateString("es-ES")
                         : ""
                     }`}{" "}
-                    {format(toDate(appt?.hora), "hh:mm a")}
+                    {format(toDate(appt?.time), "hh:mm a")}
                   </p>
                   <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      estadoColor[appt.state as Estado]
+                      estadoColor[appt.status as Estado]
                     }`}
                   >
-                    {appt.state}
+                    {appt.status}
                   </span>
                 </div>
-                <p className="text-sm">Trámite: {appt.tramites.name}</p>
-                <p className="text-sm">Oficina: {appt.consulate.name}</p>
-                <p className="text-sm">Dirección: {appt.consulate.address}</p>
+                <p className="text-sm">Trámite: {appt.procedure}</p>
+                <p className="text-sm">Oficina: {appt.office}</p>
+                <p className="text-sm">Dirección: {appt.address}</p>
                 <p className="text-sm">Código de confirmación: 23423</p>
 
                 <div className="text-sm mt-3">
                   <span className="font-semibold">Solicitantes:</span>
                   <ul className="list-none mt-1">
+                    <li>
+                      {sche.applicant?.firstName} {sche.applicant?.lastName}.
+                      {sche.applicant?.documentNumber}
+                    </li>
+                    {appt.dependent.map((s, idx) => (
+                      <li key={idx}>
+                        {s?.firstNames} {s?.lastNames}. {s?.documentNumber}
+                      </li>
+                    ))}
+                  </ul>
+                  {/* <ul className="list-none mt-1">
                     {appt.parents?.map((s, idx) => (
                       <li key={idx}>
                         {s?.names} {s?.lastNames}. {s?.typeDocument.label}:{" "}
@@ -159,29 +325,29 @@ export const AppointmentCards = () => {
                       {activeUser?.firstName} {activeUser?.lastName}.{" "}
                       {activeUser?.documentType}: {activeUser?.documentNumber}
                     </li>
-                  </ul>
+                  </ul> */}
                 </div>
 
                 {showRequirementsMap[appt.date.toString() + index] && (
-                    <div className="text-sm mt-3">
-                      <span className="font-semibold">Requisitos:</span>
-                      <ul className="list-none mt-1">
-                        {appt.tramites.requirements
-                          .split(",")
-                          .map((req: string, reqIndex: number) => (
-                            <li
-                              key={reqIndex}
-                              className="text-sm text-gray-600 ml-2"
-                            >
-                              {req}
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-                  )}
+                  <div className="text-sm mt-3">
+                    <span className="font-semibold">Requisitos:</span>
+                    <ul className="list-none mt-1">
+                      {appt.requirements
+                        .split(",")
+                        .map((req: string, reqIndex: number) => (
+                          <li
+                            key={reqIndex}
+                            className="text-sm text-gray-600 ml-2 capitalize"
+                          >
+                            {req}
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
 
                 <div className="flex justify-end mt-3 gap-2">
-                  {appt.state === "Agendada" && (
+                  {appt.status && (
                     <>
                       <button
                         type="button"
@@ -191,8 +357,6 @@ export const AppointmentCards = () => {
                             [appt.date.toString() + index]:
                               !prev[appt.date.toString() + index],
                           }));
-
-                          console.log(appt.tramites)
                         }}
                         className="text-blue-600 hover:underline text-sm font-medium mr-auto"
                       >
@@ -204,7 +368,7 @@ export const AppointmentCards = () => {
                         type="button"
                         onClick={() => {
                           setIsOpenCancel(true);
-                          setScheduledData(appt);
+                          setScheduledData(sche);
                         }}
                         className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                       >
@@ -214,7 +378,7 @@ export const AppointmentCards = () => {
                         type="button"
                         onClick={() => {
                           setIsOpen(true);
-                          setScheduledData(appt);
+                          setScheduledData(sche);
                         }}
                         className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                       >
@@ -226,12 +390,12 @@ export const AppointmentCards = () => {
                       </button>
                     </>
                   )}
-                  {appt.state === "Cancelada" && (
+                  {appt.status === "Cancelada" && (
                     <button
                       type="button"
                       onClick={() => {
                         setIsOpenCancel(true);
-                        setScheduledData(appt);
+                        setScheduledData(sche);
                       }}
                       className="text-blue-600 text-sm py-[5px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
@@ -242,12 +406,12 @@ export const AppointmentCards = () => {
                       Archivar
                     </button>
                   )}
-                  {appt.state === "Atendida" && (
+                  {appt.status === "Atendida" && (
                     <button
                       type="button"
                       onClick={() => {
                         setIsOpenCancel(true);
-                        setScheduledData(appt);
+                        setScheduledData(sche);
                       }}
                       className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
@@ -258,12 +422,12 @@ export const AppointmentCards = () => {
                       />
                     </button>
                   )}
-                  {appt.state === "Pendiente" && (
+                  {appt.status === "Pendiente" && (
                     <button
                       type="button"
                       onClick={() => {
                         setIsOpen(true);
-                        setScheduledData(appt);
+                        setScheduledData(sche);
                       }}
                       className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
@@ -311,17 +475,18 @@ export const AppointmentCards = () => {
               </div>
             ))}
       </div>
-      {scheduledData && isOpen && (
-        <ReschedulingForm
-          scheduled={scheduledData!}
-          setRescheduledData={setRescheduledData}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          activeUser={activeUser!}
-          setIsOpenResume={setIsOpenResume}
-        />
-      )}
-      {rescheduledData && isOpenResume && (
+      {
+        scheduledData && isOpen && true
+        // <ReschedulingForm
+        //   scheduled={scheduledData!}
+        //   setRescheduledData={setRescheduledData}
+        //   isOpen={isOpen}
+        //   setIsOpen={setIsOpen}
+        //   activeUser={activeUser!}
+        //   setIsOpenResume={setIsOpenResume}
+        // />
+      }
+      {/* {rescheduledData && isOpenResume && (
         <ReschedulingResume
           scheduled={rescheduledData!}
           toDelete={scheduledData!}
@@ -329,7 +494,7 @@ export const AppointmentCards = () => {
           setIsOpen={setIsOpenResume}
           activeUser={activeUser!}
         />
-      )}
+      )} */}
       {scheduledData && isOpenCancel && (
         <CancelAppointment
           isOpenCancel={isOpenCancel}

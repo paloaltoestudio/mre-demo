@@ -13,6 +13,9 @@ import { ToastContainer } from "react-toastify";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 import { CountriesInfoSchema } from "../schemas/appointments/countryInfo.schema";
 import { usePublicQuery } from "../hooks/usePublicQuery";
+import { OfficialDataView } from "../views/OfficialDataView";
+import { AuthOfficialLayout } from "../layouts/AuthOfficialLayout";
+import { HomeView } from "../views/HomeView";
 
 export const MainRouter = () => {
   const { data: countries } = usePublicQuery<CountriesInfoType>({
@@ -20,13 +23,14 @@ export const MainRouter = () => {
     url: "/Countries",
     schema: CountriesInfoSchema,
   });
-  
+
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<AuthLayout />}>
-          <Route index element={<AuthView />} />
+          {/* <Route index element={<AuthView />} /> */}
+          <Route path="/home" element={<HomeView />} />
           <Route path="/auth" element={<AuthView />} />
           <Route path="/auth/:registry" element={<AuthView />} />
           <Route
@@ -45,9 +49,13 @@ export const MainRouter = () => {
           <Route path="/auth/registry" element={<RegistryView />} />
 
           <Route
-            path="/dashboard/appointments"
+            path="/dashboard/appointments/"
             element={<AppointmentsView />}
           />
+          <Route index element={<AppointmentsView />} />
+        </Route>
+        <Route path="/auth/official" element={<AuthOfficialLayout />}>
+          <Route index element={<OfficialDataView />} />
         </Route>
         <Route path="/access" element={<AccessLayout />}>
           <Route path="verification-id" element={<VerificationIDView />} />
