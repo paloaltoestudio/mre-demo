@@ -189,6 +189,7 @@ export const SelectAppointmentsView = ({
   // };
 
   const { toSavedDate } = SchedulingsStore();
+  const { userId } = SessionStore();
 
   useEffect(() => {
     if (appointmentId) {
@@ -207,7 +208,7 @@ export const SelectAppointmentsView = ({
       url: `/Appointment/pre-appointment`,
       schema: CreatePreAppointmentSchema,
       body: {
-        userId: activeUser?.documentNumber,
+        userId: userId,
         availabilityBlockId: toSavedDate, // id de la hora;
         dependents: toSchedule?.parents ? toSchedule?.parents?.map((parent) => ({
           relationshipTypeId: 1,

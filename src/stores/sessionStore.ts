@@ -25,13 +25,18 @@ type SessionStates = {
   document: string;
   locationVerification: string;
   official: boolean;
+  externalId: string | null;
+  userId: number | null; // ✅ Nuevo campo
 };
+
 type SessionActions = {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   setUser: (user: UserType) => void;
   setDocument: (document: string) => void;
   setLocationVerification: (message: string) => void;
   setOfficial: (official: boolean) => void;
+  setExternalId: (externalId: string) => void;
+  setUserId: (userId: number) => void; // ✅ Nueva acción
 };
 
 export const SessionStore = create(
@@ -44,6 +49,9 @@ export const SessionStore = create(
         document: "",
         locationVerification: "",
         official: false,
+        externalId: null,
+        userId: null, // ✅ Inicialización
+
         setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
         setUser: (user) =>
           set((state) => {
@@ -62,6 +70,8 @@ export const SessionStore = create(
         setLocationVerification: (message) =>
           set({ locationVerification: message }),
         setOfficial: (official) => set({ official }),
+        setExternalId: (externalId) => set({ externalId }),
+        setUserId: (userId) => set({ userId }), // ✅ Implementación
       }),
       {
         name: "sessionStore",

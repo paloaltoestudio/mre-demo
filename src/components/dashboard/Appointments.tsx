@@ -133,10 +133,12 @@ export const AppointmentCards = () => {
     },
   });
 
+  const { setUserId } = SessionStore();
   const { mutateAsync: MutateToken } = useMutation({
     mutationFn: postPublicRequest<ResponsesTokenType>,
     onSuccess: (data: ResponsesTokenType) => {
       setActiveUser(data[0]);
+      setUserId(data[0].id);
     },
     onError: () => {
       toast.error("Ocurrió un error en la generación del token", {
