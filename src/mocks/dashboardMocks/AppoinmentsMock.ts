@@ -1,4 +1,4 @@
-import type { Appointment } from "../../types/dashboard/appointmentTypes";
+import type { Appointment } from "../../types/dashboard/AppointmentTypes";
 
 export const appointments: Appointment[] = [
   {

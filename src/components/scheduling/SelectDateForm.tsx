@@ -1,5 +1,5 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
+import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

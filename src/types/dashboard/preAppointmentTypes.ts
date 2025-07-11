@@ -1,4 +1,4 @@
-import type { InferInput, InferOutput } from "valibot";
+import type { InferOutput } from "valibot";
 import type {
   CreatePreAppointmentSchema,
   ResponsePreAppointmentSchema,
@@ -7,6 +7,7 @@ import type {
 export type CreatePreAppointmentType = InferOutput<
   typeof CreatePreAppointmentSchema
 >;
-export type ResponsePreAppointmentType = InferInput<
+
+export type ResponsePreAppointmentType = InferOutput<
   typeof ResponsePreAppointmentSchema
 >;

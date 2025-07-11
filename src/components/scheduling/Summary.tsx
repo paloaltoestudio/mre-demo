@@ -1,5 +1,5 @@
 import { useFormContext, useWatch } from "react-hook-form";
-import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
+import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { SessionStore, type UserType } from "../../stores/sessionStore";
 import { CancelBtn } from "./CancelBtn";

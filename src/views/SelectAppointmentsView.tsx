@@ -4,7 +4,7 @@ import { SelectAppointmentForm } from "../components/scheduling/SelectAppointmen
 import type {
   ConsulatesType,
   ResponsePutAppointmentType,
-} from "../types/dashboard/appointmentTypes";
+} from "../types/dashboard/AppointmentTypes";
 import { AppointmentForForm } from "../components/scheduling/AppointmentForForm";
 import { SelectDateForm } from "../components/scheduling/SelectDateForm";
 import { DependentInformationForm } from "../components/scheduling/DependentInformationForm";
@@ -27,11 +27,11 @@ import {
   postPublicRequest,
   putPublicRequest,
 } from "../services/fetchingService";
-import type { ResponseDateBlocksType } from "../types/dashboard/dateBlocksTypes";
-import { CreateDateBlockSchema } from "../schemas/appointments/dateBlocks";
+// import type { ResponseDateBlocksType } from "../types/dashboard/dateBlocksTypes";
+// import { CreateDateBlockSchema } from "../schemas/appointments/dateBlocks";
 import type { ResponsePreAppointmentType } from "../types/dashboard/preAppointmentTypes";
 import { CreatePreAppointmentSchema } from "../schemas/appointments/preAppointments";
-import { SessionStore, type UserType } from "../stores/sessionStore";
+import { SessionStore } from "../stores/sessionStore";
 
 const steps = [
   "Lugar de agendamiento",
@@ -60,32 +60,32 @@ export const SelectAppointmentsView = ({
   const navigate = useNavigate();
   const [toSchedule, setToSchedule] = useState<SchedulingStoreType>();
   const [appointmentId, setAppointmentId] = useState<number>(0);
-  const [activeUser, setActiveUser] = useState<UserType>();
-  const { user } = SessionStore();
+  // const [activeUser, setActiveUser] = useState<UserType>();
+  // const { user } = SessionStore();
 
-  useEffect(() => {
-    const newUser = user.find(
-      (user) => user.documentNumber.toString() === document.toString()
-    );
-    setActiveUser(
-      newUser || {
-        documentType: "CC",
-        documentNumber: "10256341",
-        firstName: "Luis",
-        lastName: "Diaz",
-        birthDate: "1990-01-01",
-        email: "arquitecto@italm.com.co",
-        phoneCode: "+57",
-        phoneNumber: "3125642169",
-        whatsappCode: "+57",
-        whatsappNumber: "3125642169",
-        password: "10256341",
-        confirmPassword: "10256341",
-        acceptData: true,
-        acceptTerms: true,
-      }
-    );
-  }, []);
+  // useEffect(() => {
+  //   const newUser = user.find(
+  //     (user) => user.documentNumber.toString() === document.toString()
+  //   );
+  //   setActiveUser(
+  //     newUser || {
+  //       documentType: "CC",
+  //       documentNumber: "10256341",
+  //       firstName: "Luis",
+  //       lastName: "Diaz",
+  //       birthDate: "1990-01-01",
+  //       email: "arquitecto@italm.com.co",
+  //       phoneCode: "+57",
+  //       phoneNumber: "3125642169",
+  //       whatsappCode: "+57",
+  //       whatsappNumber: "3125642169",
+  //       password: "10256341",
+  //       confirmPassword: "10256341",
+  //       acceptData: true,
+  //       acceptTerms: true,
+  //     }
+  //   );
+  // }, []);
 
   // Fetching para dateBlocks;
   // const { mutateAsync } = useMutation({

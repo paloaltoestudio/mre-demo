@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
-import type { ConsulatesType } from "../types/dashboard/appointmentTypes";
+import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
 import type { requerimentsType } from "../types/dashboard/proceduresTypes";
 
 export type SchedulingStoreType = {

@@ -2,8 +2,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import type {
   AppointmentsType,
   Estado,
-} from "../../types/dashboard/appointmentTypes";
-import { SessionStore, type UserType } from "../../stores/sessionStore";
+} from "../../types/dashboard/AppointmentTypes";
+import { SessionStore } from "../../stores/sessionStore";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

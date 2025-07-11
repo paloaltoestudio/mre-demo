@@ -1,5 +1,5 @@
 import { useEffect, type Dispatch, type SetStateAction } from "react";
-import type { ConsulatesType } from "../../types/dashboard/appointmentTypes";
+import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
