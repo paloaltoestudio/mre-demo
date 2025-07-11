@@ -13,6 +13,8 @@ import { ToastContainer } from "react-toastify";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 import { CountriesInfoSchema } from "../schemas/appointments/countryInfo.schema";
 import { usePublicQuery } from "../hooks/usePublicQuery";
+import { OfficialDataView } from "../views/OfficialDataView";
+import { AuthOfficialLayout } from "../layouts/AuthOfficialLayout";
 
 export const MainRouter = () => {
   const { data: countries } = usePublicQuery<CountriesInfoType>({
@@ -20,7 +22,7 @@ export const MainRouter = () => {
     url: "/Countries",
     schema: CountriesInfoSchema,
   });
-  
+
   return (
     <BrowserRouter>
       <Routes>
@@ -48,6 +50,9 @@ export const MainRouter = () => {
             path="/dashboard/appointments"
             element={<AppointmentsView />}
           />
+        </Route>
+        <Route path="/auth/official" element={<AuthOfficialLayout />}>
+          <Route index element={<OfficialDataView />} />
         </Route>
         <Route path="/access" element={<AccessLayout />}>
           <Route path="verification-id" element={<VerificationIDView />} />
