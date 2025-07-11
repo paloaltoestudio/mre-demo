@@ -224,7 +224,7 @@ export const SelectAppointmentsView = ({
 
   const handleAppointment = async () => {
     await mutateAppointment({
-      url: `/Appointment/confirm-preappointment${appointmentId}`,
+      url: `/Appointment/confirm-preappointment/${appointmentId}`,
     });
   };
 
