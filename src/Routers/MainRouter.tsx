@@ -17,7 +17,6 @@ import { OfficialDataView } from "../views/OfficialDataView";
 import { AuthOfficialLayout } from "../layouts/AuthOfficialLayout";
 import { HomeView } from "../views/HomeView";
 
-
 export const MainRouter = () => {
   const { data: countries } = usePublicQuery<CountriesInfoType>({
     key: ["countriesInfo"],
@@ -30,7 +29,7 @@ export const MainRouter = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<AuthLayout />}>
-          <Route index element={<AuthView />} />
+          {/* <Route index element={<AuthView />} /> */}
           <Route path="/home" element={<HomeView />} />
           <Route path="/auth" element={<AuthView />} />
           <Route path="/auth/:registry" element={<AuthView />} />
@@ -50,9 +49,10 @@ export const MainRouter = () => {
           <Route path="/auth/registry" element={<RegistryView />} />
 
           <Route
-            path="/dashboard/appointments"
+            path="/dashboard/appointments/"
             element={<AppointmentsView />}
           />
+          <Route index element={<AppointmentsView />} />
         </Route>
         <Route path="/auth/official" element={<AuthOfficialLayout />}>
           <Route index element={<OfficialDataView />} />

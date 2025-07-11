@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type {
   AppointmentsType,
   Estado,
@@ -18,6 +18,8 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { postPublicRequest } from "../../services/fetchingService";
 import { postAppointmentSchema } from "../../schemas/appointments/appointments";
+import type { ResponseHashType } from "../../types/auth/hashSchemas";
+import { CreateHashSchema } from "../../schemas/Auth/hashSchemas";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -43,6 +45,8 @@ export const AppointmentCards = () => {
   >({});
   const [loader, setLoader] = useState<boolean>(true);
   const [sche, setSche] = useState<AppointmentsType>();
+  const [searchParams] = useSearchParams();
+  const [hash, setHash] = useState<string | null>();
 
   useEffect(() => {
     const newUser = user.find(
@@ -69,7 +73,48 @@ export const AppointmentCards = () => {
     setTimeout(() => {
       setLoader(false);
     }, 500);
+
+    setHash(searchParams.get("hash") || null);
   }, []);
+
+  useEffect(() => {
+    if (hash) {
+      handleHash();
+    }
+  }, [hash]);
+
+  const { mutateAsync: MutateHash } = useMutation({
+    mutationFn: postPublicRequest<ResponseHashType>,
+    onSuccess: (data: ResponseHashType) => {
+      console.log("token", data);
+      setHash(data.token ? data.token : null);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en la generación del token", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const handleHash = async () => {
+    if (hash) {
+      await MutateHash({
+        url: "Token/decrypt",
+        schema: CreateHashSchema,
+        body: { hash: hash! },
+      });
+    }
+  };
 
   // useEffect(() => {
   //   if (rescheduledData && isOpenResume) setIsOpen(false);
@@ -369,9 +414,8 @@ export const AppointmentCards = () => {
               </div>
             ))}
       </div>
-      {scheduledData &&
-        isOpen &&
-        true
+      {
+        scheduledData && isOpen && true
         // <ReschedulingForm
         //   scheduled={scheduledData!}
         //   setRescheduledData={setRescheduledData}
