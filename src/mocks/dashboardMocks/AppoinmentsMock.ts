@@ -127,11 +127,11 @@ export const proceduresOptions = [
   {
     value: "pasaporte",
     label: "Pasaporte",
-    requeriments: ["Requisito 1", "Requisito 2"],
+    requeriments: ["Pasaporte vigente, fotografía reciente, soporte económico y carta de solicitud."],
   },
   {
     value: "visa",
     label: "Visa",
-    requeriments: ["Requisito 1", "Requisito 2"],
+    requeriments: ["Cédula de ciudadanía en formato válido, diligenciar formulario web, asistir a la cita."],
   },
 ];
