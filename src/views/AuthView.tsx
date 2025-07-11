@@ -18,7 +18,7 @@ export const AuthView = () => {
   const [passwordView, setPasswordView] = useState(false);
   const { registry } = useParams();
   const { setFromAuth } = useRoutesStore();
-  const { user, document, setDocument, setUser } = SessionStore();
+  const { user, document, setDocument, setUser, setOfficial } = SessionStore();
 
   useEffect(() => {
     console.log(registry);
@@ -52,6 +52,9 @@ export const AuthView = () => {
     setDocument(data.documentNumber.toString());
     navigate("/auth/verified");
     console.log("documentNumber", data.documentNumber);
+    if (typeUser === "Funcionario") {
+      setOfficial(true);
+    }
   };
 
   const onSubmitPassword = (data: LoginPasswordType) => {
