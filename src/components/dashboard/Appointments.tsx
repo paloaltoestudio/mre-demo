@@ -7,6 +7,7 @@ import { SessionStore } from "../../stores/sessionStore";
 import { useActiveUser } from "../../hooks/useActiveUser";
 import { useTokenExpiration } from "../../hooks/useTokenExpiration";
 import { useEffect, useState } from "react";
+import { ENV_CONFIG } from "../../configs/environment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendar,
@@ -140,7 +141,7 @@ export const AppointmentCards = () => {
       });
       // Redirigir a la app externa después de mostrar el error
       setTimeout(() => {
-        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
       }, 2000);
     },
   });
@@ -168,7 +169,7 @@ export const AppointmentCards = () => {
       });
       // Redirigir a la app externa después de mostrar el error
       setTimeout(() => {
-        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
       }, 2000);
     },
   });
@@ -244,7 +245,7 @@ export const AppointmentCards = () => {
       });
       // Redirigir a la app externa después de mostrar el error
       setTimeout(() => {
-        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
       }, 2000);
     },
   });

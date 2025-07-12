@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useActiveUser } from "../hooks/useActiveUser";
 import { useTokenExpiration } from "../hooks/useTokenExpiration";
+import { ENV_CONFIG } from "../configs/environment";
 
 export const TokenExpirationChecker = () => {
   const { tokenExpiration, hasActiveUser } = useActiveUser();
@@ -15,7 +16,7 @@ export const TokenExpirationChecker = () => {
       // Si ya expiró, redirigir inmediatamente
       if (now >= expiration) {
         console.log("Token expirado al cargar la aplicación");
-        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
         return;
       }
 

@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useActiveUser } from "../../../hooks/useActiveUser";
+import { ENV_CONFIG } from "../../../configs/environment";
 
 export const UserHeader = () => {
   const { activeUser, hasActiveUser, clearActiveUser, clearTokenExpiration } = useActiveUser();
@@ -9,7 +10,7 @@ export const UserHeader = () => {
     clearActiveUser();
     clearTokenExpiration();
     // Redirigir a la aplicación externa de autenticación
-    window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+    window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
   };
 
   if (!hasActiveUser) {

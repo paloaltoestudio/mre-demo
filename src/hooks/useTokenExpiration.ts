@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useActiveUser } from "./useActiveUser";
+import { ENV_CONFIG } from "../configs/environment";
 
 export const useTokenExpiration = () => {
   const { clearActiveUser } = useActiveUser();
@@ -30,7 +31,7 @@ export const useTokenExpiration = () => {
   const handleTokenExpiration = () => {
     console.log("Token expirado, redirigiendo a autenticación...");
     clearActiveUser();
-    window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+    window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
   };
 
   const clearTokenExpiration = () => {

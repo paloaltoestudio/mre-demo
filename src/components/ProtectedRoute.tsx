@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useActiveUser } from "../hooks/useActiveUser";
 import { useSearchParams, useLocation } from "react-router-dom";
+import { ENV_CONFIG } from "../configs/environment";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     
     if (!hasActiveUser && !isDashboardWithHash) {
       // Redirigir a la aplicación externa de autenticación
-      window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+      window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
     }
   }, [hasActiveUser, searchParams, location.pathname]);
 
