@@ -1,7 +1,7 @@
 import { useFormContext, useWatch } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { SessionStore, type UserType } from "../../stores/sessionStore";
+import { useActiveUser } from "../../hooks/useActiveUser";
 import { CancelBtn } from "./CancelBtn";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,8 +25,7 @@ export const Summary = ({
   const dateWatch = watch("date");
   const dependentsWatch = watch("dependientesCount") || 0;
   const cityWatch = watch("city");
-  const { user, document } = SessionStore();
-  const [activeUser, setActiveUser] = useState<UserType>();
+  const { activeUser } = useActiveUser();
   const { country } = SchedulingsStore();
   const queryClient = useQueryClient();
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
@@ -58,10 +57,6 @@ export const Summary = ({
   // }, [Procedure]);
 
   useEffect(() => {
-    const newUser = user.find(
-      (user) => user.documentNumber.toString() === document.toString()
-    );
-    setActiveUser(newUser);
     console.log("active tramit", selectedProcedure);
   }, []);
 

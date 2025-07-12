@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { SessionStore, type UserType } from "../stores/sessionStore";
-import { useEffect, useState } from "react";
+import { useActiveUser } from "../hooks/useActiveUser";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt, faPassport, faIdCard, faFileAlt, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
@@ -50,32 +49,7 @@ const services: ServiceItem[] = [
 
 export const HomeView = () => {
   const navigate = useNavigate();
-  const { user, document } = SessionStore();
-  const [activeUser, setActiveUser] = useState<UserType>();
-
-  useEffect(() => {
-    const newUser = user.find(
-      (user) => user.documentNumber.toString() === document.toString()
-    );
-    setActiveUser(
-      newUser || {
-        documentType: "CC",
-        documentNumber: "10256341",
-        firstName: "Luis Alberto",
-        lastName: "Diaz Castro",
-        birthDate: "1990-01-01",
-        email: "arquitecto@italm.com.co",
-        phoneCode: "+57",
-        phoneNumber: "3125642169",
-        whatsappCode: "+57",
-        whatsappNumber: "3125642169",
-        password: "10256341",
-        confirmPassword: "10256341",
-        acceptData: true,
-        acceptTerms: true,
-      }
-    );
-  }, []);
+  const { activeUser } = useActiveUser();
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-4 py-4">

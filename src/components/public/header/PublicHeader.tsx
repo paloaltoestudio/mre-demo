@@ -1,7 +1,6 @@
 import logotypeGov from "@/assets/logo.svg";
 import logoCancilleria from "@/assets/LOGO-CANCILLERÍA1.png";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { UserHeader } from "./UserHeader";
 
 type PublicHeaderProps = {
   short: boolean;
@@ -10,7 +9,6 @@ type PublicHeaderProps = {
 
 export const PublicHeader = ({
   short = false,
-  official = false,
 }: PublicHeaderProps) => {
   return (
     <header
@@ -42,19 +40,8 @@ export const PublicHeader = ({
             />
           </div>
 
-          {official && (
-            <div className="flex h-full justify-center items-center w-[150px]  absolute right-5">
-              <div className="flex gap-2 rounded-full p-2 hover:bg-gray-100">
-                <div className="w-[30px] h-[30px] bg-[#1c3e70] rounded-full flex items-center justify-center">
-                  <FontAwesomeIcon
-                    icon={faUserCircle}
-                    className="text-white text-[18px]"
-                  />
-                </div>
-                <span className="text-gray-800 text-lg">Funcionario</span>
-              </div>
-            </div>
-          )}
+          {/* Header de usuario para cualquier usuario autenticado */}
+          <UserHeader />
         </div>
       )}
     </header>

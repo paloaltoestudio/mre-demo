@@ -4,6 +4,8 @@ import type {
   Estado,
 } from "../../types/dashboard/AppointmentTypes";
 import { SessionStore } from "../../stores/sessionStore";
+import { useActiveUser } from "../../hooks/useActiveUser";
+import { useTokenExpiration } from "../../hooks/useTokenExpiration";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -21,7 +23,6 @@ import { postAppointmentSchema } from "../../schemas/appointments/appointments";
 import type {
   ResponseHashType,
   ResponsesTokenType,
-  ResponseTokenType,
 } from "../../types/auth/hashSchemas";
 import {
   CreateHashSchema,
@@ -39,7 +40,8 @@ export const AppointmentCards = () => {
   const navigate = useNavigate();
   // const { user, document } = SessionStore();
   // const { scheduled, removeScheduled, updateState } = SchedulingsStore();
-  const [activeUser, setActiveUser] = useState<ResponseTokenType>();
+  const { activeUser, setActiveUser, setTokenExpiration } = useActiveUser();
+  const { setTokenExpiration: setExpiration } = useTokenExpiration();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
   const [scheduledData, setScheduledData] = useState<AppointmentsType>();
@@ -97,7 +99,7 @@ export const AppointmentCards = () => {
     setTimeout(() => {
       setLoader(false);
     }, 500);
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (hash) {
@@ -115,6 +117,12 @@ export const AppointmentCards = () => {
     onSuccess: (data: ResponseHashType) => {
       console.log("token hash", data);
       setToken(data);
+      
+      // Configurar expiración del token
+      if (data.expiracion) {
+        setTokenExpiration(data.expiracion);
+        setExpiration(data.expiracion);
+      }
     },
     onError: () => {
       toast.error("Ocurrió un error en la generación del token", {
@@ -130,6 +138,10 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
+      // Redirigir a la app externa después de mostrar el error
+      setTimeout(() => {
+        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+      }, 2000);
     },
   });
 
@@ -154,6 +166,10 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
+      // Redirigir a la app externa después de mostrar el error
+      setTimeout(() => {
+        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+      }, 2000);
     },
   });
 
@@ -226,6 +242,10 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
+      // Redirigir a la app externa después de mostrar el error
+      setTimeout(() => {
+        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+      }, 2000);
     },
   });
 
@@ -270,7 +290,7 @@ export const AppointmentCards = () => {
         </p>
         <p className="text-sm">
           <span className="font-semibold">Documento:</span>{" "}
-          {activeUser?.firstName && `${activeUser.documentNumber}`}
+          {activeUser?.documentNumber && `${activeUser.documentNumber}`}
         </p>
       </div>
 

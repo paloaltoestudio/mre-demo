@@ -1,5 +1,6 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { AuthLayout } from "../layouts/AuthLayout";
+import { PublicLayout } from "../layouts/PublicLayout";
 import { AuthView } from "../views/AuthView";
 import { VerificationViews } from "../views/VerificationViews";
 import { VerificationMethodsViews } from "../views/VerificationMethodsViews";
@@ -9,6 +10,7 @@ import { AppointmentsView } from "../views/AppointmentsView";
 import { VerificationIDView } from "../views/VerificationIDView";
 import { AccessLayout } from "../layouts/AccessLayout";
 import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
+import { AuthCallbackView } from "../views/AuthCallbackView";
 import { ToastContainer } from "react-toastify";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 import { CountriesInfoSchema } from "../schemas/appointments/countryInfo.schema";
@@ -27,7 +29,12 @@ export const MainRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
+        {/* Callback de autenticación - Ruta pública */}
+        <Route path="/auth/callback" element={<PublicLayout />}>
+          <Route index element={<AuthCallbackView />} />
+        </Route>
+
+        {/* Rutas protegidas */}
         <Route path="/" element={<AuthLayout />}>
           {/* <Route index element={<AuthView />} /> */}
           <Route path="/home" element={<HomeView />} />

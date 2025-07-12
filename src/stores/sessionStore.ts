@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import type { ResponseTokenType } from "../types/auth/hashSchemas";
 
 export type UserType = {
   documentType: string;
@@ -26,7 +27,9 @@ type SessionStates = {
   locationVerification: string;
   official: boolean;
   externalId: string | null;
-  userId: number | null; // ✅ Nuevo campo
+  userId: number | null;
+  activeUser: ResponseTokenType | null;
+  tokenExpiration: Date | null;
 };
 
 type SessionActions = {
@@ -36,7 +39,11 @@ type SessionActions = {
   setLocationVerification: (message: string) => void;
   setOfficial: (official: boolean) => void;
   setExternalId: (externalId: string) => void;
-  setUserId: (userId: number) => void; // ✅ Nueva acción
+  setUserId: (userId: number) => void;
+  setActiveUser: (activeUser: ResponseTokenType) => void;
+  clearActiveUser: () => void;
+  setTokenExpiration: (expiration: Date) => void;
+  clearTokenExpiration: () => void;
 };
 
 export const SessionStore = create(
@@ -50,7 +57,9 @@ export const SessionStore = create(
         locationVerification: "",
         official: false,
         externalId: null,
-        userId: null, // ✅ Inicialización
+        userId: null,
+        activeUser: null,
+        tokenExpiration: null,
 
         setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
         setUser: (user) =>
@@ -71,7 +80,11 @@ export const SessionStore = create(
           set({ locationVerification: message }),
         setOfficial: (official) => set({ official }),
         setExternalId: (externalId) => set({ externalId }),
-        setUserId: (userId) => set({ userId }), // ✅ Implementación
+        setUserId: (userId) => set({ userId }),
+        setActiveUser: (activeUser) => set({ activeUser }),
+        clearActiveUser: () => set({ activeUser: null }),
+        setTokenExpiration: (expiration) => set({ tokenExpiration: expiration }),
+        clearTokenExpiration: () => set({ tokenExpiration: null }),
       }),
       {
         name: "sessionStore",
