@@ -116,9 +116,9 @@ export const AppointmentCards = () => {
   const { mutateAsync: MutateHash } = useMutation({
     mutationFn: postPublicRequest<ResponseHashType>,
     onSuccess: (data: ResponseHashType) => {
-      console.log("token hash", data);
+      // console.log("token hash", data);
       setToken(data);
-      
+
       // Configurar expiración del token
       if (data.expiracion) {
         setTokenExpiration(data.expiracion);
@@ -174,10 +174,6 @@ export const AppointmentCards = () => {
     },
   });
 
-  useEffect(() => {
-    console.log("Active User: ", activeUser)
-  },[activeUser])
-
   const handleHash = async () => {
     if (hash) {
       await MutateHash({
@@ -226,7 +222,7 @@ export const AppointmentCards = () => {
   const { mutateAsync } = useMutation({
     mutationFn: postPublicRequest<AppointmentsType>,
     onSuccess: (data: AppointmentsType) => {
-      console.log("Agendamientos", data);
+      // console.log("Agendamientos", data);
       setSche(data);
     },
     onError: () => {
@@ -324,13 +320,14 @@ export const AppointmentCards = () => {
                 <p className="text-sm">Trámite: {appt.procedure}</p>
                 <p className="text-sm">Oficina: {appt.office}</p>
                 <p className="text-sm">Dirección: {appt.address}</p>
-                <p className="text-sm">Código de confirmación: 23423</p>
+                {/* <p className="text-sm">Código de confirmación: 23423</p> */}
 
                 <div className="text-sm mt-3">
                   <span className="font-semibold">Solicitantes:</span>
                   <ul className="list-none mt-1">
                     <li>
-                      {sche.applicant?.firstName} {sche.applicant?.lastName} <br />
+                      {sche.applicant?.firstName} {sche.applicant?.lastName}{" "}
+                      <br />
                       {sche.applicant?.documentNumber}
                     </li>
                     {appt.dependent.map((s, idx) => (

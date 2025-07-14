@@ -27,11 +27,10 @@ import {
   postPublicRequest,
   putPublicRequest,
 } from "../services/fetchingService";
-// import type { ResponseDateBlocksType } from "../types/dashboard/dateBlocksTypes";
-// import { CreateDateBlockSchema } from "../schemas/appointments/dateBlocks";
 import type { ResponsePreAppointmentType } from "../types/dashboard/preAppointmentTypes";
 import { CreatePreAppointmentSchema } from "../schemas/appointments/preAppointments";
 import { SessionStore } from "../stores/sessionStore";
+
 
 const steps = [
   "Lugar de agendamiento",
@@ -204,13 +203,15 @@ export const SelectAppointmentsView = ({
       body: {
         userId: userId,
         availabilityBlockId: toSavedDate, // id de la hora;
-        dependents: toSchedule?.parents ? toSchedule?.parents?.map((parent) => ({
-          relationshipTypeId: 1,
-          documentTypeId: parent.typeDocument,
-          documentNumber: 1,
-          firstNames: parent.names,
-          lastNames: parent.lastNames,
-        })) : [],
+        dependents: toSchedule?.parents
+          ? toSchedule?.parents?.map((parent) => ({
+              relationshipTypeId: 1,
+              documentTypeId: parent.typeDocument,
+              documentNumber: 1,
+              firstNames: parent.names,
+              lastNames: parent.lastNames,
+            }))
+          : [],
         tramiteId: toSchedule?.tramites.id,
       },
     });
@@ -259,11 +260,11 @@ export const SelectAppointmentsView = ({
           <DinamicNav currentStep={view} steps={steps} />
           <div className="mt-10">
             {view === 1 ? (
-              <SelectAppointmentForm
-                setConsulate={setConsulate}
-                setView={setView}
-                countries={countries || ([] as CountriesInfoType["data"])}
-              />
+                <SelectAppointmentForm
+                  setConsulate={setConsulate}
+                  setView={setView}
+                  countries={countries || ([] as CountriesInfoType["data"])}
+                />
             ) : view === 2 ? (
               <AppointmentForForm
                 consulate={consulate}

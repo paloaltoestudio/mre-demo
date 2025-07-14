@@ -37,7 +37,6 @@ export const SelectDateForm = ({
   const countryOptions: CountriesInfoType = queryClient.getQueryData([
     "countriesInfo",
   ])!;
-  // const [procedureName, setProcedureName] = useState<string>("");
   const { country } = SchedulingsStore();
   const [dates, setDates] = useState<DateSchemaType[]>();
 
@@ -45,7 +44,6 @@ export const SelectDateForm = ({
     mutationFn: postPublicRequest<DateSchemaType[]>,
     onSuccess: (data: DateSchemaType[]) => {
       queryClient.setQueryData(["all-dates"], data);
-      console.log("Fechas", data);
       setDates(data);
     },
     onError: () => {

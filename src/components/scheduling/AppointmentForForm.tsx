@@ -1,4 +1,4 @@
-import { useEffect, type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
@@ -82,7 +82,6 @@ export const AppointmentForForm = ({
     schema: ProcedureResponseSchema,
   });
 
-  useEffect(() => {console.log("pro", procedureWatcher)}, [procedureWatcher])
 
   return (
     <section

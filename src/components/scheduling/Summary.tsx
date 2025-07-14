@@ -56,10 +56,6 @@ export const Summary = ({
   //   console.log("Procedure", Procedure);
   // }, [Procedure]);
 
-  useEffect(() => {
-    console.log("active tramit", selectedProcedure);
-  }, []);
-
   const [dependentsInfo, setDependentsInfo] = useState<
     {
       names: string;

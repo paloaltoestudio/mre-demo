@@ -8,6 +8,7 @@ import type { DateSchemaType } from "../types/dashboard/dateTypes";
 import { format } from "date-fns";
 import { toDate } from "../configs/formats";
 import { SchedulingsStore } from "../stores/schedulingsStore";
+import { useEffect } from "react";
 
 type DatePickerComponentProps = {
   dateInfo: DateSchemaType[];
@@ -20,43 +21,34 @@ export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
 
   const formatDate = (date: Date | string | undefined | null) => {
     if (!date) return "";
-    const parsed = new Date(date);
+    const parsed =
+      typeof date === "string" ? new Date(date + "T00:00:00") : new Date(date);
     return isNaN(parsed.getTime()) ? "" : format(parsed, "yyyy-MM-dd");
   };
-
+  
   const availableTimes = selectedDate
-    ? dateInfo.filter(
-        (item) => formatDate(item.date) === formatDate(selectedDate)
+    ? Array.from(
+        new Map(
+          dateInfo
+            .filter(
+              (item) => formatDate(item.date) === formatDate(selectedDate)
+            )
+            .map((item) => [item.id, item])
+        ).values()
       )
     : [];
 
-  console.log("Selected date:", selectedDate);
+  const { setValue } = useFormContext();
 
-  console.log("Available times:", availableTimes);
+  useEffect(() => {
+    setValue("hora", null);
+  }, [selectedDate]);
 
   const { setToSavedDate } = SchedulingsStore();
 
   return (
     <div className="flex flex-col md:flex-row gap-10">
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-        {/* <Controller
-          name="date"
-          control={control}
-          defaultValue={new Date()}
-          render={({ field }) => (
-            <StaticDatePicker
-              displayStaticWrapperAs="desktop"
-              value={field.value}
-              onChange={(newDate) => field.onChange(newDate)}
-              slots={{ actionBar: () => null }}
-              shouldDisableDate={(date) => {
-                const formatted = formatDate(date as Date);
-                return !dateInfo.some((d) => formatDate(d.date) === formatted);
-              }}
-            />
-          )}
-        /> */}
-
         <Controller
           name="date"
           control={control}
@@ -68,13 +60,6 @@ export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
               onChange={(newDate) => {
                 return field.onChange(newDate);
               }}
-              // onChange={(newDate) => {
-              //   // Buscar el objeto completo que coincide con la nueva fecha
-              //   const matched = dateInfo.find(
-              //     (item) => formatDate(item.date) === formatDate(newDate)
-              //   );
-              //   field.onChange(matched ?? null);
-              // }}
               slots={{ actionBar: () => null }}
               shouldDisableDate={(date) => {
                 const formatted = formatDate(date as Date);
@@ -102,7 +87,7 @@ export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
                       onClick={() => {
                         setToSavedDate(hora.id);
                         return field.onChange(hora);
-                      }} // guarda el objeto completo
+                      }}
                       className={`py-2 px-7 rounded-full border-[#ccc] cursor-pointer hover:bg-gray-200 border-2 ${
                         field.value?.id === hora.id
                           ? "border-blue-500 bg-gray-300"

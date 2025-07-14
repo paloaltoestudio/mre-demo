@@ -1,10 +1,7 @@
 import Select from "react-select";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import {
-  faArrowRight,
-  faCircleExclamation,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
@@ -18,7 +15,6 @@ import { OfficesInfoSchema } from "../../schemas/appointments/officeInfo.schema"
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { useGeocod, useSetPosition } from "../../hooks/useGeocod";
-import { toast } from "react-toastify";
 
 const customStyles = {
   control: (provided: any, state: any) => ({
@@ -59,7 +55,7 @@ export const SelectAppointmentForm = ({
   //   OfficesInfoType["data"] | undefined
   // >();
   const [selectedOption, setSelectedOption] = useState<OfficeInfoType>();
-  const { setCountry, country } = SchedulingsStore();
+  const { setCountry } = SchedulingsStore();
   const [city, setCity] = useState<string>();
 
   const { control, setValue } = useFormContext();
@@ -74,17 +70,20 @@ export const SelectAppointmentForm = ({
   });
 
   useEffect(() => {
-    setCountry(selectedCountry);
+    if (selectedCountry) {
+      setCountry(selectedCountry);
+      setValue("city", null), setCity("");
+    }
   }, [selectedCountry]);
 
   const { data: citiesData } = usePublicQuery<CountriesInfoType>({
-    key: ["citiesInfo", selectedCountry],
-    url: `/City/by-country/${country}`,
-    schema: CountriesInfoSchema,
-    options: {
-      enabled: country !== 0 || city !== "" || selectedCountry !== 0,
-    },
-  });
+  key: ["citiesInfo", selectedCountry],
+  url: `/City/by-country/${selectedCountry}`,
+  schema: CountriesInfoSchema,
+  options: {
+    enabled: !!selectedCountry,
+  },
+});
 
   const { data: officeData } = usePublicQuery<OfficesInfoType>({
     key: ["officeInfo", selectedCountry, selectedCity],
@@ -115,21 +114,7 @@ export const SelectAppointmentForm = ({
           console.error("Error al geocodificar:", data.status);
         }
       })
-      .catch(() => {
-        toast.error("Error al obtener la geocodificación", {
-          icon: (
-            <FontAwesomeIcon
-              icon={faCircleExclamation}
-              className="text-red-500"
-            />
-          ),
-          autoClose: 1000,
-          draggable: true,
-          progress: undefined,
-          hideProgressBar: true,
-          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-        });
-      });
+      .catch(() => {});
   }, [address]);
 
   useEffect(() => {
@@ -150,22 +135,7 @@ export const SelectAppointmentForm = ({
             setCity,
           });
         },
-        () => {
-          toast.error("Error al obtener la geocodificación", {
-            icon: (
-              <FontAwesomeIcon
-                icon={faCircleExclamation}
-                className="text-red-500"
-              />
-            ),
-            autoClose: 1000,
-            draggable: true,
-            progress: undefined,
-            hideProgressBar: true,
-            className:
-              "border-l-5 border-red-500 bg-white text-black shadow-md",
-          });
-        }
+        () => {}
       );
     }
   }, []);
@@ -224,9 +194,9 @@ export const SelectAppointmentForm = ({
                     getOptionLabel={(option) => option.name}
                     getOptionValue={(option) => option.id.toString()}
                     value={selectedCountry || null}
-                    onChange={(selected) =>
-                      field.onChange(selected?.id || null)
-                    }
+                    onChange={(selected) => {
+                      return field.onChange(selected?.id || null);
+                    }}
                   />
                   {fieldState.error && (
                     <span className="text-red-500 text-sm">
@@ -305,7 +275,11 @@ export const SelectAppointmentForm = ({
                       setSelectedOption(item);
                       setConsulate(item);
 
-                      const position = await useSetPosition(item.address);
+                      const position = await useSetPosition(
+                        item.address,
+                        setMarkerPosition,
+                        setMapLocation
+                      );
                       if (position) {
                         setMarkerPosition(position);
                         setMapLocation(position);
@@ -337,15 +311,20 @@ export const SelectAppointmentForm = ({
             aria-label="map"
             className="bg-slate-200 w-full h-[400px] lg:w-6/12"
           >
-            <LoadScript googleMapsApiKey={import.meta.env.VITE_MAPS_API_KEY!}>
-              <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={mapLocation}
-                zoom={14}
-              >
-                <Marker position={markerPosition} />
-              </GoogleMap>
-            </LoadScript>
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={mapLocation}
+              zoom={
+                markerPosition.lat !== 6.2442 && markerPosition.lng !== -75.5812
+                  ? 15
+                  : 12
+              }
+            >
+              {markerPosition.lat !== 6.2442 &&
+                markerPosition.lng !== -75.5812 && (
+                  <Marker position={markerPosition} />
+                )}
+            </GoogleMap>
           </div>
         </div>
       </div>

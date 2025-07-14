@@ -1,9 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 import type { FieldValues, UseFormSetValue } from "react-hook-form";
-import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 type useGeocodProps = {
   latLng: {
@@ -80,9 +77,11 @@ export const useGeocod = ({
 //   return position;
 // };
 export const useSetPosition = (
-  address: string
+  address: string,
+  setMarkerPosition: Dispatch<SetStateAction<{ lat: number; lng: number }>>,
+  setMapLocation: Dispatch<SetStateAction<{ lat: number; lng: number }>>
 ): Promise<{ lat: number; lng: number }> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const geocoder = new window.google.maps.Geocoder();
 
     geocoder.geocode({ address }, (results, status) => {
@@ -92,20 +91,9 @@ export const useSetPosition = (
         const lng = location.lng();
         resolve({ lat, lng });
       } else {
-        toast.error("Esta dirección aún no está disponible", {
-          icon: (
-            <FontAwesomeIcon
-              icon={faCircleExclamation}
-              className="text-red-500"
-            />
-          ),
-          autoClose: 1000,
-          draggable: true,
-          progress: undefined,
-          hideProgressBar: true,
-          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-        });
-        reject("Error al geocodificar la dirección: " + status);
+        const fallback = { lat: 6.2442, lng: -75.5812 };
+        setMarkerPosition(fallback);
+        setMapLocation(fallback);
       }
     });
   });
