@@ -6,7 +6,7 @@ import { useFormContext } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
 
 type DependentInformationFormProps = {
-  setView: Dispatch<SetStateAction<number>>;
+  setView: (step: number) => void;
 };
 
 export const DependentInformationForm = ({

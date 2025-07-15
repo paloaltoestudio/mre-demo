@@ -30,6 +30,8 @@ import {
 import type { ResponsePreAppointmentType } from "../types/dashboard/preAppointmentTypes";
 import { CreatePreAppointmentSchema } from "../schemas/appointments/preAppointments";
 import { SessionStore } from "../stores/sessionStore";
+import { useBookingTimerStore } from "../stores/bookingTimerStore";
+import { useAppointmentWizardStore } from "../stores/appointmentWizardStore";
 
 
 const steps = [
@@ -47,7 +49,7 @@ type SelectAppointmentFormProps = {
 export const SelectAppointmentsView = ({
   countries,
 }: SelectAppointmentFormProps) => {
-  const [view, setView] = useState<number>(1);
+  const { step, setStep, reset } = useAppointmentWizardStore();
   const [selectedOption, setSelectedOption] = useState<string>();
   const [consulate, setConsulate] = useState<ConsulatesType>({
     id: 0,
@@ -174,6 +176,10 @@ export const SelectAppointmentsView = ({
     }
   }, [appointmentId]);
 
+  useEffect(() => {
+    useBookingTimerStore.getState().resetTimer();
+  }, []);
+
   // const handleDateBlocks = async (completedData: SchedulingStoreType) => {
   //   await mutateAsync({
   //     url: "/date-blocks/CreateOrUpdate",
@@ -257,39 +263,39 @@ export const SelectAppointmentsView = ({
     >
       <div className="w-11/12 flex flex-col items-center justify-center">
         <AuthForm<any> onSubmit={onSubmit}>
-          <DinamicNav currentStep={view} steps={steps} />
+          <DinamicNav currentStep={step} steps={steps} />
           <div className="mt-10">
-            {view === 1 ? (
+            {step === 1 ? (
                 <SelectAppointmentForm
                   setConsulate={setConsulate}
-                  setView={setView}
+                  setView={(step: number) => setStep(step)}
                   countries={countries || ([] as CountriesInfoType["data"])}
                 />
-            ) : view === 2 ? (
+            ) : step === 2 ? (
               <AppointmentForForm
                 consulate={consulate}
-                setView={setView}
+                setView={(step: number) => setStep(step)}
                 selectedOption={selectedOption}
                 setSelectedOption={setSelectedOption}
               />
-            ) : view === 3 ? (
+            ) : step === 3 ? (
               <SelectDateForm // Montar el reagendamiento;
                 consulate={consulate}
-                setView={setView}
+                setView={(step: number) => setStep(step)}
                 selectedOption={selectedOption}
               />
-            ) : view === 4 ? (
+            ) : step === 4 ? (
               <div
                 id="dependent-information-view"
                 className="max-w-[1200px] mx-auto flex flex-col items-center"
               >
-                <DependentInformationForm setView={setView} />
+                <DependentInformationForm setView={(step: number) => setStep(step)} />
               </div>
             ) : (
-              view === 5 && (
+              step === 5 && (
                 <Summary
                   consulate={consulate}
-                  setView={setView}
+                  setView={(step: number) => setStep(step)}
                   selectedOption={selectedOption!}
                 />
               )

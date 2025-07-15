@@ -18,10 +18,12 @@ import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
 import type {
   unicProceduresResponseType
 } from "../../types/dashboard/proceduresTypes";
+import { useBookingTimerStore } from "../../stores/bookingTimerStore";
+import { useNavigate } from "react-router-dom";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
-  setView: Dispatch<SetStateAction<number>>;
+  setView: (step: number) => void;
   selectedOption?: string;
 };
 
@@ -39,6 +41,8 @@ export const SelectDateForm = ({
   ])!;
   const { country } = SchedulingsStore();
   const [dates, setDates] = useState<DateSchemaType[]>();
+  const navigate = useNavigate();
+  const { timeLeft, isActive, startTimer, expireTimer, expiredByTimeout, clearExpiredFlag } = useBookingTimerStore();
 
   const { mutateAsync } = useMutation({
     mutationFn: postPublicRequest<DateSchemaType[]>,
@@ -82,12 +86,24 @@ export const SelectDateForm = ({
     handleDates();
   }, []);
 
+  // Mostrar contador en la parte superior
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  // Eliminar el useEffect de expiración, ya no es necesario
+
   return (
     <section
       id="appointment-for-form"
       aria-label="appointment-for-form"
       className="w-full"
     >
+      
       <div className="border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md w-full  px-4 py-3 justify-center flex flex-col shadow-lg">
         <h3 className="font-medium text-md flex items-center gap-1">
           {countryOptions?.data?.filter((c) => c.id === country)[0].name}
@@ -131,6 +147,9 @@ export const SelectDateForm = ({
         <button
           type="button"
           onClick={() => {
+            // Iniciar temporizador solo si hay fecha/hora seleccionada
+            // (puedes agregar validación aquí si es necesario)
+            startTimer(3); // 5 minutos
             if (dependentsWatch > 0) setView?.(4);
             else setView?.(5);
           }}

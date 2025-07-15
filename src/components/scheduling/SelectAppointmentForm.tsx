@@ -39,7 +39,7 @@ const initialLocation = {
 
 type SelectAppointmentFormProps = {
   setConsulate: Dispatch<SetStateAction<OfficeInfoType>>;
-  setView?: Dispatch<SetStateAction<number>>;
+  setView?: (step: number) => void;
   countries?: CountriesInfoType["data"];
 };
 

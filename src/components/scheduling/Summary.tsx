@@ -12,7 +12,7 @@ import type { unicProceduresResponseType } from "../../types/dashboard/procedure
 
 type SummaryProps = {
   consulate: ConsulatesType;
-  setView: Dispatch<SetStateAction<number>>;
+  setView: (step: number) => void;
   selectedOption: string;
 };
 

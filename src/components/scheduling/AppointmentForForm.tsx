@@ -22,7 +22,7 @@ import { ProcedureResponseSchema } from "../../schemas/appointments/proceduresIn
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
-  setView?: Dispatch<SetStateAction<number>>;
+  setView?: (step: number) => void;
   selectedOption: string | undefined;
   setSelectedOption: Dispatch<SetStateAction<string | undefined>>;
 };
