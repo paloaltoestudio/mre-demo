@@ -3,13 +3,18 @@ import { useActiveUser } from "../hooks/useActiveUser";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt, faPassport, faIdCard, faFileAlt, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import calendarIcon from "../assets/calendar.svg";
+import certIcon from "../assets/cert.svg";
+import citizenshipIcon from "../assets/citizenship.svg";
+import passportIcon from "../assets/passport.svg";
+import visaIcon from "../assets/visa.svg";
 
 
 // Definir el tipo de ícono
 interface ServiceItem {
   label: string;
   route: string;
-  icon: IconDefinition;
+  icon: IconDefinition | string;
   bgColor: string;
 }
 
@@ -17,33 +22,33 @@ interface ServiceItem {
 const services: ServiceItem[] = [
   {
     label: "Agendamiento de citas",
-    route: "/schedulings/select-appointments",
-    icon: faCalendarAlt,
+    route: "/dashboard/appointments",
+    icon: calendarIcon,
     bgColor: "bg-blue-100",
   },
   {
     label: "Pasaporte en línea",
     route: "/passport",
-    icon: faPassport,
-    bgColor: "bg-green-100",
+    icon: passportIcon,
+    bgColor: "bg-blue-100",
   },
   {
     label: "Visa en línea",
     route: "/visa",
-    icon: faIdCard,
-    bgColor: "bg-yellow-100",
+    icon: visaIcon,
+    bgColor: "bg-blue-100",
   },
   {
     label: "Certificaciones en línea",
     route: "/certifications",
-    icon: faFileAlt,
-    bgColor: "bg-purple-100",
+    icon: certIcon,
+    bgColor: "bg-blue-100",
   },
   {
     label: "Naturalización en línea",
     route: "/naturalization",
-    icon: faGlobe,
-    bgColor: "bg-pink-100",
+    icon: citizenshipIcon,
+    bgColor: "bg-blue-100",
   },
 ];
 
@@ -70,10 +75,11 @@ export const HomeView = () => {
             <div
               className={`w-16 h-16 flex items-center justify-center rounded-full mb-4 ${service.bgColor} group-hover:bg-white transition`}
             >
-              <FontAwesomeIcon
-                icon={service.icon}
-                className="text-blue-600 text-2xl group-hover:text-[#334acc]"
-              />
+              {typeof service.icon === "string" ? (
+                <img src={service.icon} alt="" />
+              ) : (
+                <FontAwesomeIcon icon={service.icon} className="text-3xl text-blue-600 group-hover:text-[#334acc] transition" />
+              )}
             </div>
             <span className="text-blue-600 group-hover:text-white font-medium text-center transition">
               {service.label}

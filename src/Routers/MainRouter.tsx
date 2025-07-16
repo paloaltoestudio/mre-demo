@@ -10,6 +10,7 @@ import { AppointmentsView } from "../views/AppointmentsView";
 import { VerificationIDView } from "../views/VerificationIDView";
 import { AccessLayout } from "../layouts/AccessLayout";
 import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
+import { PassportView } from "../views/PassportView";
 import { AuthCallbackView } from "../views/AuthCallbackView";
 import { ToastContainer } from "react-toastify";
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
@@ -58,6 +59,10 @@ export const MainRouter = () => {
           <Route
             path="/dashboard/appointments/"
             element={<AppointmentsView />}
+          />
+          <Route
+            path="/passport/"
+            element={<PassportView />}
           />
           <Route index element={<AppointmentsView />} />
         </Route>

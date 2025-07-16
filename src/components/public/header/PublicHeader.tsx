@@ -1,6 +1,7 @@
 import logotypeGov from "@/assets/logo.svg";
 import logoCancilleria from "@/assets/LOGO-CANCILLERÍA1.png";
 import { UserHeader } from "./UserHeader";
+import { Link } from "react-router-dom";
 
 type PublicHeaderProps = {
   short: boolean;
@@ -24,13 +25,14 @@ export const PublicHeader = ({
           src={logotypeGov}
           alt="Logo gov.co"
           title="Logo gov.co"
-          className="h-full object-contain"
+          className="h-full object-contain cursor-pointer"
           loading="lazy"
         />
       </div>
       {!short && (
         <div className="w-full h-4/6 p-1.5 flex relative">
           <div className={`h-full w-full`}>
+          <Link to="/home">
             <img
               src={logoCancilleria}
               alt="Agendamiento Cancillería"
@@ -38,6 +40,7 @@ export const PublicHeader = ({
               className="h-full object-contain mx-auto"
               loading="lazy"
             />
+            </Link>
           </div>
 
           {/* Header de usuario para cualquier usuario autenticado */}
