@@ -49,7 +49,7 @@ type SelectAppointmentFormProps = {
 export const SelectAppointmentsView = ({
   countries,
 }: SelectAppointmentFormProps) => {
-  const { step, setStep, reset } = useAppointmentWizardStore();
+  const { step, setStep } = useAppointmentWizardStore();
   const [selectedOption, setSelectedOption] = useState<string>();
   const [consulate, setConsulate] = useState<ConsulatesType>({
     id: 0,

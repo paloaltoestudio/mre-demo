@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
-import type { ConsulatesType } from "../types/dashboard/AppointmentTypes";
+import type { AppointmentType, ConsulatesType } from "../types/dashboard/AppointmentTypes";
 import type { requerimentsType } from "../types/dashboard/proceduresTypes";
 
 export type SchedulingStoreType = {
@@ -27,7 +27,7 @@ export type SchedulingStoreType = {
 
 type SchedulingsStoreType = {
   scheduled: SchedulingStoreType[];
-  toRemove: SchedulingStoreType;
+  toRemove: AppointmentType;
   toReplace: SchedulingStoreType;
   country: number;
   requeriments: requerimentsType;
@@ -39,7 +39,9 @@ type SchedulingsStoreActions = {
   setScheduled: (scheduled: any) => void;
   removeScheduled: (scheduled: SchedulingStoreType) => void;
   updateState: (scheduled: SchedulingStoreType) => void;
-  setToRemove: (toRemove: SchedulingStoreType) => void;
+  // updateState: (scheduled: SchedulingStoreType) => void;
+  setToRemove: (toRemove: AppointmentType) => void;
+  // setToRemove: (toRemove: SchedulingStoreType) => void;
   setToReplace: (toReplace: SchedulingStoreType) => void;
   rescheduling: (
     toRemove: SchedulingStoreType,
@@ -57,7 +59,7 @@ export const SchedulingsStore = create(
     persist<SchedulingsStoreType & SchedulingsStoreActions>(
       (set) => ({
         scheduled: [],
-        toRemove: {} as SchedulingStoreType,
+        toRemove: {} as AppointmentType,
         toReplace: {} as SchedulingStoreType,
         country: 0,
         requeriments: [] as requerimentsType,
