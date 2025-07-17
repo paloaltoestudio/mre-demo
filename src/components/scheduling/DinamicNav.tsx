@@ -10,10 +10,23 @@ type DinamicNavProps = {
 
 export const DinamicNav = ({ currentStep, steps }: DinamicNavProps) => {
   const [showNavs, setShowNavs] = useState<string[]>([]);
-  const { watch } = useFormContext();
-  const dependentsWatch = watch("dependientesCount") || 0;
+  let dependentsWatch = 0;
+  let formContext: any = null;
+  try {
+    formContext = useFormContext();
+    if (formContext && formContext.watch) {
+      dependentsWatch = formContext.watch("dependientesCount") || 0;
+    }
+  } catch {
+    formContext = null;
+  }
 
   useEffect(() => {
+    // Si no hay contexto de formulario, mostrar todos los pasos
+    if (!formContext) {
+      setShowNavs(steps);
+      return;
+    }
     if (dependentsWatch > 0) {
       setShowNavs(steps);
     } else {

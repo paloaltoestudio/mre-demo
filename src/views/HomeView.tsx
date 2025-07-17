@@ -65,7 +65,7 @@ export const HomeView = () => {
         Escoge el trámite que deseas realizar.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl w-full mx-auto place-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl w-full">
         {services.map((service) => (
           <button
             key={service.label}

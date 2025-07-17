@@ -15,17 +15,7 @@ import { OfficesInfoSchema } from "../../schemas/appointments/officeInfo.schema"
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { useGeocod, useSetPosition } from "../../hooks/useGeocod";
-
-const customStyles = {
-  control: (provided: any, state: any) => ({
-    ...provided,
-    borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
-    boxShadow: "none",
-    padding: "0.25rem 0.5rem",
-    minHeight: "3rem",
-  }),
-  indicatorSeparator: () => ({ display: "none" }),
-};
+import { customStyles } from "../common/reactSelectStyles";
 
 const containerStyle = {
   width: "100%",
