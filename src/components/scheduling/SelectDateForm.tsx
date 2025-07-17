@@ -149,7 +149,7 @@ export const SelectDateForm = ({
           onClick={() => {
             // Iniciar temporizador solo si hay fecha/hora seleccionada
             // (puedes agregar validación aquí si es necesario)
-            startTimer(3); // 5 minutos
+            startTimer(10); // 5 minutos
             if (dependentsWatch > 0) setView?.(4);
             else setView?.(5);
           }}

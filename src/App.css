@@ -46,6 +46,7 @@ input, select {
   box-shadow: none;
   padding: 0.25rem 0.5rem;
   min-height: 3rem;
+  border-radius: 4px;
 }
 input:focus, select:focus {
   border: 1px solid #3b82f6;
