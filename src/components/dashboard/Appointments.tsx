@@ -33,6 +33,8 @@ import {
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import type { ResponseDataRequestOTPType } from "../../types/dashboard/otpTypes";
 import { DataRequestOTPSchema } from "../../schemas/appointments/otp.schemas";
+import type { ResponseExternalLoginType } from "../../types/dashboard/externalLoginTypes";
+import { CreateExternalLoginSchema } from "../../schemas/appointments/externalLogin.schema";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -88,6 +90,10 @@ export const AppointmentCards = () => {
   //     setLoader(false);
   //   }, 500);
   // }, []);
+
+  useEffect(() => {
+    handleExternalLogin();
+  }, []);
 
   useEffect(() => {
     const rawHash = searchParams.get("hash");
@@ -156,6 +162,9 @@ export const AppointmentCards = () => {
     setLocationVerification,
     setCode,
     externalId,
+    globalToken,
+    setGlobalToken,
+    setOfficial
   } = SessionStore();
   const { mutateAsync: MutateToken } = useMutation({
     mutationFn: postPublicRequest<ResponsesTokenType>,
@@ -209,6 +218,30 @@ export const AppointmentCards = () => {
   //   if (rescheduledData && isOpenResume) setIsOpen(false);
   // }, [rescheduledData, isOpenResume]);
 
+  const { mutateAsync: MutateLoginAsync } = useMutation({
+    mutationFn: postPublicRequest<ResponseExternalLoginType>,
+    onSuccess: (data: ResponseExternalLoginType) => {
+      console.log("externalLogin", data);
+      setGlobalToken(data?.token);
+      setOfficial(false);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error al iniciar la sesión", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
   const { mutateAsync: MutateRemoveAsync } = useMutation({
     mutationFn: postPublicRequest<ResponseDataRequestOTPType>,
     onSuccess: (data: ResponseDataRequestOTPType) => {
@@ -246,6 +279,18 @@ export const AppointmentCards = () => {
     },
   });
 
+  const handleExternalLogin = async () => {
+    await MutateLoginAsync({
+      url: "https://www.iaidentity.com/ApiCancilleria/api/authenticate",
+      schema: CreateExternalLoginSchema,
+      body: {
+        username: "UserCancilleria",
+        password: "c4nc1ll3r1a.2024",
+      },
+      ext: true,
+    });
+  };
+
   const handleRemove = async () => {
     if (scheduledData && requestRemove) {
       if (scheduledData.status === "Agendada") {
@@ -259,6 +304,7 @@ export const AppointmentCards = () => {
             userId: externalId,
           },
           ext: true,
+          auth: globalToken,
         });
 
         if (otp) {

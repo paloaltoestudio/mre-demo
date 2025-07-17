@@ -124,10 +124,10 @@ export const VerificationViews = () => {
           // removeScheduled(toRemove);
           // Aqui se tira el update para el agendamiento;
           await CancelPreAppointment({
-            url: `/Appointment/cancel-appointment/${toRemove.id}`,
+            url: `/Appointment/cancel-appointment/${toRemove.appointmentId}`,
             schema: CancelDataAppointmentSchema,
             body: {
-              appointmentId: toRemove.id,
+              appointmentId: toRemove.appointmentId,
             },
           });
         }

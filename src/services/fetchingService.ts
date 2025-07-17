@@ -44,6 +44,7 @@ export type PostPublicRequestProps = {
   schema: BaseSchema<any, any, any>;
   body: object;
   ext?: boolean;
+  auth?: string;
 };
 
 export const postPublicRequest = async <T>({
@@ -51,14 +52,20 @@ export const postPublicRequest = async <T>({
   schema,
   body,
   ext = false,
+  auth = "",
 }: PostPublicRequestProps): Promise<T> => {
   try {
     const parsedData = safeParse(schema, body);
 
     const instance = ext ? axios : axiosInstance;
 
-    const { data: requestData } = await instance.post(url, parsedData.output);
-    return requestData.data;
+    const { data: requestData } = await instance.post(url, parsedData.output, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: auth ? `Bearer ${auth}` : "",
+      },
+    });
+    return requestData.data ? requestData.data : requestData;
   } catch (error) {
     if (isAxiosError(error)) throw new Error(`Axios error: ${error.message}`);
     else

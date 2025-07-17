@@ -30,6 +30,9 @@ type SessionStates = {
   userId: number | null;
   activeUser: ResponseTokenType | null;
   tokenExpiration: Date | null;
+  globalToken: string;
+
+  
 };
 
 type SessionActions = {
@@ -45,6 +48,7 @@ type SessionActions = {
   clearActiveUser: () => void;
   setTokenExpiration: (expiration: Date) => void;
   clearTokenExpiration: () => void;
+  setGlobalToken: (token: string) => void;
 };
 
 export const SessionStore = create(
@@ -61,6 +65,7 @@ export const SessionStore = create(
         userId: null,
         activeUser: null,
         tokenExpiration: null,
+        globalToken: "",
         setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
         setUser: (user) =>
           set((state) => {
@@ -87,6 +92,7 @@ export const SessionStore = create(
         setTokenExpiration: (expiration) =>
           set({ tokenExpiration: expiration }),
         clearTokenExpiration: () => set({ tokenExpiration: null }),
+        setGlobalToken: (token) => set({ globalToken: token }),
       }),
       {
         name: "sessionStore",
