@@ -40,3 +40,13 @@
 .read-the-docs {
   color: #888;
 } */
+
+input, select {
+  border: 1px solid  #d1d5db;
+  box-shadow: none;
+  padding: 0.25rem 0.5rem;
+  min-height: 3rem;
+}
+input:focus, select:focus {
+  border: 1px solid #3b82f6;
+}

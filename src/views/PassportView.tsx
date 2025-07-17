@@ -1,22 +1,11 @@
 import { useEffect, useState } from "react";
-
-
-
-const steps = [
-  "Lugar de agendamiento",
-  "Tipo de trámite",
-  "Fecha y hora",
-  "Datos dependientes",
-  "Resumen",
-];
-
-
+import { PassportWizard } from "../components/passport/PassportWizard";
 
 export const PassportView =  () => {
-  
-
   return (
-    <div>Passport</div>
-  )
-   
+    <div className="min-h-screen">
+      <PassportWizard />
+      {/* passport */}
+    </div>
+  );
 };
