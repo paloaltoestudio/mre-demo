@@ -12,6 +12,7 @@ import type {
 } from "../types/auth/hashSchemas";
 import { useActiveUser } from "../hooks/useActiveUser";
 import { SessionStore } from "../stores/sessionStore";
+import { ENV_CONFIG } from "../configs/environment";
 
 export const AuthCallbackView = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export const AuthCallbackView = () => {
       setHash(decoded);
     } else {
       // Si no hay hash, redirigir a la app externa
-      window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+      window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
     }
   }, [searchParams]);
 
@@ -57,7 +58,7 @@ export const AuthCallbackView = () => {
       });
       // En caso de error, redirigir a la app externa
       setTimeout(() => {
-        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
       }, 2000);
     },
   });
@@ -87,7 +88,7 @@ export const AuthCallbackView = () => {
       });
       // En caso de error, redirigir a la app externa
       setTimeout(() => {
-        window.location.href = "https://www.iaidentity.com/FrontCancilleria/security/login";
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
       }, 2000);
     },
   });
