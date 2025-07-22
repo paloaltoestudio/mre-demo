@@ -122,6 +122,7 @@ export const AppointmentCards = () => {
     }
   }, [token]);
 
+
   const { mutateAsync: MutateHash } = useMutation({
     mutationFn: postPublicRequest<ResponseHashType>,
     onSuccess: (data: ResponseHashType) => {
@@ -496,6 +497,8 @@ export const AppointmentCards = () => {
                           ? "Ocultar requisitos"
                           : "Ver requisitos"}
                       </button>
+                    {appt.status === "Agendada" && (  
+                      <>
                       <button
                         type="button"
                         onClick={() => {
@@ -506,6 +509,7 @@ export const AppointmentCards = () => {
                       >
                         Cancelar
                       </button>
+                    
                       <button
                         type="button"
                         onClick={() => {
@@ -520,6 +524,8 @@ export const AppointmentCards = () => {
                         />
                         Reagendar
                       </button>
+                      </>
+                    )} 
                     </>
                   )}
                   {appt.status === "Cancelada" && (
