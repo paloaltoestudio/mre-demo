@@ -12,12 +12,13 @@ import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import type { DateSchemaType } from "../../types/dashboard/dateTypes";
-import { postPublicRequest } from "../../services/fetchingService";
+import { getPublicRequest } from "../../services/fetchingService";
 import { toast } from "react-toastify";
-import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
+import { outputDatesSchema, DatesResponseSchema } from "../../schemas/appointments/dates.schema";
 import type {
   unicProceduresResponseType
 } from "../../types/dashboard/proceduresTypes";
+import type { DatesSchemaType } from "../../types/dashboard/dateTypes";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -40,47 +41,40 @@ export const SelectDateForm = ({
   const { country } = SchedulingsStore();
   const [dates, setDates] = useState<DateSchemaType[]>();
 
-  const { mutateAsync } = useMutation({
-    mutationFn: postPublicRequest<DateSchemaType[]>,
-    onSuccess: (data: DateSchemaType[]) => {
-      queryClient.setQueryData(["all-dates"], data);
-      setDates(data);
-    },
-    onError: () => {
-      toast.error("Error al hacer la petición", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-red-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-      });
-    },
-  });
+  // Cambia useMutation por un useEffect directo, ya que solo necesitas obtener datos una vez
+  useEffect(() => {
+    const fetchDates = async () => {
+      console.log(`${consulate.id}:`, `/AvailabilityBlock/office/${consulate.id}/next-5-days`);
+      const data = {
+        url: `/AvailabilityBlock/office/${consulate.id}/next-5-days`,
+        schema: DatesResponseSchema,
+      };
+      try {
+        const result = await getPublicRequest(data) as { data: DateSchemaType[] };
+        setDates(result.data);
+      } catch (error) {
+        toast.error("Error al hacer la petición", {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 1000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
+      }
+    };
+
+    fetchDates();
+  }, []);
 
   const procedureWatcher: unicProceduresResponseType["data"] =
     watch("tramites");
 
-  const handleDates = async () => {
-    const data = {
-      url: "/DateTimeAvailable/by-officeId-proceduresId",
-      schema: outputDatesSchema,
-      body: {
-        officeId: consulate.id,
-        proceduresId: [procedureWatcher.id],
-      },
-    };
-    await mutateAsync(data);
-  };
-
-  useEffect(() => {
-    handleDates();
-  }, []);
 
   // Eliminar el useEffect de expiración, ya no es necesario
 

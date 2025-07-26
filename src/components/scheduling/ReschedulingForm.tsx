@@ -87,12 +87,9 @@ export const ReschedulingForm = ({
 
   const handleDates = async () => {
     const data = {
-      url: "/DateTimeAvailable/by-officeId-proceduresId",
+      url: `/api/api/AvailabilityBlock/office/${scheduled.consulate.id}/next-5-days`,
       schema: outputDatesSchema,
-      body: {
-        officeId: scheduled.consulate.id,
-        proceduresId: [1],
-      },
+      body: {}, // <-- Add this line
     };
     await mutateAsync(data);
   };

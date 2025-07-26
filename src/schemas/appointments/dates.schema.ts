@@ -1,25 +1,17 @@
-import { array, date, nullable, number, object, string } from "valibot";
+import { array, nullable, number, object, string, boolean as bool } from "valibot";
 
-export const DatesSchema = array(
-  object({
-    date: date(),
-    schedules: array(string()),
-  })
-);
-
-export const DateSchema = object({
-  id: number(),
-  officeId: number(),
-  procedureId: number(),
+export const AvailabilityBlockSchema = object({
   date: string(),
   time: string(),
+  availabilityId: number(),
+  officeId: number(),
 });
 
 export const DatesResponseSchema = object({
   statusCode: number(),
-  success: string(),
+  success: bool(),
   message: string(),
-  data: array(DateSchema),
+  data: array(AvailabilityBlockSchema),
   errors: nullable(array(string())),
 });
 
