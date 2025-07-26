@@ -51,3 +51,7 @@ input, select {
 input:focus, select:focus {
   border: 1px solid #3b82f6;
 }
+
+.select_react input {
+  min-height: 0;
+}

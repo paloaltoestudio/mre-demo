@@ -27,14 +27,8 @@ export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
   };
   
   const availableTimes = selectedDate
-    ? Array.from(
-        new Map(
-          dateInfo
-            .filter(
-              (item) => formatDate(item.date) === formatDate(selectedDate)
-            )
-            .map((item) => [item.id, item])
-        ).values()
+    ? dateInfo.filter(
+        (item) => formatDate(item.date) === formatDate(selectedDate)
       )
     : [];
 
@@ -82,14 +76,14 @@ export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
                 {availableTimes.length > 0 ? (
                   availableTimes.map((hora) => (
                     <button
-                      key={hora.id}
+                      key={hora.availabilityId}
                       type="button"
                       onClick={() => {
-                        setToSavedDate(hora.id);
+                        setToSavedDate(hora.availabilityId);
                         return field.onChange(hora);
                       }}
                       className={`py-2 px-7 rounded-full border-[#ccc] cursor-pointer hover:bg-gray-200 border-2 ${
-                        field.value?.id === hora.id
+                        field.value?.availabilityId === hora.availabilityId
                           ? "border-blue-500 bg-gray-300"
                           : ""
                       }`}

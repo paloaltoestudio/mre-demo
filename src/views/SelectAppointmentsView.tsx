@@ -203,23 +203,25 @@ export const SelectAppointmentsView = ({
   }, [toSchedule]);
 
   const handlePreAppointment = async () => {
+    const body = {
+      userId: userId,
+      availabilityBlockId: toSavedDate, // id de la hora;
+      dependents: toSchedule?.parents
+        ? toSchedule?.parents?.map((parent) => ({
+            relationshipTypeId: 1,
+            documentTypeId: parent.typeDocument,
+            documentNumber: 1,
+            firstNames: parent.names,
+            lastNames: parent.lastNames,
+          }))
+        : [],
+      tramiteId: toSchedule?.tramites.id,
+    };
+    console.log('PreAppointment body:', body);
     await mutatePreAppointment({
       url: `/Appointment/pre-appointment`,
       schema: CreatePreAppointmentSchema,
-      body: {
-        userId: userId,
-        availabilityBlockId: toSavedDate, // id de la hora;
-        dependents: toSchedule?.parents
-          ? toSchedule?.parents?.map((parent) => ({
-              relationshipTypeId: 1,
-              documentTypeId: parent.typeDocument,
-              documentNumber: 1,
-              firstNames: parent.names,
-              lastNames: parent.lastNames,
-            }))
-          : [],
-        tramiteId: toSchedule?.tramites.id,
-      },
+      body,
     });
   };
 

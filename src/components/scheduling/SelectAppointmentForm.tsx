@@ -199,6 +199,7 @@ export const SelectAppointmentForm = ({
                     inputId="country"
                     options={countries}
                     styles={customStyles}
+                    className="select_react"
                     formatOptionLabel={({ name }) => (
                       <div className="flex items-center gap-2">
                         <span>{name}</span>
@@ -242,6 +243,7 @@ export const SelectAppointmentForm = ({
                     inputId="city"
                     options={citiesData?.data}
                     styles={customStyles}
+                    className="select_react"
                     formatOptionLabel={({ name }) => (
                       <div className="flex items-center gap-2">
                         <span>{name}</span>
