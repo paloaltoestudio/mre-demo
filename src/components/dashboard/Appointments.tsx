@@ -1,6 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type {
   AppointmentsType,
+  AppointmentType,
   Estado,
 } from "../../types/dashboard/AppointmentTypes";
 import { SessionStore } from "../../stores/sessionStore";
@@ -29,6 +30,11 @@ import {
   CreateHashSchema,
   CreateTokenSchema,
 } from "../../schemas/Auth/hashSchemas";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import type { ResponseDataRequestOTPType } from "../../types/dashboard/otpTypes";
+import { DataRequestOTPSchema } from "../../schemas/appointments/otp.schemas";
+import type { ResponseExternalLoginType } from "../../types/dashboard/externalLoginTypes";
+import { CreateExternalLoginSchema } from "../../schemas/appointments/externalLogin.schema";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -39,13 +45,12 @@ export const estadoColor: Record<Estado, string> = {
 
 export const AppointmentCards = () => {
   const navigate = useNavigate();
-  // const { user, document } = SessionStore();
-  // const { scheduled, removeScheduled, updateState } = SchedulingsStore();
+  const { setToRemove } = SchedulingsStore();
   const { activeUser, setActiveUser, setTokenExpiration } = useActiveUser();
   const { setTokenExpiration: setExpiration } = useTokenExpiration();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
-  const [scheduledData, setScheduledData] = useState<AppointmentsType>();
+  const [scheduledData, setScheduledData] = useState<AppointmentType>();
   // const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
   // const [rescheduledData, setRescheduledData] = useState<AppointmentsType>();
   // const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
@@ -87,6 +92,10 @@ export const AppointmentCards = () => {
   // }, []);
 
   useEffect(() => {
+    handleExternalLogin();
+  }, []);
+
+  useEffect(() => {
     const rawHash = searchParams.get("hash");
 
     if (rawHash) {
@@ -113,10 +122,12 @@ export const AppointmentCards = () => {
     }
   }, [token]);
 
+
   const { mutateAsync: MutateHash } = useMutation({
     mutationFn: postPublicRequest<ResponseHashType>,
     onSuccess: (data: ResponseHashType) => {
       // console.log("token hash", data);
+      console.log("Response external data", data);
       setToken(data);
 
       // Configurar expiración del token
@@ -146,10 +157,20 @@ export const AppointmentCards = () => {
     },
   });
 
-  const { setUserId } = SessionStore();
+  const {
+    setUserId,
+    setExternalId,
+    setLocationVerification,
+    setCode,
+    externalId,
+    globalToken,
+    setGlobalToken,
+    setOfficial
+  } = SessionStore();
   const { mutateAsync: MutateToken } = useMutation({
     mutationFn: postPublicRequest<ResponsesTokenType>,
     onSuccess: (data: ResponsesTokenType) => {
+      setExternalId(token?.externalId!);
       setActiveUser(data[0]);
       setUserId(data[0].id);
     },
@@ -189,7 +210,7 @@ export const AppointmentCards = () => {
       await MutateToken({
         url: "/User/external",
         schema: CreateTokenSchema,
-        body: { externalId: token?.externalId! },
+        body: { externalId: token?.externalId },
       });
     }
   };
@@ -198,17 +219,108 @@ export const AppointmentCards = () => {
   //   if (rescheduledData && isOpenResume) setIsOpen(false);
   // }, [rescheduledData, isOpenResume]);
 
-  const handleRemove = () => {
-    // if (scheduledData && requestRemove) {
-    //   if (scheduledData.state === "Agendada") {
-    //     setLocationVerification("Eliminar agendamiento");
-    //     updateState(scheduledData);
-    //     navigate("/auth/verification-method");
-    //   } else if (scheduledData.state === "Cancelada")
-    //     removeScheduled(scheduledData);
-    //   setIsOpenCancel(false);
-    //   setRequestRemove(false);
-    // }
+  const { mutateAsync: MutateLoginAsync } = useMutation({
+    mutationFn: postPublicRequest<ResponseExternalLoginType>,
+    onSuccess: (data: ResponseExternalLoginType) => {
+      console.log("externalLogin", data);
+      setGlobalToken(data?.token);
+      setOfficial(false);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error al iniciar la sesión", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const { mutateAsync: MutateRemoveAsync } = useMutation({
+    mutationFn: postPublicRequest<ResponseDataRequestOTPType>,
+    onSuccess: (data: ResponseDataRequestOTPType) => {
+      console.log("otp", data);
+      toast.success("Código de verificación enviado al correo registrado", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-green-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+      });
+
+      setCode(+data?.otp);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error al enviar el código de verificación", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const handleExternalLogin = async () => {
+    await MutateLoginAsync({
+      url: "https://www.iaidentity.com/ApiCancilleria/api/authenticate",
+      schema: CreateExternalLoginSchema,
+      body: {
+        username: "UserCancilleria",
+        password: "c4nc1ll3r1a.2024",
+      },
+      ext: true,
+    });
+  };
+
+  const handleRemove = async () => {
+    if (scheduledData && requestRemove) {
+      if (scheduledData.status === "Agendada") {
+        setLocationVerification("Eliminar agendamiento");
+        // updateState(scheduledData);
+
+        const otp = await MutateRemoveAsync({
+          url: import.meta.env.VITE_OTP_URL,
+          schema: DataRequestOTPSchema,
+          body: {
+            userId: externalId,
+          },
+          ext: true,
+          auth: globalToken,
+        });
+
+        if (otp) {
+          setToRemove(scheduledData);
+
+          setTimeout(() => {
+            navigate("/auth/verification-method");
+          }, 500);
+        }
+      } else if (scheduledData.status === "Cancelada")
+        // removeScheduled(scheduledData);
+        setToRemove(scheduledData);
+      setIsOpenCancel(false);
+      setRequestRemove(false);
+    }
   };
 
   useEffect(() => {
@@ -239,10 +351,9 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
-      // Redirigir a la app externa después de mostrar el error
-      setTimeout(() => {
-        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
-      }, 2000);
+      // setTimeout(() => {
+      //   window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+      // }, 2000);
     },
   });
 
@@ -386,21 +497,24 @@ export const AppointmentCards = () => {
                           ? "Ocultar requisitos"
                           : "Ver requisitos"}
                       </button>
+                    {appt.status === "Agendada" && (  
+                      <>
                       <button
                         type="button"
                         onClick={() => {
                           setIsOpenCancel(true);
-                          setScheduledData(sche);
+                          setScheduledData(appt);
                         }}
                         className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                       >
                         Cancelar
                       </button>
+                    
                       <button
                         type="button"
                         onClick={() => {
                           setIsOpen(true);
-                          setScheduledData(sche);
+                          setScheduledData(appt);
                         }}
                         className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                       >
@@ -410,6 +524,8 @@ export const AppointmentCards = () => {
                         />
                         Reagendar
                       </button>
+                      </>
+                    )} 
                     </>
                   )}
                   {appt.status === "Cancelada" && (
@@ -417,7 +533,7 @@ export const AppointmentCards = () => {
                       type="button"
                       onClick={() => {
                         setIsOpenCancel(true);
-                        setScheduledData(sche);
+                        setScheduledData(appt);
                       }}
                       className="text-blue-600 text-sm py-[5px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
@@ -433,7 +549,7 @@ export const AppointmentCards = () => {
                       type="button"
                       onClick={() => {
                         setIsOpenCancel(true);
-                        setScheduledData(sche);
+                        setScheduledData(appt);
                       }}
                       className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
@@ -449,7 +565,7 @@ export const AppointmentCards = () => {
                       type="button"
                       onClick={() => {
                         setIsOpen(true);
-                        setScheduledData(sche);
+                        setScheduledData(appt);
                       }}
                       className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >

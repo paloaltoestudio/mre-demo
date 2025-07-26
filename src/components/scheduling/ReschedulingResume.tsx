@@ -32,7 +32,19 @@ export const ReschedulingResume = ({
   return (
     <AuthForm<Record<string, never>>
       onSubmit={() => {
-        setToRemove(toDelete); 
+        // Map SchedulingStoreType to AppointmentType
+        const appointmentToRemove = {
+          appointmentId: 0, // TODO: Replace with real ID if available
+          date: toDelete.date instanceof Date ? toDelete.date.toISOString() : String(toDelete.date),
+          time: toDelete.hora ?? "",
+          procedure: toDelete.tramites?.name ?? "",
+          office: toDelete.consulate?.name ?? "",
+          address: toDelete.consulate?.address ?? "",
+          requirements: toDelete.tramites?.requirements ?? "",
+          status: toDelete.state ?? "",
+          dependent: [], // Map dependents if available
+        };
+        setToRemove(appointmentToRemove);
         setToReplace(scheduled);
         setLocationVerification("Reagendar");
         navigate("/auth/verification-method");

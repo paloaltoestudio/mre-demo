@@ -30,11 +30,15 @@ type SessionStates = {
   userId: number | null;
   activeUser: ResponseTokenType | null;
   tokenExpiration: Date | null;
+  globalToken: string;
+
+  
 };
 
 type SessionActions = {
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   setUser: (user: UserType) => void;
+  setCode: (code: number) => void;
   setDocument: (document: string) => void;
   setLocationVerification: (message: string) => void;
   setOfficial: (official: boolean) => void;
@@ -44,6 +48,7 @@ type SessionActions = {
   clearActiveUser: () => void;
   setTokenExpiration: (expiration: Date) => void;
   clearTokenExpiration: () => void;
+  setGlobalToken: (token: string) => void;
 };
 
 export const SessionStore = create(
@@ -52,7 +57,7 @@ export const SessionStore = create(
       (set) => ({
         isAuthenticated: false,
         user: [] as UserType[],
-        code: 123456,
+        code: 0,
         document: "",
         locationVerification: "",
         official: false,
@@ -60,7 +65,7 @@ export const SessionStore = create(
         userId: null,
         activeUser: null,
         tokenExpiration: null,
-
+        globalToken: "",
         setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
         setUser: (user) =>
           set((state) => {
@@ -75,6 +80,7 @@ export const SessionStore = create(
               document: user.documentNumber.toString(),
             };
           }),
+        setCode: (code) => set({ code }),
         setDocument: (document) => set({ document }),
         setLocationVerification: (message) =>
           set({ locationVerification: message }),
@@ -83,8 +89,10 @@ export const SessionStore = create(
         setUserId: (userId) => set({ userId }),
         setActiveUser: (activeUser) => set({ activeUser }),
         clearActiveUser: () => set({ activeUser: null }),
-        setTokenExpiration: (expiration) => set({ tokenExpiration: expiration }),
+        setTokenExpiration: (expiration) =>
+          set({ tokenExpiration: expiration }),
         clearTokenExpiration: () => set({ tokenExpiration: null }),
+        setGlobalToken: (token) => set({ globalToken: token }),
       }),
       {
         name: "sessionStore",

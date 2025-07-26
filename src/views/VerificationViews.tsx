@@ -6,8 +6,15 @@ import { useRoutesStore } from "../stores/routesStore";
 import { SessionStore } from "../stores/sessionStore";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleCheck,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { SchedulingsStore } from "../stores/schedulingsStore";
+import { useMutation } from "@tanstack/react-query";
+import { putPublicRequest } from "../services/fetchingService";
+import type { ResponseCancelAppointmentType } from "../types/dashboard/cancelAppointmentTypes";
+import { CancelDataAppointmentSchema } from "../schemas/appointments/cancelAppointment.schema";
 
 type formType = {
   code: number;
@@ -19,9 +26,13 @@ export const VerificationViews = () => {
     value: string;
   }>({ type: "email", value: "default@email.com" });
   const { fromAuth, registry, typeUser } = useRoutesStore();
-  const { code, user, document, locationVerification, official } = SessionStore();
+  const { code, user, document, locationVerification, official } =
+    SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
-  const { toRemove, toReplace, rescheduling, removeScheduled } = SchedulingsStore();
+  const {
+    toRemove,
+    //  removeScheduled
+  } = SchedulingsStore();
 
   const { methodSelected } = useParams();
   useEffect(() => {
@@ -47,8 +58,40 @@ export const VerificationViews = () => {
     }
   }, [user, methodSelected]);
 
+  const { mutateAsync: CancelPreAppointment } = useMutation({
+    mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
+    onSuccess: (data: ResponseCancelAppointmentType) => {
+      console.log("Cita cancelada correctamente", data);
+      toast.success("Cita eliminada correctamente", {
+        icon: (
+          <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+      });
+    },
+    onError: () => {
+      toast.error("Error al cancelar la cita", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
   const navigate = useNavigate();
-  const onSubmit = (data: formType) => {
+  const onSubmit = async (data: formType) => {
     if (+data.code !== code) setInvalidCode(true);
     else {
       if (fromAuth === false) {
@@ -56,10 +99,10 @@ export const VerificationViews = () => {
           navigate("/access/verification-id");
         } else navigate("/auth/verification-files");
       } else {
-        if(official) navigate("/auth/official")
+        if (official) navigate("/auth/official");
         else navigate("/dashboard/appointments");
-        if (locationVerification === "Reagendar" ) {
-          rescheduling(toRemove, toReplace);
+        if (locationVerification === "Reagendar") {
+          // rescheduling(toRemove, toReplace);
           toast.success("Cita reagendada correctamente", {
             icon: (
               <FontAwesomeIcon
@@ -74,21 +117,18 @@ export const VerificationViews = () => {
             className:
               "border-l-5 border-green-500 bg-white text-black shadow-md",
           });
-        }else if(locationVerification === "Eliminar agendamiento" && !official){
-          removeScheduled(toRemove);
-          toast.success("Cita eliminada correctamente", {
-            icon: (
-              <FontAwesomeIcon
-                icon={faCircleCheck}
-                className="text-green-500"
-              />
-            ),
-            autoClose: 3000,
-            draggable: true,
-            progress: undefined,
-            hideProgressBar: true,
-            className:
-              "border-l-5 border-green-500 bg-white text-black shadow-md",
+        } else if (
+          locationVerification === "Eliminar agendamiento" &&
+          !official
+        ) {
+          // removeScheduled(toRemove);
+          // Aqui se tira el update para el agendamiento;
+          await CancelPreAppointment({
+            url: `/Appointment/cancel-appointment/${toRemove.appointmentId}`,
+            schema: CancelDataAppointmentSchema,
+            body: {
+              appointmentId: toRemove.appointmentId,
+            },
           });
         }
       }

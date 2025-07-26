@@ -16,20 +16,6 @@ export const VerificationIDForm = () => {
     },
     []
   );
-  const onDropResp = useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      console.log("Archivos aceptados:", acceptedFiles);
-      console.log("Archivos rechazados:", fileRejections);
-    },
-    []
-  );
-  const faceScan = useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      console.log("Archivos aceptados:", acceptedFiles);
-      console.log("Archivos rechazados:", fileRejections);
-    },
-    []
-  );
 
   return (
     <div className="w-full p-5">
@@ -69,7 +55,7 @@ export const VerificationIDForm = () => {
 
           <DropzoneComponent
             text={"Identificación del rostro"}
-            onDrop={faceScan}
+            onDrop={onDrop}
             selectorClasses={"text-gray-900 text-lg text-center"}
             identi="222"
           />
@@ -90,7 +76,7 @@ export const VerificationIDForm = () => {
           <button className="mt-2 p-1 mx-auto rounded-full border-2 border-[#3466cc] max-w-[110px] min-w-[90px] hover:bg-gray-300 hover:border-gray-300 hover:text-white duration-200 hover:cursor-pointer">
             <DropzoneComponent
               text={"Capturar"}
-              onDrop={onDropResp}
+              onDrop={onDrop}
               selectorClasses={
                 "text-[#3466cc] hover:text-white font-medium hover:cursor-pointer"
               }

@@ -1,4 +1,4 @@
-import { isAxiosError } from "axios";
+import axios, { isAxiosError } from "axios";
 import { type BaseSchema, safeParse } from "valibot";
 import { axiosInstance } from "../configs/axios";
 
@@ -43,20 +43,29 @@ export type PostPublicRequestProps = {
   url: string;
   schema: BaseSchema<any, any, any>;
   body: object;
+  ext?: boolean;
+  auth?: string;
 };
 
 export const postPublicRequest = async <T>({
   url,
   schema,
   body,
+  ext = false,
+  auth = "",
 }: PostPublicRequestProps): Promise<T> => {
   try {
     const parsedData = safeParse(schema, body);
-    const { data: requestData } = await axiosInstance.post(
-      url,
-      parsedData.output
-    );
-    return requestData.data;
+
+    const instance = ext ? axios : axiosInstance;
+
+    const { data: requestData } = await instance.post(url, parsedData.output, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: auth ? `Bearer ${auth}` : "",
+      },
+    });
+    return requestData.data ? requestData.data : requestData;
   } catch (error) {
     if (isAxiosError(error)) throw new Error(`Axios error: ${error.message}`);
     else

@@ -39,7 +39,10 @@ export const SelectAppointmentForm = ({
   countries,
 }: SelectAppointmentFormProps) => {
   const [mapLocation, setMapLocation] = useState(initialLocation);
-  const [markerPosition, setMarkerPosition] = useState(initialLocation);
+  const [markerPosition, setMarkerPosition] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(initialLocation);
   const [address, setAddress] = useState<string>("");
   // const [showConsulates, setShowConsulates] = useState<
   //   OfficesInfoType["data"] | undefined
@@ -67,13 +70,13 @@ export const SelectAppointmentForm = ({
   }, [selectedCountry]);
 
   const { data: citiesData } = usePublicQuery<CountriesInfoType>({
-  key: ["citiesInfo", selectedCountry],
-  url: `/City/by-country/${selectedCountry}`,
-  schema: CountriesInfoSchema,
-  options: {
-    enabled: !!selectedCountry,
-  },
-});
+    key: ["citiesInfo", selectedCountry],
+    url: `/City/by-country/${selectedCountry}`,
+    schema: CountriesInfoSchema,
+    options: {
+      enabled: !!selectedCountry,
+    },
+  });
 
   const { data: officeData } = usePublicQuery<OfficesInfoType>({
     key: ["officeInfo", selectedCountry, selectedCity],
@@ -139,6 +142,26 @@ export const SelectAppointmentForm = ({
       if (cityId) setValue("city", cityId);
     }
   }, [city]);
+
+  const handleCity = async (cityName: string | undefined) => {
+    if (cityName) {
+      const latLng = await useSetPosition(cityName, setMarkerPosition);
+
+      setMapLocation(latLng);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedCity) {
+      setValue("city", selectedCity);
+
+      const cityData = citiesData?.data?.find(
+        (c) => c.id === selectedCity
+      )?.name;
+      setCity(cityData);
+      handleCity(cityData);
+    }
+  }, [selectedCity]);
 
   return (
     <section
@@ -266,9 +289,8 @@ export const SelectAppointmentForm = ({
                       setConsulate(item);
 
                       const position = await useSetPosition(
-                        item.address,
-                        setMarkerPosition,
-                        setMapLocation
+                        `${item.address}, ${city}`,
+                        setMarkerPosition
                       );
                       if (position) {
                         setMarkerPosition(position);
@@ -278,7 +300,7 @@ export const SelectAppointmentForm = ({
                   >
                     <h3 className="font-medium text-md">{item.name}</h3>
                     <p className="text-sm text-gray-600">
-                      Dirección: {item.address}
+                      Dirección: {`${item.address}, ${city}`}
                     </p>
                   </div>
                 ))
@@ -304,16 +326,9 @@ export const SelectAppointmentForm = ({
             <GoogleMap
               mapContainerStyle={containerStyle}
               center={mapLocation}
-              zoom={
-                markerPosition.lat !== 6.2442 && markerPosition.lng !== -75.5812
-                  ? 15
-                  : 12
-              }
+              zoom={12}
             >
-              {markerPosition.lat !== 6.2442 &&
-                markerPosition.lng !== -75.5812 && (
-                  <Marker position={markerPosition} />
-                )}
+              {markerPosition !== null && <Marker position={markerPosition} />}
             </GoogleMap>
           </div>
         </div>

@@ -7,6 +7,7 @@ export const DependentSchema = object({
 });
 
 export const AppointmentSchema = object({
+  appointmentId: number(), 
   date: string(),
   time: string(),
   procedure: string(),

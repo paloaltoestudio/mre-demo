@@ -48,7 +48,7 @@ export const useGeocod = ({
         setValue("country", formattedCountry?.id || 0);
         setCity(cityComponent?.long_name.toLowerCase() || "");
       } else {
-        console.warn("No se encontraron resultados");
+        console.log("No se encontraron resultados");
       }
     } else {
       console.error("Geocoder falló debido a:", status);
@@ -56,32 +56,13 @@ export const useGeocod = ({
   });
 };
 
-// export const useSetPosition = (
-//   address: string
-// ): { lat: number; lng: number } => {
-//   const geocoder = new window.google.maps.Geocoder();
-//   let position = { lat: 0, lng: 0 };
-
-//   geocoder.geocode({ address }, (results, status) => {
-//     if (status === "OK" && results?.[0]) {
-//       const location = results[0].geometry.location;
-//       const lat = location.lat();
-//       const lng = location.lng();
-
-//       position = { lat, lng };
-//     } else {
-//       console.error("Error al geocodificar la dirección:", status);
-//     }
-//   });
-
-//   return position;
-// };
 export const useSetPosition = (
   address: string,
-  setMarkerPosition: Dispatch<SetStateAction<{ lat: number; lng: number }>>,
-  setMapLocation: Dispatch<SetStateAction<{ lat: number; lng: number }>>
+  setMarkerPosition: Dispatch<
+    SetStateAction<{ lat: number; lng: number } | null>
+  >
 ): Promise<{ lat: number; lng: number }> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const geocoder = new window.google.maps.Geocoder();
 
     geocoder.geocode({ address }, (results, status) => {
@@ -91,9 +72,8 @@ export const useSetPosition = (
         const lng = location.lng();
         resolve({ lat, lng });
       } else {
-        const fallback = { lat: 6.2442, lng: -75.5812 };
-        setMarkerPosition(fallback);
-        setMapLocation(fallback);
+        setMarkerPosition(null);
+        reject(new Error("Dirección no encontrada"));
       }
     });
   });

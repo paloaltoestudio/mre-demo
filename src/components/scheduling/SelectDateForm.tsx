@@ -1,4 +1,4 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState } from "react";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,8 +18,6 @@ import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
 import type {
   unicProceduresResponseType
 } from "../../types/dashboard/proceduresTypes";
-import { useBookingTimerStore } from "../../stores/bookingTimerStore";
-import { useNavigate } from "react-router-dom";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -41,8 +39,6 @@ export const SelectDateForm = ({
   ])!;
   const { country } = SchedulingsStore();
   const [dates, setDates] = useState<DateSchemaType[]>();
-  const navigate = useNavigate();
-  const { timeLeft, isActive, startTimer, expireTimer, expiredByTimeout, clearExpiredFlag } = useBookingTimerStore();
 
   const { mutateAsync } = useMutation({
     mutationFn: postPublicRequest<DateSchemaType[]>,
@@ -85,15 +81,6 @@ export const SelectDateForm = ({
   useEffect(() => {
     handleDates();
   }, []);
-
-  // Mostrar contador en la parte superior
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
-    const s = (seconds % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
-  };
 
   // Eliminar el useEffect de expiración, ya no es necesario
 
@@ -148,7 +135,6 @@ export const SelectDateForm = ({
           type="button"
           onClick={() => {
             // Iniciar temporizador solo si hay fecha/hora seleccionada
-            // (puedes agregar validación aquí si es necesario)
             startTimer(10); // 5 minutos
             if (dependentsWatch > 0) setView?.(4);
             else setView?.(5);
