@@ -9,16 +9,16 @@ import {
 import { useFormContext } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
 import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import type { DateSchemaType } from "../../types/dashboard/dateTypes";
 import { getPublicRequest } from "../../services/fetchingService";
 import { toast } from "react-toastify";
-import { outputDatesSchema, DatesResponseSchema } from "../../schemas/appointments/dates.schema";
+import { DatesResponseSchema } from "../../schemas/appointments/dates.schema";
 import type {
   unicProceduresResponseType
 } from "../../types/dashboard/proceduresTypes";
-import type { DatesSchemaType } from "../../types/dashboard/dateTypes";
+import { useBookingTimerStore } from "../../stores/bookingTimerStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -129,7 +129,7 @@ export const SelectDateForm = ({
           type="button"
           onClick={() => {
             // Iniciar temporizador solo si hay fecha/hora seleccionada
-            // (puedes agregar validación aquí si es necesario)
+            useBookingTimerStore.getState().startTimer(10); // 5 minutos por defecto
             if (dependentsWatch > 0) setView?.(4);
             else setView?.(5);
           }}
