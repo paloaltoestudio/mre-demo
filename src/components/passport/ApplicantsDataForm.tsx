@@ -22,7 +22,7 @@ export const ApplicantsDataForm = ({ onNext, onBack }: ApplicantsDataFormProps) 
         aria-label="applicants-data-form"
         className="w-full"
       >
-        <h2 className="mb-4 text-lg font-semibold">Datos del Solicitante</h2>
+        <h2 className="mb-4 text-md font-normal">Datos del Solicitante</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {/* Tipo de Documento */}
           <div>
@@ -37,8 +37,7 @@ export const ApplicantsDataForm = ({ onNext, onBack }: ApplicantsDataFormProps) 
                     <option value="">Seleccionar</option>
                     <option value="CC">Cédula de Ciudadanía</option>
                     <option value="TI">Tarjeta de Identidad</option>
-                    <option value="CE">Cédula de Extranjería</option>
-                    <option value="PA">Pasaporte</option>
+                    <option value="RC">Registro Civil</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -137,7 +136,7 @@ export const ApplicantsDataForm = ({ onNext, onBack }: ApplicantsDataFormProps) 
           </div>
         </div>
 
-        <h2 className="mb-4 text-lg font-semibold mt-8">Datos Personales</h2>
+        <h2 className="mb-4 text-md font-normal mt-8">Datos Personales</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {/* Primer Nombre */}
           <div>
@@ -271,7 +270,7 @@ export const ApplicantsDataForm = ({ onNext, onBack }: ApplicantsDataFormProps) 
           </div>
         </div>
 
-        <h2 className="mb-4 text-lg font-semibold mt-8">Datos de Nacimiento</h2>
+        <h2 className="mb-4 text-md font-normal mt-8">Datos de Nacimiento</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {/* Fecha de Nacimiento */}
           <div>
@@ -306,6 +305,7 @@ export const ApplicantsDataForm = ({ onNext, onBack }: ApplicantsDataFormProps) 
                       { value: "Ecuador", label: "Ecuador" },
                     ]}
                     styles={customStyles}
+                    className="select_react"
                     placeholder="Seleccionar"
                     isClearable
                   />
@@ -332,6 +332,7 @@ export const ApplicantsDataForm = ({ onNext, onBack }: ApplicantsDataFormProps) 
                       { value: "Cali", label: "Cali" },
                     ]}
                     styles={customStyles}
+                    className="select_react"
                     placeholder="Seleccionar"
                     isClearable
                   />
@@ -342,11 +343,11 @@ export const ApplicantsDataForm = ({ onNext, onBack }: ApplicantsDataFormProps) 
           </div>
         </div>
 
-        <div className="flex justify-between mt-8">
+        <div className="flex gap-5 justify-end mt-8">
           <button
             type="button"
             onClick={onBack}
-            className="bg-gray-300 text-gray-800 rounded-full px-6 py-2 hover:bg-gray-400"
+            className="text-[#3466cc] border-2 border-[#3466cc] hover:text-white hover:border-[#e9e9e9] font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#d1d1d1] duration-150"
           >
             Regresar
           </button>
