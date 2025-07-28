@@ -129,7 +129,7 @@ export const SelectDateForm = ({
           type="button"
           onClick={() => {
             // Iniciar temporizador solo si hay fecha/hora seleccionada
-            useBookingTimerStore.getState().startTimer(10); // 5 minutos por defecto
+            useBookingTimerStore.getState().startTimer(10000); // 5 minutos por defecto
             if (dependentsWatch > 0) setView?.(4);
             else setView?.(5);
           }}

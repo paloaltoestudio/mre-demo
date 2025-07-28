@@ -1,4 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
+import Swal from 'sweetalert2';
+import { useEffect } from "react";
 
 type MinorDataFormProps = {
   onNext: () => void;
@@ -6,18 +8,47 @@ type MinorDataFormProps = {
 };
 
 export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
-  const { control, handleSubmit, formState: { errors }, watch } = useForm();
+  const { control, handleSubmit, formState: {  }, watch, setValue } = useForm();
 
-  
   // Watch checkbox states to conditionally show fields
   const hasFatherData = watch("hasFatherData");
   const hasMotherData = watch("hasMotherData");
   const hasTutorData = watch("hasTutorData");
-  const isCompanion = watch("isCompanion");
+  
+  // Watch companion states
+  const isFatherCompanion = watch("isFatherCompanion");
+  const isMotherCompanion = watch("isMotherCompanion");
+  const isTutorCompanion = watch("isTutorCompanion");
+
+  // Function to handle companion selection - only one can be companion
+  const handleCompanionChange = (fieldName: string, value: string) => {
+    console.log("handleCompanionChange", fieldName, value);
+    console.log("fieldName", fieldName !== "isFatherCompanion");
+    if (value === "yes") {
+      // Uncheck all other companion fields
+      if (fieldName !== "isFatherCompanion") setValue("isFatherCompanion", "no");
+      if (fieldName !== "isMotherCompanion") setValue("isMotherCompanion", "no");
+      if (fieldName !== "isTutorCompanion") setValue("isTutorCompanion", "no");
+    }
+  };
 
   const onSubmit = (data: any) => {
+    // Validar que al menos uno sea 'yes'
+    if (
+      data.isFatherCompanion !== 'yes' &&
+      data.isMotherCompanion !== 'yes' &&
+      data.isTutorCompanion !== 'yes'
+    ) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe ingresar al menos un acompañante',
+        confirmButtonText: 'Aceptar',
+      });
+      return;
+    }
     console.log(data);
-    onNext()
+    onNext();
   };
 
   return (
@@ -87,7 +118,7 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
           <Controller
               name="hasFatherData"
               control={control}
-              rules={{ required: "Debe indicar si tiene pasaporte" }}
+              rules={{ required: "Debe indicar si tiene datos del padre" }}
               render={({ field, fieldState }) => (
                 <>
                   <label className="flex items-center gap-2">
@@ -252,7 +283,7 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                 <label className="block text-sm font-medium mb-1">¿Es el padre el acompañante del menor de edad? <span className="text-red-500">*</span></label>
                 <div className="flex items-center gap-2">
                 <Controller
-                  name="isCompanion"
+                  name="isFatherCompanion"
                   control={control}
                   rules={{ required: "Debe indicar si es acompañante" }}
                   render={({ field, fieldState }) => (
@@ -262,6 +293,13 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                           type="radio"
                           {...field}
                           value="yes"
+                          checked={field.value === "yes"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (e.target.value === "yes") {
+                              handleCompanionChange("isFatherCompanion", e.target.value);
+                            }
+                          }}
                           className="radio radio-primary"
                         />
                         <span>Si</span>
@@ -271,6 +309,10 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                           type="radio"
                           {...field}
                           value="no"
+                          checked={field.value === "no"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
                           className="radio radio-primary"
                         />
                         <span>No</span>
@@ -292,7 +334,7 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
           <Controller
               name="hasMotherData"
               control={control}
-              rules={{ required: "Debe indicar si tiene pasaporte" }}
+              rules={{ required: "Debe indicar si tiene datos de la madre" }}
               render={({ field, fieldState }) => (
                 <>
                   <label className="flex items-center gap-2">
@@ -457,7 +499,7 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                 <label className="block text-sm font-medium mb-1">¿Es la madre la acompañante del menor de edad? <span className="text-red-500">*</span></label>
                 <div className="flex items-center gap-2">
                 <Controller
-                  name="isCompanion"
+                  name="isMotherCompanion"
                   control={control}
                   rules={{ required: "Debe indicar si es acompañante" }}
                   render={({ field, fieldState }) => (
@@ -467,6 +509,13 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                           type="radio"
                           {...field}
                           value="yes"
+                          checked={field.value === "yes"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (e.target.value === "yes") {
+                              handleCompanionChange("isMotherCompanion", e.target.value);
+                            }
+                          }}
                           className="radio radio-primary"
                         />
                         <span>Si</span>
@@ -476,6 +525,10 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                           type="radio"
                           {...field}
                           value="no"
+                          checked={field.value === "no"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
                           className="radio radio-primary"
                         />
                         <span>No</span>
@@ -660,7 +713,7 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                 <label className="block text-sm font-medium mb-1">¿Es el tutor el acompañante del menor de edad? <span className="text-red-500">*</span></label>
                 <div className="flex items-center gap-2">
                 <Controller
-                  name="isCompanion"
+                  name="isTutorCompanion"
                   control={control}
                   rules={{ required: "Debe indicar si es acompañante" }}
                   render={({ field, fieldState }) => (
@@ -670,6 +723,13 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                           type="radio"
                           {...field}
                           value="yes"
+                          checked={field.value === "yes"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (e.target.value === "yes") {
+                              handleCompanionChange("isTutorCompanion", e.target.value);
+                            }
+                          }}
                           className="radio radio-primary"
                         />
                         <span>Si</span>
@@ -679,6 +739,10 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                           type="radio"
                           {...field}
                           value="no"
+                          checked={field.value === "no"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
                           className="radio radio-primary"
                         />
                         <span>No</span>

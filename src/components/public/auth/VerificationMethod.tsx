@@ -1,16 +1,29 @@
 import { useFormContext } from "react-hook-form";
 import { SessionStore, type UserType } from "../../../stores/sessionStore";
 import { useEffect, useState } from "react";
+import { useSendOTP } from "../../../hooks/Auth/useSendOTP";
 
 type MethodType = "email" | "sms" | "whatsapp";
 
-export const VerificationMethod = () => {
-  const { user, document } = SessionStore();
+type VerificationMethodProps = {
+  submitted?: string;
+};
+
+export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
+  const { user, document, externalId, setOtp } = SessionStore();
   const methods = useFormContext();
   const selectedMethod = methods.watch("method");
   const isFormValid = !!selectedMethod;
   const [methodList, setMethodList] = useState<MethodType[]>([]);
   const [sessionUser, setSessionUser] = useState<UserType>();
+
+  useEffect(() => {
+    if (submitted?.trim()) useSendOTP({
+      submitted,
+      externalId,
+      setOtp,
+    });
+  }, [submitted]);
 
   useEffect(() => {
     const methods: string[] = [];
@@ -23,9 +36,10 @@ export const VerificationMethod = () => {
     const { email, phoneCode, phoneNumber, whatsappCode, whatsappNumber } =
       matchedUser;
 
-    if (email) methods.push("email");
-    if (phoneCode && phoneNumber) methods.push("sms");
-    if (whatsappCode && whatsappNumber) methods.push("whatsapp");
+    if (email?.trim()) methods.push("email");
+    if (phoneCode?.trim() && phoneNumber?.trim()) methods.push("sms");
+    if (whatsappCode?.trim() && whatsappNumber?.trim())
+      methods.push("whatsapp");
 
     setSessionUser(matchedUser);
     setMethodList([...new Set(methods)] as MethodType[]);
@@ -39,7 +53,7 @@ export const VerificationMethod = () => {
     const masked = name[0] + "*".repeat(name.length - 1);
     return `${masked}@${domain}`;
   };
-
+  
   const maskPhone = (phone: string) => {
     if (phone.length <= 6) return phone;
 

@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useActiveUser } from "../hooks/useActiveUser";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendarAlt, faPassport, faIdCard, faFileAlt, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import calendarIcon from "../assets/calendar.svg";
 import certIcon from "../assets/cert.svg";

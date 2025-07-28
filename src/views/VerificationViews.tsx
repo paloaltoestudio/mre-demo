@@ -15,6 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import { putPublicRequest } from "../services/fetchingService";
 import type { ResponseCancelAppointmentType } from "../types/dashboard/cancelAppointmentTypes";
 import { CancelDataAppointmentSchema } from "../schemas/appointments/cancelAppointment.schema";
+import { useSendOTP } from "../hooks/Auth/useSendOTP";
 
 type formType = {
   code: number;
@@ -26,8 +27,15 @@ export const VerificationViews = () => {
     value: string;
   }>({ type: "email", value: "default@email.com" });
   const { fromAuth, registry, typeUser } = useRoutesStore();
-  const { code, user, document, locationVerification, official } =
-    SessionStore();
+  const {
+    user,
+    document,
+    locationVerification,
+    official,
+    setOtp,
+    otp,
+    externalId,
+  } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
   const {
     toRemove,
@@ -92,7 +100,7 @@ export const VerificationViews = () => {
 
   const navigate = useNavigate();
   const onSubmit = async (data: formType) => {
-    if (+data.code !== code) setInvalidCode(true);
+    if (data.code.toString() !== otp?.toString()) setInvalidCode(true);
     else {
       if (fromAuth === false) {
         if (registry && typeUser === "Ciudadano") {
@@ -132,18 +140,20 @@ export const VerificationViews = () => {
           });
         }
       }
+
+      setOtp(null);
     }
   };
 
   const resendCode = () => {
-    toast.success("Código enviado", {
-      icon: <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />,
-      autoClose: 3000,
-      draggable: true,
-      progress: undefined,
-      hideProgressBar: true,
-      className: "border-l-5 border-green-500 bg-white text-black shadow-md",
-    });
+    useEffect(() => {
+      if (methodSelected)
+        useSendOTP({
+          submitted: methodSelected,
+          externalId,
+          setOtp,
+        });
+    }, [methodSelected]);
   };
 
   return (

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { PassportWizard } from "../components/passport/PassportWizard";
 
 export const PassportView =  () => {

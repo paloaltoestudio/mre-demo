@@ -15,7 +15,7 @@ const steps = [
 ];
 
 export const PassportWizard = () => {
-  const [currentStep, setCurrentStep] = useState(5);
+  const [currentStep, setCurrentStep] = useState(1);
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-8">

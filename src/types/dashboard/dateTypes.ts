@@ -1,6 +1,6 @@
 import type { InferInput } from "valibot";
-import type { DateSchema, DatesResponseSchema, DatesSchema } from "../../schemas/appointments/dates.schema";
+import type { AvailabilityBlockSchema, DatesResponseSchema } from "../../schemas/appointments/dates.schema";
 
-export type DatesType = InferInput<typeof DatesSchema>; 
+export type DatesType = InferInput<typeof AvailabilityBlockSchema>[]; 
 export type DatesSchemaType = InferInput<typeof DatesResponseSchema>; 
-export type DateSchemaType = InferInput<typeof DateSchema>; 
+export type DateSchemaType = InferInput<typeof AvailabilityBlockSchema>; 

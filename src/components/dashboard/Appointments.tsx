@@ -12,6 +12,7 @@ import { ENV_CONFIG } from "../../configs/environment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendar,
+  faCircleCheck,
   faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -20,7 +21,10 @@ import { format } from "date-fns";
 import { toDate } from "../../configs/formats";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { postPublicRequest } from "../../services/fetchingService";
+import {
+  postPublicRequest,
+  putPublicRequest,
+} from "../../services/fetchingService";
 import { postAppointmentSchema } from "../../schemas/appointments/appointments";
 import type {
   ResponseHashType,
@@ -31,10 +35,9 @@ import {
   CreateTokenSchema,
 } from "../../schemas/Auth/hashSchemas";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
-import type { ResponseDataRequestOTPType } from "../../types/dashboard/otpTypes";
-import { DataRequestOTPSchema } from "../../schemas/appointments/otp.schemas";
 import type { ResponseExternalLoginType } from "../../types/dashboard/externalLoginTypes";
 import { CreateExternalLoginSchema } from "../../schemas/appointments/externalLogin.schema";
+import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -63,33 +66,6 @@ export const AppointmentCards = () => {
   const [searchParams] = useSearchParams();
   const [hash, setHash] = useState<string | null>();
   const [token, setToken] = useState<ResponseHashType>();
-
-  // useEffect(() => {
-  //   const newUser = user.find(
-  //     (user) => user.documentNumber.toString() === document.toString()
-  //   );
-  //   // setActiveUser(
-  //   //   newUser || {
-  //   //     documentType: "CC",
-  //   //     documentNumber: "10256341",
-  //   //     firstName: "Luis Alberto",
-  //   //     lastName: "Diaz Castro",
-  //   //     birthDate: "1990-01-01",
-  //   //     email: "arquitecto@italm.com.co",
-  //   //     phoneCode: "+57",
-  //   //     phoneNumber: "3125642169",
-  //   //     whatsappCode: "+57",
-  //   //     whatsappNumber: "3125642169",
-  //   //     password: "10256341",
-  //   //     confirmPassword: "10256341",
-  //   //     acceptData: true,
-  //   //     acceptTerms: true,
-  //   //   }
-  //   // );
-  //   setTimeout(() => {
-  //     setLoader(false);
-  //   }, 500);
-  // }, []);
 
   useEffect(() => {
     handleExternalLogin();
@@ -121,7 +97,6 @@ export const AppointmentCards = () => {
       handleToken();
     }
   }, [token]);
-
 
   const { mutateAsync: MutateHash } = useMutation({
     mutationFn: postPublicRequest<ResponseHashType>,
@@ -161,11 +136,8 @@ export const AppointmentCards = () => {
     setUserId,
     setExternalId,
     setLocationVerification,
-    setCode,
-    externalId,
-    globalToken,
     setGlobalToken,
-    setOfficial
+    setOfficial,
   } = SessionStore();
   const { mutateAsync: MutateToken } = useMutation({
     mutationFn: postPublicRequest<ResponsesTokenType>,
@@ -188,6 +160,7 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
+
       // Redirigir a la app externa después de mostrar el error
       setTimeout(() => {
         window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
@@ -215,10 +188,6 @@ export const AppointmentCards = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (rescheduledData && isOpenResume) setIsOpen(false);
-  // }, [rescheduledData, isOpenResume]);
-
   const { mutateAsync: MutateLoginAsync } = useMutation({
     mutationFn: postPublicRequest<ResponseExternalLoginType>,
     onSuccess: (data: ResponseExternalLoginType) => {
@@ -228,43 +197,6 @@ export const AppointmentCards = () => {
     },
     onError: () => {
       toast.error("Ocurrió un error al iniciar la sesión", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-red-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-      });
-    },
-  });
-
-  const { mutateAsync: MutateRemoveAsync } = useMutation({
-    mutationFn: postPublicRequest<ResponseDataRequestOTPType>,
-    onSuccess: (data: ResponseDataRequestOTPType) => {
-      console.log("otp", data);
-      toast.success("Código de verificación enviado al correo registrado", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-green-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
-      });
-
-      setCode(+data?.otp);
-    },
-    onError: () => {
-      toast.error("Ocurrió un error al enviar el código de verificación", {
         icon: (
           <FontAwesomeIcon
             icon={faCircleExclamation}
@@ -292,32 +224,55 @@ export const AppointmentCards = () => {
     });
   };
 
+  const { mutateAsync: removeAsync } = useMutation({
+    mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
+    onSuccess: (data: ResponseCancelAppointmentType) => {
+      console.log("Cita cancelada correctamente", data);
+      toast.success("Cita archivada correctamente", {
+        icon: (
+          <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+      });
+    },
+    onError: () => {
+      toast.error("Error al archivar la cita", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
   const handleRemove = async () => {
     if (scheduledData && requestRemove) {
       if (scheduledData.status === "Agendada") {
         setLocationVerification("Eliminar agendamiento");
-        // updateState(scheduledData);
 
-        const otp = await MutateRemoveAsync({
-          url: import.meta.env.VITE_OTP_URL,
-          schema: DataRequestOTPSchema,
-          body: {
-            userId: externalId,
-          },
-          ext: true,
-          auth: globalToken,
-        });
-
-        if (otp) {
-          setToRemove(scheduledData);
-
-          setTimeout(() => {
-            navigate("/auth/verification-method");
-          }, 500);
-        }
-      } else if (scheduledData.status === "Cancelada")
-        // removeScheduled(scheduledData);
         setToRemove(scheduledData);
+
+        setTimeout(() => {
+          navigate("/auth/verification-method");
+        }, 500);
+      } else if (scheduledData.status === "Cancelada") {
+        setToRemove(scheduledData);
+
+        await removeAsync({
+          url: `/Appointment/archive-appointment/${scheduledData.appointmentId}`,
+        });
+      }
       setIsOpenCancel(false);
       setRequestRemove(false);
     }
@@ -351,9 +306,6 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
-      // setTimeout(() => {
-      //   window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
-      // }, 2000);
     },
   });
 
@@ -408,14 +360,14 @@ export const AppointmentCards = () => {
           ? sche.appointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
-                className="bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2"
+                className={`${appt.date} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">
                     Fecha:{" "}
                     {`${
                       appt.date
-                        ? new Date(appt.date).toLocaleDateString("es-ES")
+                        ? appt.date
                         : ""
                     }`}{" "}
                     {format(toDate(appt?.time), "hh:mm a")}
@@ -431,7 +383,6 @@ export const AppointmentCards = () => {
                 <p className="text-sm">Trámite: {appt.procedure}</p>
                 <p className="text-sm">Oficina: {appt.office}</p>
                 <p className="text-sm">Dirección: {appt.address}</p>
-                {/* <p className="text-sm">Código de confirmación: 23423</p> */}
 
                 <div className="text-sm mt-3">
                   <span className="font-semibold">Solicitantes:</span>
@@ -447,18 +398,6 @@ export const AppointmentCards = () => {
                       </li>
                     ))}
                   </ul>
-                  {/* <ul className="list-none mt-1">
-                    {appt.parents?.map((s, idx) => (
-                      <li key={idx}>
-                        {s?.names} {s?.lastNames}. {s?.typeDocument.label}:{" "}
-                        {s?.document}
-                      </li>
-                    ))}
-                    <li>
-                      {activeUser?.firstName} {activeUser?.lastName}.{" "}
-                      {activeUser?.documentType}: {activeUser?.documentNumber}
-                    </li>
-                  </ul> */}
                 </div>
 
                 {showRequirementsMap[appt.date.toString() + index] && (
@@ -497,35 +436,35 @@ export const AppointmentCards = () => {
                           ? "Ocultar requisitos"
                           : "Ver requisitos"}
                       </button>
-                    {appt.status === "Agendada" && (  
-                      <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsOpenCancel(true);
-                          setScheduledData(appt);
-                        }}
-                        className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
-                      >
-                        Cancelar
-                      </button>
-                    
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsOpen(true);
-                          setScheduledData(appt);
-                        }}
-                        className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
-                      >
-                        <FontAwesomeIcon
-                          icon={faCalendar}
-                          className="text-blue-500 text-lg mr-2"
-                        />
-                        Reagendar
-                      </button>
-                      </>
-                    )} 
+                      {appt.status === "Agendada" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsOpenCancel(true);
+                              setScheduledData(appt);
+                            }}
+                            className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsOpen(true);
+                              setScheduledData(appt);
+                            }}
+                            className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                          >
+                            <FontAwesomeIcon
+                              icon={faCalendar}
+                              className="text-blue-500 text-lg mr-2"
+                            />
+                            Reagendar
+                          </button>
+                        </>
+                      )}
                     </>
                   )}
                   {appt.status === "Cancelada" && (

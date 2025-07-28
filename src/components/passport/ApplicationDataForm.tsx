@@ -1,4 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
+import Swal from 'sweetalert2';
+import { useEffect } from 'react';
 
 type ApplicationDataFormProps = {
   onNext: () => void;
@@ -6,7 +8,33 @@ type ApplicationDataFormProps = {
 };
 
 export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps) => {
-  const { control, handleSubmit, formState: { errors }, watch } = useForm();
+  const { control, handleSubmit, formState: {  }, watch } = useForm();
+
+  useEffect(() => {
+    Swal.fire({
+      icon: 'warning',
+      width: '1000px',
+      title: '<span style="font-size: 1.5rem; font-weight: bold;">Señor Solicitante</span>',
+      html: `
+        <div style="text-align: left; margin-top: 1rem;">
+          <p style="font-weight: 500;">Antes de formalizar tenga en cuenta lo siguiente:</p><br>
+          <ul style="margin-left: 1.2em; margin-bottom: 1em;">
+            <li>En la Captura Doc. ID debe escanear el registro civil para menores de edad y la cédula o contraseña para mayores de edad, según sea el caso.</li>
+            <li>En la captura de soportes: Para menores de edad escanea la cédula de alguno o ambos padres y la tarjeta de identidad, de ser necesario.</li>
+            <li>Para mayores de edad no es obligatorio escanear otros documentos soporte fuera de la cédula colombiana vigente, pero puede hacerlo si lo requiere. Si el trámite se hace con contraseña debe adjuntar los soportes establecidos en la Resolución de Requisitos.</li>
+          </ul>
+          <p>Para mayor información: <a href="https://www.cancilleria.gov.co/tramites_servicios/pasaportes/requisitos" target="_blank" rel="noopener noreferrer">https://www.cancilleria.gov.co/tramites_servicios/pasaportes/requisitos</a></p>
+        </div>
+      `,
+      confirmButtonText: 'Continuar',
+      customClass: {
+        popup: 'swal2-border-radius',
+        confirmButton: 'swal2-confirm-custom',
+      },
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+  }, []);
 
   const onSubmit = (data: any) => {
     console.log(data);

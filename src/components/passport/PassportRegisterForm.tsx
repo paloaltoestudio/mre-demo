@@ -5,9 +5,9 @@ type PassportRegisterFormProps = {
 };
 
 export const PassportRegisterForm = ({ onNext }: PassportRegisterFormProps) => {
-  const { control, handleSubmit, formState: { errors }, watch } = useForm();
+  const { control, handleSubmit, formState: {  }, watch } = useForm();
 
-  const onSubmit = (data: any) => {
+  const onSubmit = () => {
     onNext();
   };
 

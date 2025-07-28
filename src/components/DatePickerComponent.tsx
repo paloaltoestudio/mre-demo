@@ -82,7 +82,7 @@ export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
                         setToSavedDate(hora.availabilityId);
                         return field.onChange(hora);
                       }}
-                      className={`py-2 px-7 rounded-full border-[#ccc] cursor-pointer hover:bg-gray-200 border-2 ${
+                      className={`py-2 px-7 rounded-full border-[#ccc] cursor-pointer hover:bg-gray-200 border-2 ${hora.availabilityId} ${
                         field.value?.availabilityId === hora.availabilityId
                           ? "border-blue-500 bg-gray-300"
                           : ""
