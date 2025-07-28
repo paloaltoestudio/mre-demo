@@ -6,7 +6,7 @@ import type { ResponseDocumentTypesType } from "../../types/auth/documentTypes";
 import { useQueryClient } from "@tanstack/react-query";
 
 type ApplicantsDataFormProps = {
-  onNext: () => void;
+  onNext: (data: any) => void;
   onBack: () => void;
 };
 
@@ -22,7 +22,7 @@ export const ApplicantsDataForm = ({
 
   const onSubmit = (data: any) => {
     console.log(data);
-    onNext();
+    onNext(data);
   };
 
   const [documentTypes, setDocumentTypes] = useState<
