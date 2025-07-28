@@ -34,6 +34,7 @@ import { useBookingTimerStore } from "../stores/bookingTimerStore";
 import { useAppointmentWizardStore } from "../stores/appointmentWizardStore";
 
 
+
 const steps = [
   "Lugar de agendamiento",
   "Tipo de trámite",
@@ -61,6 +62,8 @@ export const SelectAppointmentsView = ({
   const navigate = useNavigate();
   const [toSchedule, setToSchedule] = useState<SchedulingStoreType>();
   const [appointmentId, setAppointmentId] = useState<number>(0);
+  const resetTimer = useBookingTimerStore((state) => state.resetTimer);
+  const resetWizard = useAppointmentWizardStore((state) => state.reset);
   // const [activeUser, setActiveUser] = useState<UserType>();
   // const { user } = SessionStore();
 
@@ -150,6 +153,8 @@ export const SelectAppointmentsView = ({
         className: "border-l-5 border-green-500 bg-white text-black shadow-md",
       });
       setTimeout(() => {
+        resetTimer();
+        resetWizard();
         navigate("/dashboard/appointments");
       }, 1000);
     },
@@ -176,9 +181,9 @@ export const SelectAppointmentsView = ({
     }
   }, [appointmentId]);
 
-  useEffect(() => {
-    useBookingTimerStore.getState().resetTimer();
-  }, []);
+  // useEffect(() => {
+  //   useBookingTimerStore.getState().resetTimer();
+  // }, []);
 
   // const handleDateBlocks = async (completedData: SchedulingStoreType) => {
   //   await mutateAsync({
@@ -218,6 +223,7 @@ export const SelectAppointmentsView = ({
       tramiteId: toSchedule?.tramites.id,
     };
     console.log('PreAppointment body:', body);
+    debugger
     await mutatePreAppointment({
       url: `/Appointment/pre-appointment`,
       schema: CreatePreAppointmentSchema,

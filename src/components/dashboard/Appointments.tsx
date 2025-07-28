@@ -360,14 +360,14 @@ export const AppointmentCards = () => {
           ? sche.appointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
-                className="bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2"
+                className={`${appt.date} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">
                     Fecha:{" "}
                     {`${
                       appt.date
-                        ? new Date(appt.date).toLocaleDateString("es-ES")
+                        ? appt.date
                         : ""
                     }`}{" "}
                     {format(toDate(appt?.time), "hh:mm a")}
