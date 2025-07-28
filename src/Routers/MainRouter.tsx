@@ -19,12 +19,20 @@ import { usePublicQuery } from "../hooks/usePublicQuery";
 import { OfficialDataView } from "../views/OfficialDataView";
 import { AuthOfficialLayout } from "../layouts/AuthOfficialLayout";
 import { HomeView } from "../views/HomeView";
+import type { ResponseDocumentTypesType } from "../types/auth/documentTypes";
+import { ResponseDocumentTypesSchema } from "../schemas/Auth/documentSchemas";
 
 export const MainRouter = () => {
   const { data: countries } = usePublicQuery<CountriesInfoType>({
     key: ["countriesInfo"],
     url: "/Countries",
     schema: CountriesInfoSchema,
+  });
+
+  usePublicQuery<ResponseDocumentTypesType>({
+    key: ["/api-documentTypes"],
+    url: "/DocumentType",
+    schema: ResponseDocumentTypesSchema,
   });
 
   return (
@@ -60,10 +68,7 @@ export const MainRouter = () => {
             path="/dashboard/appointments/"
             element={<AppointmentsView />}
           />
-          <Route
-            path="/passport/"
-            element={<PassportView />}
-          />
+          <Route path="/passport/" element={<PassportView />} />
           <Route index element={<AppointmentsView />} />
         </Route>
         <Route path="/auth/official" element={<AuthOfficialLayout />}>

@@ -1,6 +1,8 @@
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
-import { documentTypes } from "../../mocks/authMocks/LoginMock";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import type { ResponseDocumentTypesType } from "../../types/auth/documentTypes";
 
 const customStyles = {
   control: (provided: any, state: any) => ({
@@ -15,6 +17,18 @@ const customStyles = {
 
 export const OfficialDataForm = () => {
   const { control } = useFormContext();
+  const [documentTypes, setDocumentTypes] = useState<
+    ResponseDocumentTypesType["data"]
+  >([]);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const documents = queryClient.getQueryData<ResponseDocumentTypesType>([
+      "/api-documentTypes",
+    ]);
+    setDocumentTypes(documents?.data || []);
+  }, []);
+
   return (
     <div
       id="official-data"
@@ -50,14 +64,14 @@ export const OfficialDataForm = () => {
                     id="documentTypeOfficial"
                     options={documentTypes}
                     styles={customStyles}
-                    value={field.value || null}
-                    onChange={(selected) => field.onChange(selected)}
-                    getOptionLabel={(option) => option.label}
-                    getOptionValue={(option) => option.value}
+                    value={
+                      documentTypes.find((opt) => opt.id === field.value) ||
+                      null
+                    }
+                    onChange={(selected) => field.onChange(selected?.id)}
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => String(option.id)}
                     placeholder="Seleccione un tipo de documento"
-                    formatOptionLabel={(option) => (
-                      <span>{option.value}</span> // Muestra `value` en el menú desplegable
-                    )}
                   />
                   {fieldState.error && (
                     <span className="text-red-500 text-sm">

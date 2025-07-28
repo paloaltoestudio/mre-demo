@@ -1,6 +1,4 @@
 import { useForm, Controller } from "react-hook-form";
-import Select from "react-select";
-import { customStyles } from "../common/reactSelectStyles";
 
 type MinorDataFormProps = {
   onNext: () => void;
@@ -8,7 +6,7 @@ type MinorDataFormProps = {
 };
 
 export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
-  const { control, handleSubmit, formState: { errors }, watch } = useForm();
+  const { control, handleSubmit, formState: {  }, watch } = useForm();
 
   const onSubmit = (data: any) => {
     console.log(data);
