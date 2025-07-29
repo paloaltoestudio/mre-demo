@@ -66,6 +66,7 @@ export const AppointmentCards = () => {
   const [searchParams] = useSearchParams();
   const [hash, setHash] = useState<string | null>();
   const [token, setToken] = useState<ResponseHashType>();
+  const [noAppointmentsMsg, setNoAppointmentsMsg] = useState<string>("");
 
   useEffect(() => {
     handleExternalLogin();
@@ -288,11 +289,38 @@ export const AppointmentCards = () => {
 
   const { mutateAsync } = useMutation({
     mutationFn: postPublicRequest<AppointmentsType>,
-    onSuccess: (data: AppointmentsType) => {
-      // console.log("Agendamientos", data);
-      setSche(data);
+    onSuccess: (data: any) => {
+      if (data && data.errors && Array.isArray(data.errors) && data.errors.includes("No se encontraron citas para el usuario.")) {
+        setNoAppointmentsMsg("No se encontraron citas para el usuario.");
+        setLoader(false);
+        setSche(undefined);
+      } else {
+        setSche(data);
+        setNoAppointmentsMsg("");
+      }
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.log("Error completo:", error);
+      console.log("Error response:", error?.response);
+      console.log("Error response data:", error?.response?.data);
+      
+      // Verificar si el error contiene el mensaje específico de no citas
+      const errorMessage = "No se encontraron citas para el usuario.";
+      
+      if (
+        error?.response?.data?.errors &&
+        Array.isArray(error.response.data.errors) &&
+        error.response.data.errors.includes(errorMessage)
+      ) {
+        console.log("Detectado mensaje de no citas, mostrando mensaje amigable");
+        setNoAppointmentsMsg(errorMessage);
+        setLoader(false);
+        setSche(undefined);
+        return;
+      }
+      
+      // Otros errores: mostrar toast
+      console.log("Error no relacionado con citas, mostrando toast");
       toast.error("Ocurrió un error al traer los agendamientos", {
         icon: (
           <FontAwesomeIcon
@@ -306,6 +334,7 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
+      setLoader(false);
     },
   });
 
@@ -356,11 +385,15 @@ export const AppointmentCards = () => {
 
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        {sche && !loader
+        {noAppointmentsMsg && !loader ? (
+          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+            {noAppointmentsMsg}
+          </div>
+        ) : sche && !loader
           ? sche.appointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
-                className={`${appt.date} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
+                className={`${appt.appointmentId} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">

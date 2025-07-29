@@ -67,13 +67,16 @@ export const postPublicRequest = async <T>({
     });
     return requestData.data ? requestData.data : requestData;
   } catch (error) {
-    if (isAxiosError(error)) throw new Error(`Axios error: ${error.message}`);
-    else
+    if (isAxiosError(error)) {
+      // Preservar el error original de Axios para que el componente pueda acceder a response.data
+      throw error;
+    } else {
       throw new Error(
         `Unexpected error: ${
           error instanceof Error ? error.message : String(error)
         }`
       );
+    }
   }
 };
 
