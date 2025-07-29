@@ -100,6 +100,7 @@ export const VerificationViews = () => {
 
   const navigate = useNavigate();
   const onSubmit = async (data: formType) => {
+    console.log("Form submitted with data:", data);
     if (data.code.toString() !== otp?.toString()) setInvalidCode(true);
     else {
       if (fromAuth === false) {
@@ -145,14 +146,14 @@ export const VerificationViews = () => {
     }
   };
 
+  const { sendOTP } = useSendOTP({ setOtp });
+
   const resendCode = () => {
     useEffect(() => {
-      if (methodSelected)
-        useSendOTP({
-          submitted: methodSelected,
-          externalId,
-          setOtp,
-        });
+      if (methodSelected && externalId) {
+        const submitted = methodSelected;
+        sendOTP(externalId, submitted);
+      }
     }, [methodSelected]);
   };
 

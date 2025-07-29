@@ -18,7 +18,7 @@ export const AuthView = () => {
   const [passwordView, setPasswordView] = useState(false);
   const { registry } = useParams();
   const { setFromAuth } = useRoutesStore();
-  const { user, document, setDocument, setUser, setOfficial } = SessionStore();
+  const { user, document, setDocument, setOfficial } = SessionStore();
 
   useEffect(() => {
     console.log(registry);
@@ -27,26 +27,26 @@ export const AuthView = () => {
     }
   }, [registry]);
 
-  useEffect(() => {
-    const defaultUser = {
-      documentType: "CC",
-      documentNumber: "10256341",
-      firstName: "Luis Alberto",
-      lastName: "Diaz Castro",
-      birthDate: "1990-01-01",
-      email: "arquitecto@italm.com.co",
-      phoneCode: "+57",
-      phoneNumber: "3125642169",
-      whatsappCode: "+57",
-      whatsappNumber: "3125642169",
-      password: "10256341",
-      confirmPassword: "10256341",
-      acceptData: true,
-      acceptTerms: true,
-    };
+  // useEffect(() => {
+  //   const defaultUser = {
+  //     documentType: "CC",
+  //     documentNumber: "10256341",
+  //     firstName: "Luis Alberto",
+  //     lastName: "Diaz Castro",
+  //     birthDate: "1990-01-01",
+  //     email: "arquitecto@italm.com.co",
+  //     phoneCode: "+57",
+  //     phoneNumber: "3125642169",
+  //     whatsappCode: "+57",
+  //     whatsappNumber: "3125642169",
+  //     password: "10256341",
+  //     confirmPassword: "10256341",
+  //     acceptData: true,
+  //     acceptTerms: true,
+  //   };
 
-    setUser(defaultUser);
-  }, []);
+  //   setUser(defaultUser);
+  // }, []);
 
   const onSubmit = (data: LoginType) => {
     setDocument(data.documentNumber.toString());

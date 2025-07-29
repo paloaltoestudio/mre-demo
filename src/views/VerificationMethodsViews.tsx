@@ -2,15 +2,21 @@ import { useState } from "react";
 import { AuthForm } from "../components/public/auth/AuthForm";
 import { VerificationMethod } from "../components/public/auth/VerificationMethod";
 
+type methodType = {
+  type: string;
+  value: string;
+};
+
 type formType = {
-  method: string;
+  method: methodType;
 };
 
 export const VerificationMethodsViews = () => {
-  const [submitted, setSubmitted] = useState<formType["method"]>();
+  const [submitted, setSubmitted] = useState<methodType["type"]>();
 
   const onSubmit = (data: formType) => {
-    setSubmitted(data.method);
+    const validMethod = JSON.parse(data.method.toString()) as methodType;
+    setSubmitted(validMethod.type);
   };
 
   return (
