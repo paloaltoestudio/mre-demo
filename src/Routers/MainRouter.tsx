@@ -22,6 +22,7 @@ import { HomeView } from "../views/HomeView";
 import type { ResponseDocumentTypesType } from "../types/auth/documentTypes";
 import { ResponseDocumentTypesSchema } from "../schemas/Auth/documentSchemas";
 import { CertificationView } from "../views/CertificationView";
+import { VisaView } from "../views/VisaView";
 
 export const MainRouter = () => {
   const { data: countries } = usePublicQuery<CountriesInfoType>({
@@ -69,6 +70,7 @@ export const MainRouter = () => {
             path="/dashboard/appointments/"
             element={<AppointmentsView />}
           />
+          <Route path="/visas/" element={<VisaView />} />
           <Route path="/passport/" element={<PassportView />} />
           <Route path="/certifications/" element={<CertificationView />} />
           <Route index element={<AppointmentsView />} />

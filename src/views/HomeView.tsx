@@ -33,7 +33,7 @@ const services: ServiceItem[] = [
   },
   {
     label: "Visa en línea",
-    route: "/visa",
+    route: "/visas",
     icon: visaIcon,
     bgColor: "bg-blue-100",
   },
