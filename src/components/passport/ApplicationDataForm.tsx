@@ -9,7 +9,7 @@ type ApplicationDataFormProps = {
 
 export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps) => {
   const { control, handleSubmit, formState: {  }, watch } = useForm();
-
+  console.log(watch());
   useEffect(() => {
     Swal.fire({
       icon: 'warning',
@@ -42,7 +42,7 @@ export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps
   };
 
   // Watch passport status to conditionally show fields
-  const hasPassport = watch("hasPassport");
+  // const hasPassport = watch("hasPassport");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">

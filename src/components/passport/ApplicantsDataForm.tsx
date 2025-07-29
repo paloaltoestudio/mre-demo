@@ -28,6 +28,7 @@ export const ApplicantsDataForm = ({
   const [documentTypes, setDocumentTypes] = useState<
     ResponseDocumentTypesType["data"]
   >([]);
+  console.log(documentTypes);
   const queryClient = useQueryClient();
 
   useEffect(() => {

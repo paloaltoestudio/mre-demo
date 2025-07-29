@@ -1,6 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
 import Swal from 'sweetalert2';
-import { useEffect } from "react";
 
 type MinorDataFormProps = {
   onNext: () => void;
@@ -9,16 +8,16 @@ type MinorDataFormProps = {
 
 export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
   const { control, handleSubmit, formState: {  }, watch, setValue } = useForm();
-
+  
   // Watch checkbox states to conditionally show fields
   const hasFatherData = watch("hasFatherData");
   const hasMotherData = watch("hasMotherData");
   const hasTutorData = watch("hasTutorData");
   
   // Watch companion states
-  const isFatherCompanion = watch("isFatherCompanion");
-  const isMotherCompanion = watch("isMotherCompanion");
-  const isTutorCompanion = watch("isTutorCompanion");
+  // const isFatherCompanion = watch("isFatherCompanion");
+  // const isMotherCompanion = watch("isMotherCompanion");
+  // const isTutorCompanion = watch("isTutorCompanion");
 
   // Function to handle companion selection - only one can be companion
   const handleCompanionChange = (fieldName: string, value: string) => {
