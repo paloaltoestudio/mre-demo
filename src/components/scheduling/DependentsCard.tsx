@@ -14,7 +14,7 @@ import type { ResponseDocumentTypesType } from "../../types/auth/documentTypes";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { ResponseDependentsSchema } from "../../schemas/appointments/dependentsSchema";
-import type { ResponseDependentsType } from "../../types/dashboard/dependentInformation";
+import type { ResponseDependentsType } from "../../types/dashboard/DependentInformation";
 
 const customStyles = {
   control: (provided: any, state: any) => ({
