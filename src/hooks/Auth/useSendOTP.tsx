@@ -112,14 +112,14 @@ export const useSendOTP = ({ setOtp }: UseSendOTPParams) => {
   const navigate = useNavigate();
 
   const { mutateAsync, isPending } = useMutation<
-    ResponseOTPType,
+    ResponseOTPType['data'],
     unknown,
     SendOTPParams
   >({
-    mutationFn: postPublicRequest<ResponseOTPType>,
+    mutationFn: postPublicRequest<ResponseOTPType['data']>,
     onSuccess: (response, variables) => {
       console.log("OTP sent successfully:", response);
-      setOtp(response?.data?.otp);
+      setOtp(response?.otp);
       toast.success("Código enviado", {
         icon: (
           <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />

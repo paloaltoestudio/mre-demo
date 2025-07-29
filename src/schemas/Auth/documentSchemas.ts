@@ -1,4 +1,4 @@
-import { array, boolean, number, object, string } from "valibot";
+import { array, boolean, nullable, number, object, string } from "valibot";
 
 export const ResponseDocumentTypesSchema = object({
   statusCode: number(),
@@ -11,5 +11,5 @@ export const ResponseDocumentTypesSchema = object({
       name: string(),
     })
   ),
-  errors: boolean(),
+  errors: nullable(boolean()),
 });

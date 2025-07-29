@@ -22,7 +22,7 @@ const customStyles = {
     borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
     boxShadow: "none",
     padding: "0.25rem 0.5rem",
-    minHeight: "3rem",
+    minHeight: "1rem",
   }),
   indicatorSeparator: () => ({ display: "none" }),
 };
@@ -93,12 +93,13 @@ export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
               <Select
                 id={`parent-${aggregate}`}
                 options={dependentTypes?.data || []}
-                styles={customStyles}
-                value={
-                  dependentTypes?.data?.find((opt) => opt.id === field.value) ||
-                  null
-                }
-                onChange={(selected) => field.onChange(selected?.id)}
+                menuPortalTarget={document.body}
+                styles={{
+                  ...customStyles,
+                  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                }}
+                value={field.value}
+                onChange={(selected) => field.onChange(selected)}
                 getOptionLabel={(option) => option.name}
                 getOptionValue={(option) => String(option.id)}
                 placeholder="Seleccione un parentesco"
@@ -136,6 +137,7 @@ export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
                 <Select
                   id={`parent-${aggregate}`}
                   options={documentTypes}
+                  menuPortalTarget={document.body}
                   styles={{
                     ...customStyles,
                     menuPortal: (base) => ({ ...base, zIndex: 9999 }),

@@ -118,7 +118,6 @@ export const SelectAppointmentsView = ({
   const { mutateAsync: mutatePreAppointment } = useMutation({
     mutationFn: postPublicRequest<ResponsePreAppointmentType>,
     onSuccess: (data: ResponsePreAppointmentType) => {
-      console.log(data);
       setAppointmentId(data.appointmentId);
     },
     onError() {
@@ -210,19 +209,19 @@ export const SelectAppointmentsView = ({
   const handlePreAppointment = async () => {
     const body = {
       userId: userId,
-      availabilityBlockId: toSavedDate, // id de la hora;
+      availabilityBlockId: toSavedDate,
       dependents: toSchedule?.parents
         ? toSchedule?.parents?.map((parent) => ({
-            relationshipTypeId: 1,
+            relationshipTypeId: parent.relationship,
             documentTypeId: parent.typeDocument,
-            documentNumber: 1,
+            documentNumber: parent.document,
             firstNames: parent.names,
             lastNames: parent.lastNames,
           }))
         : [],
       tramiteId: toSchedule?.tramites.id,
     };
-    console.log('PreAppointment body:', body);
+
     debugger
     await mutatePreAppointment({
       url: `/Appointment/pre-appointment`,
@@ -249,6 +248,7 @@ export const SelectAppointmentsView = ({
           lastNames: data[`last-names-${index}`],
           document: data[`document-number-dependent-${index}`],
           typeDocument: data[`type-document-${index}`],
+          relationship: data[`parent-${index}`].id,
         })
       );
     }

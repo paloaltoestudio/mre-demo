@@ -14,6 +14,7 @@ export type SchedulingStoreType = {
     lastNames: string;
     document: string;
     typeDocument: { value: string; label: string };
+    relationship: number;
   }[];
   hora: string;
   selectedOption: string;

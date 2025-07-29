@@ -81,8 +81,9 @@ export const VerificationViews = () => {
         className: "border-l-5 border-green-500 bg-white text-black shadow-md",
       });
     },
-    onError: () => {
-      toast.error("Error al cancelar la cita", {
+    onError: (error) => {
+      console.log(error)
+      toast.error("Error al cancelar la cita, ten en cuenta que solo se pueden cancelar citas con más de 24 horas de anticipación", {
         icon: (
           <FontAwesomeIcon
             icon={faCircleExclamation}
@@ -101,6 +102,7 @@ export const VerificationViews = () => {
   const navigate = useNavigate();
   const onSubmit = async (data: formType) => {
     console.log("Form submitted with data:", data);
+    console.log("OTP:", otp);
     if (data.code.toString() !== otp?.toString()) setInvalidCode(true);
     else {
       if (fromAuth === false) {
