@@ -21,6 +21,7 @@ import { AuthOfficialLayout } from "../layouts/AuthOfficialLayout";
 import { HomeView } from "../views/HomeView";
 import type { ResponseDocumentTypesType } from "../types/auth/documentTypes";
 import { ResponseDocumentTypesSchema } from "../schemas/Auth/documentSchemas";
+import { CertificationView } from "../views/CertificationView";
 
 export const MainRouter = () => {
   const { data: countries } = usePublicQuery<CountriesInfoType>({
@@ -69,6 +70,7 @@ export const MainRouter = () => {
             element={<AppointmentsView />}
           />
           <Route path="/passport/" element={<PassportView />} />
+          <Route path="/certifications/" element={<CertificationView />} />
           <Route index element={<AppointmentsView />} />
         </Route>
         <Route path="/auth/official" element={<AuthOfficialLayout />}>
