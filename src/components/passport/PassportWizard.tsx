@@ -12,14 +12,14 @@ export const PassportWizard = () => {
   const [tipoDocumento, setTipoDocumento] = useState<string>("");
 
   // Definir los pasos dinámicamente según el tipo de documento
-  const steps = [
-    "Datos de la Solicitud",
-    "Datos del Solicitante",
-    "Datos de Residencia y Contacto",
-    "Datos del Pasaporte",
+const steps = [
+  "Datos de la Solicitud",
+  "Datos del Solicitante",
+  "Datos de Residencia y Contacto",
+  "Datos del Pasaporte",
     // Solo mostrar el paso si el usuario ya seleccionó tipo de documento y no es CC
     ...(tipoDocumento && tipoDocumento !== "CC" ? ["Datos del Registro Civil"] : [])
-  ];
+];
 
   // Sincronizar currentStep si el tipo de documento cambia y el paso de menor ya no debe mostrarse
   useEffect(() => {

@@ -385,12 +385,16 @@ export const AppointmentCards = () => {
 
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        {noAppointmentsMsg && !loader ? (
+        {loader ? (
+          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+            Cargando citas...
+          </div>
+        ) : noAppointmentsMsg ? (
           <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
             {noAppointmentsMsg}
           </div>
-        ) : sche && !loader
-          ? sche.appointments.map((appt, index) => (
+        ) : sche?.appointments && sche.appointments.length > 0 ? (
+          sche.appointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
                 className={`${appt.appointmentId} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
@@ -425,7 +429,7 @@ export const AppointmentCards = () => {
                       <br />
                       {sche.applicant?.documentNumber}
                     </li>
-                    {appt.dependent.map((s, idx) => (
+                    {appt.dependent?.map((s, idx) => (
                       <li key={idx}>
                         {s?.firstNames} {s?.lastNames} / {s?.documentNumber}
                       </li>
@@ -437,9 +441,9 @@ export const AppointmentCards = () => {
                   <div className="text-sm mt-3">
                     <span className="font-semibold">Requisitos:</span>
                     <ul className="list-none mt-1">
-                      {appt.requirements
-                        .split(",")
-                        .map((req: string, reqIndex: number) => (
+                                          {appt.requirements
+                      ?.split(",")
+                      ?.map((req: string, reqIndex: number) => (
                           <li
                             key={reqIndex}
                             className="text-sm text-gray-600 ml-2 capitalize"
@@ -551,39 +555,12 @@ export const AppointmentCards = () => {
                 </div>
               </div>
             ))
-          : [1, 2].map((item, index) => (
-              <div
-                key={`${item}-${index}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6"
-              >
-                <div className="">
-                  {[1, 2].map((item) => (
-                    <div
-                      key={item}
-                      className="p-6 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 space-y-3">
-                          <div className="h-5 bg-gray-200 rounded animate-pulse w-64"></div>
-                          <div className="h-4 bg-gray-200 rounded animate-pulse w-48"></div>
-                          <div className="h-4 bg-gray-200 rounded animate-pulse w-48"></div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-blue-200 rounded animate-pulse w-32"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+          ) : (
+            // Caso por defecto cuando no hay citas o hay un error
+            <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+              No se encontraron citas para mostrar
+            </div>
+          )}
       </div>
       {
         scheduledData && isOpen && true

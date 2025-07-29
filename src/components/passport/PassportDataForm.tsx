@@ -9,7 +9,7 @@ type PassportDataFormProps = {
 
 export const PassportDataForm = ({ onNext, onBack }: PassportDataFormProps) => {
   const { control, handleSubmit, formState: { errors }, watch } = useForm();
-
+  console.log(errors, watch());
   const onSubmit = (data: any) => {
     console.log(data);
     onNext();

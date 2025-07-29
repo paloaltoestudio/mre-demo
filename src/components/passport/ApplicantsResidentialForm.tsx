@@ -9,7 +9,7 @@ type ApplicantsResidentialFormProps = {
 
 export const ApplicantsResidentialForm = ({ onNext, onBack }: ApplicantsResidentialFormProps) => {
   const { control, handleSubmit, formState: { errors }, watch } = useForm();
-
+  console.log(errors, watch());
   const onSubmit = (data: any) => {
     console.log(data);
     onNext();
