@@ -1,4 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
+import Swal from 'sweetalert2';
+import { useEffect } from "react";
 
 type MinorDataFormProps = {
   onNext: () => void;
@@ -6,16 +8,48 @@ type MinorDataFormProps = {
 };
 
 export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
-  const { control, handleSubmit, formState: {  }, watch } = useForm();
-
-  const onSubmit = (data: any) => {
-    console.log(data);
-    onNext();
-  };
+  const { control, handleSubmit, formState: {  }, watch, setValue } = useForm();
 
   // Watch checkbox states to conditionally show fields
   const hasFatherData = watch("hasFatherData");
   const hasMotherData = watch("hasMotherData");
+  const hasTutorData = watch("hasTutorData");
+  
+  // Watch companion states
+  const isFatherCompanion = watch("isFatherCompanion");
+  const isMotherCompanion = watch("isMotherCompanion");
+  const isTutorCompanion = watch("isTutorCompanion");
+
+  // Function to handle companion selection - only one can be companion
+  const handleCompanionChange = (fieldName: string, value: string) => {
+    console.log("handleCompanionChange", fieldName, value);
+    console.log("fieldName", fieldName !== "isFatherCompanion");
+    if (value === "yes") {
+      // Uncheck all other companion fields
+      if (fieldName !== "isFatherCompanion") setValue("isFatherCompanion", "no");
+      if (fieldName !== "isMotherCompanion") setValue("isMotherCompanion", "no");
+      if (fieldName !== "isTutorCompanion") setValue("isTutorCompanion", "no");
+    }
+  };
+
+  const onSubmit = (data: any) => {
+    // Validar que al menos uno sea 'yes'
+    if (
+      data.isFatherCompanion !== 'yes' &&
+      data.isMotherCompanion !== 'yes' &&
+      data.isTutorCompanion !== 'yes'
+    ) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe ingresar al menos un acompañante',
+        confirmButtonText: 'Aceptar',
+      });
+      return;
+    }
+    console.log(data);
+    onNext();
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -79,26 +113,36 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
 
         {/* Father's data section */}
         <div className="mb-6">
-          <h3 className="text-md font-semibold mb-3">Datos del padre</h3>
-          <div className="flex gap-4 mb-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                {...control.register("hasFatherData")}
-                value="yes"
-                className="radio radio-primary"
-              />
-              <span>Si</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                {...control.register("hasFatherData")}
-                value="no"
-                className="radio radio-primary"
-              />
-              <span>No</span>
-            </label>
+          <h3 className="text-md font-semibold mb-3">Datos del padre <span className="text-red-500">*</span></h3>
+          <div className="flex items-center gap-4 mb-4">
+          <Controller
+              name="hasFatherData"
+              control={control}
+              rules={{ required: "Debe indicar si tiene datos del padre" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="yes"
+                      className="radio radio-primary"
+                    />
+                    <span>Si</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="no"
+                      className="radio radio-primary"
+                    />
+                    <span>No</span>
+                  </label>
+                  {fieldState.error && <span className="text-red-500 text-xs d-block">{fieldState.error.message}</span>}
+                </>
+              )}
+            />
           </div>
 
           {/* Father's detailed data - only show if hasFatherData is 'yes' */}
@@ -234,32 +278,87 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                   )}
                 />
               </div>
+
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium mb-1">¿Es el padre el acompañante del menor de edad? <span className="text-red-500">*</span></label>
+                <div className="flex items-center gap-2">
+                <Controller
+                  name="isFatherCompanion"
+                  control={control}
+                  rules={{ required: "Debe indicar si es acompañante" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          {...field}
+                          value="yes"
+                          checked={field.value === "yes"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (e.target.value === "yes") {
+                              handleCompanionChange("isFatherCompanion", e.target.value);
+                            }
+                          }}
+                          className="radio radio-primary"
+                        />
+                        <span>Si</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          {...field}
+                          value="no"
+                          checked={field.value === "no"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
+                          className="radio radio-primary"
+                        />
+                        <span>No</span>
+                      </label>
+                      {fieldState.error && <span className="text-red-500 text-xs d-block">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+                </div>
+              </div>
             </div>
           )}
         </div>
 
         {/* Mother's data section */}
         <div className="mb-6">
-          <h3 className="text-md font-semibold mb-3">Datos de la madre</h3>
-          <div className="flex gap-4 mb-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                {...control.register("hasMotherData")}
-                value="yes"
-                className="radio radio-primary"
-              />
-              <span>Si</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                {...control.register("hasMotherData")}
-                value="no"
-                className="radio radio-primary"
-              />
-              <span>No</span>
-            </label>
+          <h3 className="text-md font-semibold mb-3">Datos de la madre <span className="text-red-500">*</span></h3>
+          <div className="flex items-center gap-4 mb-4">
+          <Controller
+              name="hasMotherData"
+              control={control}
+              rules={{ required: "Debe indicar si tiene datos de la madre" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="yes"
+                      className="radio radio-primary"
+                    />
+                    <span>Si</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="no"
+                      className="radio radio-primary"
+                    />
+                    <span>No</span>
+                  </label>
+                  {fieldState.error && <span className="text-red-500 text-xs d-block">{fieldState.error.message}</span>}
+                </>
+              )}
+            />
           </div>
 
           {/* Mother's detailed data - only show if hasMotherData is 'yes' */}
@@ -395,150 +494,274 @@ export const MinorDataForm = ({ onNext, onBack }: MinorDataFormProps) => {
                   )}
                 />
               </div>
+
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium mb-1">¿Es la madre la acompañante del menor de edad? <span className="text-red-500">*</span></label>
+                <div className="flex items-center gap-2">
+                <Controller
+                  name="isMotherCompanion"
+                  control={control}
+                  rules={{ required: "Debe indicar si es acompañante" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          {...field}
+                          value="yes"
+                          checked={field.value === "yes"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (e.target.value === "yes") {
+                              handleCompanionChange("isMotherCompanion", e.target.value);
+                            }
+                          }}
+                          className="radio radio-primary"
+                        />
+                        <span>Si</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          {...field}
+                          value="no"
+                          checked={field.value === "no"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
+                          className="radio radio-primary"
+                        />
+                        <span>No</span>
+                      </label>
+                      {fieldState.error && <span className="text-red-500 text-xs d-block">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+                </div>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Guardian's data section */}
-        <div className="mb-6">
-          <h3 className="text-md font-semibold mb-3">Datos del Apoderado (En caso de Menor de Edad)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-gray-200 rounded-lg">
-            {/* Document type */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Tipo de Documento <span className="text-red-500">*</span></label>
-              <Controller
-                name="guardianDocumentType"
-                control={control}
-                rules={{ required: "El tipo de documento es obligatorio" }}
-                render={({ field, fieldState }) => (
-                  <>
+        {/* Tutors's data section */}
+        <h3 className="text-md font-semibold mb-3">Datos del tutor legal <span className="text-red-500">*</span></h3>
+        <div className="flex items-center gap-4 mb-4">
+          <Controller
+              name="hasTutorData"
+              control={control}
+              rules={{ required: "Debe indicar si tiene tutor" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="yes"
+                      className="radio radio-primary"
+                    />
+                    <span>Si</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="no"
+                      className="radio radio-primary"
+                    />
+                    <span>No</span>
+                  </label>
+                  {fieldState.error && <span className="text-red-500 text-xs d-block">{fieldState.error.message}</span>}
+                </>
+              )}
+            />
+          </div>
+
+        {hasTutorData === "yes" &&(
+          <div className="mb-6">
+            <h3 className="text-md font-semibold mb-3">Datos del Tutor Legal (En caso de Menor de Edad)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-gray-200 rounded-lg">
+              {/* Document type */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Tipo de Documento <span className="text-red-500">*</span></label>
+                <Controller
+                  name="guardianDocumentType"
+                  control={control}
+                  rules={{ required: "El tipo de documento es obligatorio" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <select {...field} className="input w-full">
+                        <option value="">Seleccionar</option>
+                        <option value="CC">Cédula de Ciudadanía</option>
+                        <option value="TI">Tarjeta de Identidad</option>
+                        <option value="CE">Cédula de Extranjería</option>
+                        <option value="PA">Pasaporte</option>
+                      </select>
+                      {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+              </div>
+
+              {/* Document number */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Número de Documento <span className="text-red-500">*</span></label>
+                <Controller
+                  name="guardianDocumentNumber"
+                  control={control}
+                  rules={{ required: "El número de documento es obligatorio" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <input {...field} type="text" className="input w-full" />
+                      {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+              </div>
+
+              {/* Nationality */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
+                <Controller
+                  name="guardianNationality"
+                  control={control}
+                  rules={{ required: "La nacionalidad es obligatoria" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <input {...field} type="text" className="input w-full" />
+                      {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+              </div>
+
+              {/* First name */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Primer Nombre <span className="text-red-500">*</span></label>
+                <Controller
+                  name="guardianFirstName"
+                  control={control}
+                  rules={{ required: "El primer nombre es obligatorio" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <input {...field} type="text" className="input w-full" />
+                      {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+              </div>
+
+              {/* Second name */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Segundo Nombre</label>
+                <Controller
+                  name="guardianSecondName"
+                  control={control}
+                  render={({ field }) => (
+                    <input {...field} type="text" className="input w-full" />
+                  )}
+                />
+              </div>
+
+              {/* First last name */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Primer Apellido <span className="text-red-500">*</span></label>
+                <Controller
+                  name="guardianFirstLastName"
+                  control={control}
+                  rules={{ required: "El primer apellido es obligatorio" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <input {...field} type="text" className="input w-full" />
+                      {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+              </div>
+
+              {/* Particle */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Partícula</label>
+                <Controller
+                  name="guardianParticle"
+                  control={control}
+                  render={({ field }) => (
                     <select {...field} className="input w-full">
                       <option value="">Seleccionar</option>
-                      <option value="CC">Cédula de Ciudadanía</option>
-                      <option value="TI">Tarjeta de Identidad</option>
-                      <option value="CE">Cédula de Extranjería</option>
-                      <option value="PA">Pasaporte</option>
+                      <option value="de">de</option>
+                      <option value="del">del</option>
+                      <option value="la">la</option>
+                      <option value="las">las</option>
+                      <option value="los">los</option>
                     </select>
-                    {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                  </>
-                )}
-              />
-            </div>
+                  )}
+                />
+              </div>
 
-            {/* Document number */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Número de Documento <span className="text-red-500">*</span></label>
-              <Controller
-                name="guardianDocumentNumber"
-                control={control}
-                rules={{ required: "El número de documento es obligatorio" }}
-                render={({ field, fieldState }) => (
-                  <>
+              {/* Second last name */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Segundo Apellido</label>
+                <Controller
+                  name="guardianSecondLastName"
+                  control={control}
+                  render={({ field }) => (
                     <input {...field} type="text" className="input w-full" />
-                    {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                  </>
-                )}
-              />
-            </div>
+                  )}
+                />
+              </div>
 
-            {/* Nationality */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
-              <Controller
-                name="guardianNationality"
-                control={control}
-                rules={{ required: "La nacionalidad es obligatoria" }}
-                render={({ field, fieldState }) => (
-                  <>
-                    <input {...field} type="text" className="input w-full" />
-                    {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                  </>
-                )}
-              />
-            </div>
-
-            {/* First name */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Primer Nombre <span className="text-red-500">*</span></label>
-              <Controller
-                name="guardianFirstName"
-                control={control}
-                rules={{ required: "El primer nombre es obligatorio" }}
-                render={({ field, fieldState }) => (
-                  <>
-                    <input {...field} type="text" className="input w-full" />
-                    {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                  </>
-                )}
-              />
-            </div>
-
-            {/* Second name */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Segundo Nombre</label>
-              <Controller
-                name="guardianSecondName"
-                control={control}
-                render={({ field }) => (
-                  <input {...field} type="text" className="input w-full" />
-                )}
-              />
-            </div>
-
-            {/* First last name */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Primer Apellido <span className="text-red-500">*</span></label>
-              <Controller
-                name="guardianFirstLastName"
-                control={control}
-                rules={{ required: "El primer apellido es obligatorio" }}
-                render={({ field, fieldState }) => (
-                  <>
-                    <input {...field} type="text" className="input w-full" />
-                    {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                  </>
-                )}
-              />
-            </div>
-
-            {/* Particle */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Partícula</label>
-              <Controller
-                name="guardianParticle"
-                control={control}
-                render={({ field }) => (
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="de">de</option>
-                    <option value="del">del</option>
-                    <option value="la">la</option>
-                    <option value="las">las</option>
-                    <option value="los">los</option>
-                  </select>
-                )}
-              />
-            </div>
-
-            {/* Second last name */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Segundo Apellido</label>
-              <Controller
-                name="guardianSecondLastName"
-                control={control}
-                render={({ field }) => (
-                  <input {...field} type="text" className="input w-full" />
-                )}
-              />
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium mb-1">¿Es el tutor el acompañante del menor de edad? <span className="text-red-500">*</span></label>
+                <div className="flex items-center gap-2">
+                <Controller
+                  name="isTutorCompanion"
+                  control={control}
+                  rules={{ required: "Debe indicar si es acompañante" }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          {...field}
+                          value="yes"
+                          checked={field.value === "yes"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            if (e.target.value === "yes") {
+                              handleCompanionChange("isTutorCompanion", e.target.value);
+                            }
+                          }}
+                          className="radio radio-primary"
+                        />
+                        <span>Si</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          {...field}
+                          value="no"
+                          checked={field.value === "no"}
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
+                          className="radio radio-primary"
+                        />
+                        <span>No</span>
+                      </label>
+                      {fieldState.error && <span className="text-red-500 text-xs d-block">{fieldState.error.message}</span>}
+                    </>
+                  )}
+                />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="flex justify-between mt-8">
+        <div className="flex gap-5 justify-end mt-8">
           <button
             type="button"
             onClick={onBack}
-            className="bg-gray-300 text-gray-800 rounded-full px-6 py-2 hover:bg-gray-400"
+            className="text-[#3466cc] border-2 border-[#3466cc] hover:text-white hover:border-[#e9e9e9] font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#d1d1d1] duration-150"
           >
             Regresar
           </button>
