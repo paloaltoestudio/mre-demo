@@ -19,7 +19,7 @@ export const AuthLayout = () => {
         <TimerBanner />
         <BookingTimerExpirationHandler />
         <LoadScript googleMapsApiKey={import.meta.env.VITE_MAPS_API_KEY!}>
-          <section id="auth-content" className="pt-10 h-auto w-full">
+          <section id="auth-content" className="h-auto w-full">
             <Outlet />
           </section>
         </LoadScript>

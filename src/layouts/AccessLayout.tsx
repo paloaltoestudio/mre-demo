@@ -14,7 +14,7 @@ export const AccessLayout = () => {
       <TimerBanner />
       <BookingTimerExpirationHandler />
 
-      <section id="auth-content" className="pt-10 h-auto w-full">
+      <section id="auth-content" className="h-auto w-full">
         <Outlet />
       </section>
     </main>

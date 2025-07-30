@@ -68,6 +68,7 @@ export const AppointmentCards = () => {
   const [searchParams] = useSearchParams();
   const [hash, setHash] = useState<string | null>();
   const [token, setToken] = useState<ResponseHashType>();
+  const [noAppointmentsMsg, setNoAppointmentsMsg] = useState<string>("");
 
   useEffect(() => {
     handleExternalLogin();
@@ -290,11 +291,38 @@ export const AppointmentCards = () => {
 
   const { mutateAsync } = useMutation({
     mutationFn: postPublicRequest<AppointmentsType>,
-    onSuccess: (data: AppointmentsType) => {
-      // console.log("Agendamientos", data);
-      setSche(data);
+    onSuccess: (data: any) => {
+      if (data && data.errors && Array.isArray(data.errors) && data.errors.includes("No se encontraron citas para el usuario.")) {
+        setNoAppointmentsMsg("No se encontraron citas para el usuario.");
+        setLoader(false);
+        setSche(undefined);
+      } else {
+        setSche(data);
+        setNoAppointmentsMsg("");
+      }
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.log("Error completo:", error);
+      console.log("Error response:", error?.response);
+      console.log("Error response data:", error?.response?.data);
+      
+      // Verificar si el error contiene el mensaje específico de no citas
+      const errorMessage = "No se encontraron citas para el usuario.";
+      
+      if (
+        error?.response?.data?.errors &&
+        Array.isArray(error.response.data.errors) &&
+        error.response.data.errors.includes(errorMessage)
+      ) {
+        console.log("Detectado mensaje de no citas, mostrando mensaje amigable");
+        setNoAppointmentsMsg(errorMessage);
+        setLoader(false);
+        setSche(undefined);
+        return;
+      }
+      
+      // Otros errores: mostrar toast
+      console.log("Error no relacionado con citas, mostrando toast");
       toast.error("Ocurrió un error al traer los agendamientos", {
         icon: (
           <FontAwesomeIcon
@@ -308,6 +336,7 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
+      setLoader(false);
     },
   });
 
@@ -358,11 +387,19 @@ export const AppointmentCards = () => {
 
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        {sche && !loader
-          ? sche?.appointments?.map((appt, index) => (
+        {loader ? (
+          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+            Cargando citas...
+          </div>
+        ) : noAppointmentsMsg ? (
+          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+            {noAppointmentsMsg}
+          </div>
+        ) : sche?.appointments && sche.appointments.length > 0 ? (
+          sche?.appointments?.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
-                className={`${appt.date} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
+                className={`${appt.appointmentId} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">
@@ -389,7 +426,7 @@ export const AppointmentCards = () => {
                       <br />
                       {sche.applicant?.documentNumber}
                     </li>
-                    {appt.dependent.map((s, idx) => (
+                    {appt.dependent?.map((s, idx) => (
                       <li key={idx}>
                         {s?.firstNames} {s?.lastNames} / {s?.documentNumber}
                       </li>
@@ -401,9 +438,9 @@ export const AppointmentCards = () => {
                   <div className="text-sm mt-3">
                     <span className="font-semibold">Requisitos:</span>
                     <ul className="list-none mt-1">
-                      {appt.requirements
-                        .split(",")
-                        .map((req: string, reqIndex: number) => (
+                                          {appt.requirements
+                      ?.split(",")
+                      ?.map((req: string, reqIndex: number) => (
                           <li
                             key={reqIndex}
                             className="text-sm text-gray-600 ml-2 capitalize"
@@ -515,39 +552,12 @@ export const AppointmentCards = () => {
                 </div>
               </div>
             ))
-          : [1, 2].map((item, index) => (
-              <div
-                key={`${item}-${index}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6"
-              >
-                <div className="">
-                  {[1, 2].map((item) => (
-                    <div
-                      key={item}
-                      className="p-6 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 space-y-3">
-                          <div className="h-5 bg-gray-200 rounded animate-pulse w-64"></div>
-                          <div className="h-4 bg-gray-200 rounded animate-pulse w-48"></div>
-                          <div className="h-4 bg-gray-200 rounded animate-pulse w-48"></div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-blue-200 rounded animate-pulse w-32"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+          ) : (
+            // Caso por defecto cuando no hay citas o hay un error
+            <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+              No se encontraron citas para mostrar
+            </div>
+          )}
       </div>
       {scheduledData && isOpen && (
         <ReschedulingForm

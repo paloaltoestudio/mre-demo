@@ -13,13 +13,11 @@ export const PublicHeader = ({
 }: PublicHeaderProps) => {
   return (
     <header
-      className={`w-full ${short ? "h-[7vh]" : "h-[20vh]"} shadow-lg`}
+      className={`w-full h-[150px] md:h-[120px] shadow-lg`}
       aria-label="Encabezado público principal"
     >
       <div
-        className={`w-full  bg-[#3466cc] p-1.5 ${
-          short ? "flex justify-center h-full" : "h-2/6"
-        }`}
+        className={`w-full  bg-[#3466cc] p-1.5 flex justify-center md:justify-start h-1/6 md:h-8`}
       >
         <img
           src={logotypeGov}
@@ -30,7 +28,7 @@ export const PublicHeader = ({
         />
       </div>
       {!short && (
-        <div className="w-full h-4/6 p-1.5 flex relative">
+        <div className="w-full h-20 p-1.5 flex flex-col md:flex-row relative">
           <div className={`h-full w-full`}>
           <Link to="/home">
             <img

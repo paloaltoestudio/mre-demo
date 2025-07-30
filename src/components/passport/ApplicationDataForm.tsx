@@ -1,6 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
-import Select from "react-select";
-import { customStyles } from "../common/reactSelectStyles";
+import Swal from 'sweetalert2';
+import { useEffect } from 'react';
 
 type ApplicationDataFormProps = {
   onNext: () => void;
@@ -9,6 +9,32 @@ type ApplicationDataFormProps = {
 
 export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps) => {
   const { control, handleSubmit, formState: {  }, watch } = useForm();
+  console.log(watch());
+  useEffect(() => {
+    Swal.fire({
+      icon: 'warning',
+      width: '1000px',
+      title: '<span style="font-size: 1.5rem; font-weight: bold;">Señor Solicitante</span>',
+      html: `
+        <div style="text-align: left; margin-top: 1rem;">
+          <p style="font-weight: 500;">Antes de formalizar tenga en cuenta lo siguiente:</p><br>
+          <ul style="margin-left: 1.2em; margin-bottom: 1em;">
+            <li>En la Captura Doc. ID debe escanear el registro civil para menores de edad y la cédula o contraseña para mayores de edad, según sea el caso.</li>
+            <li>En la captura de soportes: Para menores de edad escanea la cédula de alguno o ambos padres y la tarjeta de identidad, de ser necesario.</li>
+            <li>Para mayores de edad no es obligatorio escanear otros documentos soporte fuera de la cédula colombiana vigente, pero puede hacerlo si lo requiere. Si el trámite se hace con contraseña debe adjuntar los soportes establecidos en la Resolución de Requisitos.</li>
+          </ul>
+          <p>Para mayor información: <a href="https://www.cancilleria.gov.co/tramites_servicios/pasaportes/requisitos" target="_blank" rel="noopener noreferrer">https://www.cancilleria.gov.co/tramites_servicios/pasaportes/requisitos</a></p>
+        </div>
+      `,
+      confirmButtonText: 'Continuar',
+      customClass: {
+        popup: 'swal2-border-radius',
+        confirmButton: 'swal2-confirm-custom',
+      },
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
+  }, []);
 
   const onSubmit = (data: any) => {
     console.log(data);
@@ -16,7 +42,7 @@ export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps
   };
 
   // Watch passport status to conditionally show fields
-  const hasPassport = watch("hasPassport");
+  // const hasPassport = watch("hasPassport");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -38,9 +64,9 @@ export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="renovacion">Renovación de Pasaporte</option>
-                    <option value="primera_vez">Primera Vez</option>
-                    <option value="duplicado">Duplicado</option>
+                    <option value="ordinario">Pasaporte Ordinario</option>
+                    <option value="ejecutivo">Pasaporte Ejecutivo</option>
+                    <option value="fronterizo">Pasaporte Fronterizos</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -59,10 +85,11 @@ export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="bogota">Bogotá</option>
-                    <option value="medellin">Medellín</option>
-                    <option value="cali">Cali</option>
-                    <option value="barranquilla">Barranquilla</option>
+                    <option value="1">Consulado General BOG 01</option>
+                    <option value="2">Consulado General BOG 02</option>
+                    <option value="3">Consulado General BOG 03</option>
+                    <option value="4">Consulado General BOG 04</option>
+                    <option value="5">Consulado General BOG 05</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -71,220 +98,11 @@ export const ApplicationDataForm = ({ onNext, onBack }: ApplicationDataFormProps
           </div>
         </div>
 
-        <h2 className="mb-4 text-lg font-semibold mt-8">Datos Pasaporte</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-          {/* Has passport? */}
-          <div>
-            <label className="block text-sm font-medium mb-1">¿Tiene pasaporte? <span className="text-red-500">*</span></label>
-            <Controller
-              name="hasPassport"
-              control={control}
-              rules={{ required: "Debe indicar si tiene pasaporte" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <div className="flex gap-4 mt-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        {...field}
-                        value="yes"
-                        className="w-4 h-4 text-blue-600"
-                      />
-                      <span>Si</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        {...field}
-                        value="no"
-                        className="w-4 h-4 text-blue-600"
-                      />
-                      <span>No</span>
-                    </label>
-                  </div>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {/* Passport number - only show if has passport */}
-          {hasPassport === "yes" && (
-            <div>
-              <label className="block text-sm font-medium mb-1">Número de Pasaporte</label>
-              <Controller
-                name="passportNumber"
-                control={control}
-                render={({ field }) => (
-                  <input {...field} type="text" className="input w-full" />
-                )}
-              />
-            </div>
-          )}
-
-          {/* Passport issuance date - only show if has passport */}
-          {hasPassport === "yes" && (
-            <div>
-              <label className="block text-sm font-medium mb-1">Fecha de Expedición del pasaporte</label>
-              <Controller
-                name="passportIssuanceDate"
-                control={control}
-                render={({ field }) => (
-                  <input {...field} type="date" placeholder="dd/mm/yyyy" className="input w-full" />
-                )}
-              />
-            </div>
-          )}
-
-          {/* Verification digit - only show if has passport */}
-          {hasPassport === "yes" && (
-            <div>
-              <label className="block text-sm font-medium mb-1">Dígito de Verificación (Últimos 2 dígitos OCR)</label>
-              <Controller
-                name="verificationDigit"
-                control={control}
-                render={({ field }) => (
-                  <input {...field} type="text" className="input w-full" />
-                )}
-              />
-            </div>
-          )}
-
-        </div>
-
-        <h2 className="mb-4 text-lg font-semibold mt-8">Datos de Residencia y Contacto</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {/* Country */}
-          <div>
-            <label className="block text-sm font-medium mb-1">País <span className="text-red-500">*</span></label>
-            <Controller
-              name="country"
-              control={control}
-              rules={{ required: "El país es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <Select
-                    {...field}
-                    options={[
-                      { value: "Colombia", label: "Colombia" },
-                      { value: "Venezuela", label: "Venezuela" },
-                      { value: "Ecuador", label: "Ecuador" },
-                      { value: "Peru", label: "Perú" },
-                      { value: "Chile", label: "Chile" },
-                    ]}
-                    styles={customStyles}
-                    placeholder="Seleccionar"
-                    isClearable
-                  />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* City */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Ciudad <span className="text-red-500">*</span></label>
-            <Controller
-              name="city"
-              control={control}
-              rules={{ required: "La ciudad es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <Select
-                    {...field}
-                    options={[
-                      { value: "Bogota", label: "Bogotá" },
-                      { value: "Medellin", label: "Medellín" },
-                      { value: "Cali", label: "Cali" },
-                      { value: "Barranquilla", label: "Barranquilla" },
-                      { value: "Cartagena", label: "Cartagena" },
-                    ]}
-                    styles={customStyles}
-                    placeholder="Seleccionar"
-                    isClearable
-                  />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Dirección <span className="text-red-500">*</span></label>
-            <Controller
-              name="address"
-              control={control}
-              rules={{ required: "La dirección es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="text" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Country code */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Indicativo del país <span className="text-red-500">*</span></label>
-            <Controller
-              name="countryCode"
-              control={control}
-              rules={{ required: "El indicativo del país es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="+57">+57 (Colombia)</option>
-                    <option value="+58">+58 (Venezuela)</option>
-                    <option value="+593">+593 (Ecuador)</option>
-                    <option value="+51">+51 (Perú)</option>
-                    <option value="+56">+56 (Chile)</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Teléfono <span className="text-red-500">*</span></label>
-            <Controller
-              name="phone"
-              control={control}
-              rules={{ required: "El teléfono es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="tel" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Postal code */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Código Postal</label>
-            <Controller
-              name="postalCode"
-              control={control}
-              render={({ field }) => (
-                <input {...field} type="text" className="input w-full" />
-              )}
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-between mt-8">
+        <div className="flex gap-5 justify-end mt-8">
           <button
             type="button"
             onClick={onBack}
-            className="bg-gray-300 text-gray-800 rounded-full px-6 py-2 hover:bg-gray-400"
+            className="text-[#3466cc] border-2 border-[#3466cc] hover:text-white hover:border-[#e9e9e9] font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#d1d1d1] duration-150"
           >
             Regresar
           </button>

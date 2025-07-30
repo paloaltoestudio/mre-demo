@@ -18,7 +18,8 @@ export const UserHeader = () => {
   }
 
   return (
-    <div className="flex items-center gap-3 absolute right-5 top-1/2 transform -translate-y-1/2">
+    <div className="flex flex-row justify-center items-center pt-2 md:pt-0 md:items-center gap-2 md:gap-3 md:absolute md:right-5 md:top-1/2 md:transform md:-translate-y-1/2">
+    {/* <div className="flex flex-row items-center justify-center gap-2"> */}
       <div className="flex items-center gap-2">
         <div className="w-[30px] h-[30px] bg-[#1c3e70] rounded-full flex items-center justify-center">
           <FontAwesomeIcon
@@ -26,21 +27,21 @@ export const UserHeader = () => {
             className="text-white text-[18px]"
           />
         </div>
-        <span className="text-gray-800 text-sm font-medium">
+        <span className="text-gray-800 text-xs md:text-sm font-medium">
           {activeUser?.firstName} {activeUser?.lastName}
         </span>
       </div>
       
-      <div className="w-px h-6 bg-gray-300"></div>
+      <div className="hidden md:block w-px h-6 bg-gray-300"></div>
       
       <button
         onClick={handleLogout}
-        className="flex items-center gap-1 text-gray-600 hover:text-red-600 transition-colors duration-200 text-sm font-medium"
+        className="flex items-center gap-1 text-gray-600 hover:text-red-600 transition-colors duration-200 text-xs md:text-sm font-medium"
         title="Cerrar sesión"
       >
         <FontAwesomeIcon
           icon={faSignOutAlt}
-          className="text-sm"
+          className="text-xs md:text-sm"
         />
         <span>Cerrar Sesión</span>
       </button>
