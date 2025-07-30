@@ -68,7 +68,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
         className="w-full"
       >
         <h2 className="mb-4 text-md font-normal">Selección del trámite solicitud visa</h2>
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {/* Tramitada por */}
           <div>
             <label className="block text-sm font-medium mb-1">Tramitada por <span className="text-red-500">*</span></label>
@@ -92,7 +92,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
 
         <hr className="border-gray-200 mb-8" />
 
-        <h2 className="mb-4 text-md font-normal">Datos Personal del titular de la solicitud</h2>
+        <h2 className="mb-4 text-md font-normal">Datos personales del titular de la solicitud</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {/* Primer Nombre */}
           <div>

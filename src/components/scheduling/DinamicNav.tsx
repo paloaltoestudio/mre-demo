@@ -49,14 +49,14 @@ export const DinamicNav = ({ currentStep, steps }: DinamicNavProps) => {
     <div className="w-full px-4 flex flex-col items-stretch">
       <div className="relative w-full lg:w-11/12 flex items-start justify-between">
         
-        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-300 transform -translate-y-1/2 z-0" style={{transform: 'translateY(-10px)'}} />
+        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-300 transform -translate-y-1/2 z-0" style={{transform: 'translateY(-3px)'}} />
 
         <motion.div
           className="absolute top-1/2 left-0 h-0.5 bg-blue-500 transform -translate-y-1/2 z-10"
           initial={false}
           animate={{ width: `${finalProgress}%` }} 
           transition={{ duration: 0.5 }}
-          style={{transform: 'translateY(-10px)'}}
+          style={{transform: 'translateY(-3px)'}}
         />
 
         {showNavs.map((label, index) => {
