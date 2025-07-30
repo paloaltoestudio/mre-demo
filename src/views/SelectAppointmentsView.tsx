@@ -222,7 +222,7 @@ export const SelectAppointmentsView = ({
       tramiteId: toSchedule?.tramites.id,
     };
 
-    debugger
+    // debugger
     await mutatePreAppointment({
       url: `/Appointment/pre-appointment`,
       schema: CreatePreAppointmentSchema,
