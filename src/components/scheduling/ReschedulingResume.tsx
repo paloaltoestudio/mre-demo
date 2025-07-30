@@ -1,53 +1,63 @@
 import { type Dispatch, type SetStateAction } from "react";
 import { Modal } from "../Modal";
-import type { Estado } from "../../types/dashboard/AppointmentTypes";
-import {
-  SchedulingsStore,
-  type SchedulingStoreType,
-} from "../../stores/schedulingsStore";
-import { SessionStore, type UserType } from "../../stores/sessionStore";
+import type {
+  AppointmentType,
+  Estado,
+} from "../../types/dashboard/AppointmentTypes";
+import { SessionStore } from "../../stores/sessionStore";
 import { estadoColor } from "../dashboard/Appointments";
 import { AuthForm } from "../public/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
+import type { ResponseTokenType } from "../../types/auth/hashSchemas";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
 
 export type ReschedulingProps = {
-  scheduled: SchedulingStoreType;
-  toDelete: SchedulingStoreType;
+  scheduled: AppointmentType;
+  toDelete?: AppointmentType;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  activeUser: UserType;
+  activeUser: ResponseTokenType;
 };
 
 export const ReschedulingResume = ({
   scheduled,
-  toDelete,
   isOpen,
   setIsOpen,
   activeUser,
 }: ReschedulingProps) => {
-  const { setToRemove, setToReplace, procedure } = SchedulingsStore();
   const { setLocationVerification } = SessionStore();
+  const { setReschedulings, toSavedDate } = SchedulingsStore();
   const navigate = useNavigate();
 
   return (
     <AuthForm<Record<string, never>>
       onSubmit={() => {
         // Map SchedulingStoreType to AppointmentType
-        const appointmentToRemove = {
-          appointmentId: 0, // TODO: Replace with real ID if available
-          date: toDelete.date instanceof Date ? toDelete.date.toISOString() : String(toDelete.date),
-          time: toDelete.hora ?? "",
-          procedure: toDelete.tramites?.name ?? "",
-          office: toDelete.consulate?.name ?? "",
-          address: toDelete.consulate?.address ?? "",
-          requirements: toDelete.tramites?.requirements ?? "",
-          status: toDelete.state ?? "",
-          dependent: [], // Map dependents if available
-        };
-        setToRemove(appointmentToRemove);
-        setToReplace(scheduled);
-        setLocationVerification("Reagendar");
-        navigate("/auth/verification-method");
+        // const appointmentToRemove = {
+        //   appointmentId: 0, // TODO: Replace with real ID if available
+        //   date:
+        //     toDelete.date instanceof Date
+        //       ? toDelete.date.toISOString()
+        //       : String(toDelete.date),
+        //   time: toDelete.hora ?? "",
+        //   procedure: toDelete.tramites?.name ?? "",
+        //   office: toDelete.consulate?.name ?? "",
+        //   address: toDelete.consulate?.address ?? "",
+        //   requirements: toDelete.tramites?.requirements ?? "",
+        //   status: toDelete.state ?? "",
+        //   dependent: [], // Map dependents if available
+        // };
+        // setToRemove(appointmentToRemove);
+        // setToReplace(scheduled);
+        if (toSavedDate) {
+          const reschedulingData = {
+            appointmentOldId: scheduled.appointmentId,
+            availabilityBlockId: toSavedDate,
+          };
+          setReschedulings(reschedulingData);
+          setLocationVerification("Reagendar");
+          navigate("/auth/verification-method");
+        }
       }}
     >
       <Modal
@@ -59,10 +69,10 @@ export const ReschedulingResume = ({
               <h2 className="text-lg font-medium">Reagendar cita</h2>
               <span
                 className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                  estadoColor[scheduled.state as Estado]
+                  estadoColor[scheduled.status as Estado]
                 }`}
               >
-                {scheduled.state}
+                {scheduled.status}
               </span>
             </div>
 
@@ -73,43 +83,40 @@ export const ReschedulingResume = ({
                   ? new Date(scheduled.date).toLocaleDateString("es-ES")
                   : ""
               }`}{" "}
-              {scheduled?.hora}
+              {scheduled?.time}
             </p>
+            <p className="text-sm text-gray-800">Oficina: {scheduled.office}</p>
             <p className="text-sm text-gray-800">
-              Oficina: {scheduled.consulate.name}
+              Dirección: {scheduled.address}
             </p>
-            <p className="text-sm text-gray-800">
-              Dirección: {scheduled.consulate.address}
-            </p>
-            <p className="text-sm text-gray-800">
+            {/* <p className="text-sm text-gray-800">
               Código de confirmación: 23423
-            </p>
+            </p> */}
 
             <div className="text-sm mt-3">
               <span className="font-semibold">Solicitantes:</span>
               <ul className="list-none pl-2 mt-2">
-                {scheduled.parents?.map((s, idx) => (
+                {scheduled.dependent?.map((s, idx) => (
                   <li key={idx}>
-                    {s.names} {s.lastNames} - {s.typeDocument.value}{" "}
-                    {s.document}
+                    {s.firstNames} {s.lastNames} - {s.documentNumber}
                   </li>
                 ))}
-                {scheduled.selectedOption !== "Para mis dependientes" && (
-                  <li>
-                    {activeUser?.firstName} {activeUser?.lastName} -{" "}
-                    {activeUser?.documentType} {activeUser?.documentNumber}
-                  </li>
-                )}
+                <li>
+                  {activeUser?.firstName} {activeUser?.lastName} -{" "}
+                  {activeUser?.documentNumber}
+                </li>
+                {/* {scheduled.selectedOption !== "Para mis dependientes" && (
+                )} */}
               </ul>
             </div>
 
             <div className="text-sm mt-3">
               <span className="font-semibold">Tipo de trámite:</span>
-              {procedure}
+              {scheduled.procedure}
             </div>
 
             <div className="flex justify-end mt-3 gap-2">
-              {scheduled.state === "Agendada" && (
+              {scheduled.status === "Agendada" && (
                 <>
                   <button
                     type="button"

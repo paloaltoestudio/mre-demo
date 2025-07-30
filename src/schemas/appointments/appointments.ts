@@ -12,6 +12,7 @@ export const AppointmentSchema = object({
   time: string(),
   procedure: string(),
   office: string(),
+  officeId: number(),
   address: string(),
   requirements: string(),
   status: string(),
@@ -36,4 +37,9 @@ export const postAppointmentSchema = object({
 // Integration with the API;
 export const ResponseAppointmentsSchema = object({
   status: number(),
+});
+
+export const ReschedulingFormSchema = object({
+  appointmentOldId: number(),
+  availabilityBlockId: number(),
 });

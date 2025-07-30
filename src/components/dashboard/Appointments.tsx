@@ -38,6 +38,8 @@ import { SchedulingsStore } from "../../stores/schedulingsStore";
 import type { ResponseExternalLoginType } from "../../types/dashboard/externalLoginTypes";
 import { CreateExternalLoginSchema } from "../../schemas/appointments/externalLogin.schema";
 import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
+import { ReschedulingForm } from "../scheduling/ReschedulingForm";
+import { ReschedulingResume } from "../scheduling/ReschedulingResume";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -55,8 +57,8 @@ export const AppointmentCards = () => {
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
   // const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
-  // const [rescheduledData, setRescheduledData] = useState<AppointmentsType>();
-  // const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
+  const [rescheduledData, setRescheduledData] = useState<AppointmentType>();
+  const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
   const [requestRemove, setRequestRemove] = useState<boolean>(false);
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
@@ -432,12 +434,8 @@ export const AppointmentCards = () => {
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">
-                    Fecha:{" "}
-                    {`${
-                      appt.date
-                        ? appt.date
-                        : ""
-                    }`}{" "}
+                    Fecha: {`${appt.date ? appt.date : ""}`}{" "}
+                    {/* <br />Oficina: {appt.officeId} <br /> */}
                     {format(toDate(appt?.time), "hh:mm a")}
                   </p>
                   <span
@@ -588,26 +586,25 @@ export const AppointmentCards = () => {
             ));
           })()}
       </div>
-      {
-        scheduledData && isOpen && true
-        // <ReschedulingForm
-        //   scheduled={scheduledData!}
-        //   setRescheduledData={setRescheduledData}
-        //   isOpen={isOpen}
-        //   setIsOpen={setIsOpen}
-        //   activeUser={activeUser!}
-        //   setIsOpenResume={setIsOpenResume}
-        // />
-      }
-      {/* {rescheduledData && isOpenResume && (
+      {scheduledData && isOpen && (
+        <ReschedulingForm
+          scheduled={scheduledData!}
+          setRescheduledData={setRescheduledData}
+          // setTimeId={setTimeId}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          activeUser={activeUser!}
+          setIsOpenResume={setIsOpenResume}
+        />
+      )}
+      {rescheduledData && isOpenResume && (
         <ReschedulingResume
           scheduled={rescheduledData!}
-          toDelete={scheduledData!}
           isOpen={isOpenResume}
           setIsOpen={setIsOpenResume}
           activeUser={activeUser!}
         />
-      )} */}
+      )}
       {scheduledData && isOpenCancel && (
         <CancelAppointment
           isOpenCancel={isOpenCancel}

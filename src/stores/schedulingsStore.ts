@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
-import type { AppointmentType, ConsulatesType } from "../types/dashboard/AppointmentTypes";
+import type {
+  AppointmentType,
+  ConsulatesType,
+} from "../types/dashboard/AppointmentTypes";
 import type { requerimentsType } from "../types/dashboard/proceduresTypes";
 
 export type SchedulingStoreType = {
@@ -26,10 +29,16 @@ export type SchedulingStoreType = {
   state: string;
 };
 
+type reschedulingType = {
+  appointmentOldId: number;
+  availabilityBlockId: number;
+};
+
 type SchedulingsStoreType = {
   scheduled: SchedulingStoreType[];
   toRemove: AppointmentType;
   toReplace: SchedulingStoreType;
+  reschedulings: reschedulingType;
   country: number;
   requeriments: requerimentsType;
   procedure: string;
@@ -44,6 +53,7 @@ type SchedulingsStoreActions = {
   setToRemove: (toRemove: AppointmentType) => void;
   // setToRemove: (toRemove: SchedulingStoreType) => void;
   setToReplace: (toReplace: SchedulingStoreType) => void;
+  setReschedulings: (reschedulings: reschedulingType) => void;
   rescheduling: (
     toRemove: SchedulingStoreType,
     scheduled: SchedulingStoreType
@@ -62,6 +72,7 @@ export const SchedulingsStore = create(
         scheduled: [],
         toRemove: {} as AppointmentType,
         toReplace: {} as SchedulingStoreType,
+        reschedulings: {} as reschedulingType,
         country: 0,
         requeriments: [] as requerimentsType,
         procedure: "",
@@ -88,6 +99,7 @@ export const SchedulingsStore = create(
           })),
         setToRemove: (toRemove) => set({ toRemove }),
         setToReplace: (toReplace) => set({ toReplace }),
+        setReschedulings: (reschedulings) => set({ reschedulings }),
         rescheduling: (scheduledToRemove, scheduledToReplace) =>
           set((state) => ({
             scheduled: state.scheduled.map((schedule) =>

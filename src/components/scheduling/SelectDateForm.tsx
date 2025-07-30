@@ -155,7 +155,7 @@ export const SelectDateForm = ({
               
               // Iniciar temporizador con el ID de la pre-cita
               // Iniciar temporizador con el ID de la pre-cita
-              useBookingTimerStore.getState().startTimer(100000, result.appointmentId!);
+              useBookingTimerStore.getState().startTimer(300, result.appointmentId!);
               
               if (dependentsWatch > 0) setView?.(4);
               else setView?.(5);
