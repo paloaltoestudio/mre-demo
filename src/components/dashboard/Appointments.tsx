@@ -541,7 +541,6 @@ export const AppointmentCards = () => {
                       onClick={() => {
                         setIsOpenCancel(true);
                         setScheduledData(appt);
-                        setRequestRemove(true);
                       }}
                       className="text-blue-600 text-sm py-[5px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >

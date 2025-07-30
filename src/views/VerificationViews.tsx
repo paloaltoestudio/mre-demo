@@ -70,7 +70,7 @@ export const VerificationViews = () => {
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
     onSuccess: (data: ResponseCancelAppointmentType) => {
       console.log("Cita cancelada correctamente", data);
-      toast.success("Cita eliminada correctamente", {
+      toast.success("Cita cancelada correctamente", {
         icon: (
           <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
         ),
