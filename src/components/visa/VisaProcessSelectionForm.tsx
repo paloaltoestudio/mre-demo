@@ -1,5 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Swal from "sweetalert2";
 
 type VisaProcessSelectionFormProps = {

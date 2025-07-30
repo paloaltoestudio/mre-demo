@@ -4,12 +4,6 @@ import { CertificationApplicantForm } from "./CertificationApplicantForm";
 import { CertificationRequestForm } from "./CertificationRequestForm";
 import { MinorDataForm } from "../passport/MinorDataForm";
 
-const steps = [
-  "Datos del solicitante", 
-  "Datos de la Solicitud",
-  "Datos del Registro Civil (En caso de Menor de Edad)"
-];
-
 export const CertificationWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [tipoDocumento, setTipoDocumento] = useState<string>("");

@@ -48,6 +48,7 @@ export const VisaWizard = () => {
         {currentStep === 3 && (
           <VisaPersonalDataForm
             onNext={(data: any) => {
+              console.log(data);
               // Si el tipo de documento es CC, finalizar, sino ir al paso de menor
               if (tipoDocumento === "CC") {
                 setCurrentStep(steps.length + 1); // Finalizar o avanzar fuera del flujo
