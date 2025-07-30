@@ -103,3 +103,24 @@ export const putPublicRequest = async <T>({
       );
   }
 };
+
+export type DeletePublicRequestProps = {
+  url: string;
+};
+
+export const deletePublicRequest = async <T>({
+  url,
+}: DeletePublicRequestProps): Promise<T> => {
+  try {
+    const { data: requestData } = await axiosInstance.delete(url);
+    return requestData.data;
+  } catch (error) {
+    if (isAxiosError(error)) throw new Error(`Axios error: ${error.message}`);
+    else
+      throw new Error(
+        `Unexpected error: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+  }
+};

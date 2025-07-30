@@ -2,17 +2,20 @@ import { type Dispatch, type SetStateAction } from "react";
 import { Modal } from "../Modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import type { AppointmentType } from "../../types/dashboard/AppointmentTypes";
 
 type CancelAppointmentProps = {
   isOpenCancel: boolean;
   setIsOpenCancel: Dispatch<SetStateAction<boolean>>;
   setRequestRemove: Dispatch<SetStateAction<boolean>>;
+  scheduledData?: AppointmentType;
 };
 
 export const CancelAppointment = ({
   isOpenCancel,
   setIsOpenCancel,
   setRequestRemove,
+  scheduledData,
 }: CancelAppointmentProps) => {
   return (
     <Modal
@@ -28,7 +31,8 @@ export const CancelAppointment = ({
           </span>
 
           <h2 className="text-lg font-medium text-center mt-10">
-            ¿Está seguro de cancelar la cita?
+            {scheduledData && scheduledData.status === "Agendada" ? "¿Está seguro de cancelar la cita?" : "¿Está seguro de archivar la cita?"}
+            
           </h2>
 
           <p className="text-center mt-2">

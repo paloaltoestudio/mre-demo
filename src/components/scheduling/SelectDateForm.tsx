@@ -19,6 +19,9 @@ import type {
 } from "../../types/dashboard/proceduresTypes";
 import { useBookingTimerStore } from "../../stores/bookingTimerStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCreatePreAppointment } from "../../hooks/useCreatePreAppointment";
+import { SessionStore } from "../../stores/sessionStore";
+import type { CreatePreAppointmentType } from "../../types/dashboard/preAppointmentTypes";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -40,6 +43,9 @@ export const SelectDateForm = ({
   ])!;
   const { country } = SchedulingsStore();
   const [dates, setDates] = useState<DateSchemaType[]>();
+  const { mutateAsync: createPreAppointment } = useCreatePreAppointment();
+  const { userId } = SessionStore();
+  const { toSavedDate } = SchedulingsStore();
 
   // Cambia useMutation por un useEffect directo, ya que solo necesitas obtener datos una vez
   useEffect(() => {
@@ -127,11 +133,35 @@ export const SelectDateForm = ({
         </button>
         <button
           type="button"
-          onClick={() => {
-            // Iniciar temporizador solo si hay fecha/hora seleccionada
-            useBookingTimerStore.getState().startTimer(10000); // 5 minutos por defecto
-            if (dependentsWatch > 0) setView?.(4);
-            else setView?.(5);
+          onClick={async () => {
+            try {
+              // Crear la pre-cita antes de iniciar el timer
+              const preAppointmentData: CreatePreAppointmentType = {
+                userId: userId,
+                availabilityBlockId: toSavedDate,
+                dependents: dependentsWatch > 0 
+                  ? Array.from({ length: dependentsWatch }).map((_, index) => ({
+                      relationshipTypeId: watch(`parent-${index}`)?.id || 0,
+                      documentTypeId: watch(`type-document-${index}`) || 0,
+                      documentNumber: watch(`document-number-dependent-${index}`) || "",
+                      firstNames: watch(`names-${index}`) || "",
+                      lastNames: watch(`last-names-${index}`) || "",
+                    }))
+                  : [],
+                tramiteId: watch("tramites")?.id || 0,
+              };
+
+              const result = await createPreAppointment(preAppointmentData);
+              
+              // Iniciar temporizador con el ID de la pre-cita
+              // Iniciar temporizador con el ID de la pre-cita
+              useBookingTimerStore.getState().startTimer(100000, result.appointmentId!);
+              
+              if (dependentsWatch > 0) setView?.(4);
+              else setView?.(5);
+            } catch (error) {
+              console.error("Error al crear la pre-cita:", error);
+            }
           }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AuthForm } from "../components/public/auth/AuthForm";
+import { useForm, FormProvider } from "react-hook-form";
 import { SelectAppointmentForm } from "../components/scheduling/SelectAppointmentForm";
 import type {
   ConsulatesType,
@@ -10,10 +10,7 @@ import { SelectDateForm } from "../components/scheduling/SelectDateForm";
 import { DependentInformationForm } from "../components/scheduling/DependentInformationForm";
 import { DinamicNav } from "../components/scheduling/DinamicNav";
 import { Summary } from "../components/scheduling/Summary";
-import {
-  SchedulingsStore,
-  type SchedulingStoreType,
-} from "../stores/schedulingsStore";
+
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -24,12 +21,8 @@ import {
 import type { CountriesInfoType } from "../types/dashboard/countryInfo";
 import { useMutation } from "@tanstack/react-query";
 import {
-  postPublicRequest,
   putPublicRequest,
 } from "../services/fetchingService";
-import type { ResponsePreAppointmentType } from "../types/dashboard/preAppointmentTypes";
-import { CreatePreAppointmentSchema } from "../schemas/appointments/preAppointments";
-import { SessionStore } from "../stores/sessionStore";
 import { useBookingTimerStore } from "../stores/bookingTimerStore";
 import { useAppointmentWizardStore } from "../stores/appointmentWizardStore";
 
@@ -60,10 +53,11 @@ export const SelectAppointmentsView = ({
     address: "",
   });
   const navigate = useNavigate();
-  const [toSchedule, setToSchedule] = useState<SchedulingStoreType>();
-  const [appointmentId, setAppointmentId] = useState<number>(0);
   const resetTimer = useBookingTimerStore((state) => state.resetTimer);
   const resetWizard = useAppointmentWizardStore((state) => state.reset);
+  const { preAppointmentId } = useBookingTimerStore();
+  
+  const methods = useForm();
   // const [activeUser, setActiveUser] = useState<UserType>();
   // const { user } = SessionStore();
 
@@ -115,27 +109,7 @@ export const SelectAppointmentsView = ({
   //   },
   // });
 
-  const { mutateAsync: mutatePreAppointment } = useMutation({
-    mutationFn: postPublicRequest<ResponsePreAppointmentType>,
-    onSuccess: (data: ResponsePreAppointmentType) => {
-      setAppointmentId(data.appointmentId);
-    },
-    onError() {
-      toast.error("Ocurrió un error en el pre agendamiento de la cita", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-red-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-      });
-    },
-  });
+
 
   const { mutateAsync: mutateAppointment } = useMutation({
     mutationFn: putPublicRequest<ResponsePutAppointmentType>,
@@ -174,11 +148,7 @@ export const SelectAppointmentsView = ({
     },
   });
 
-  useEffect(() => {
-    if (appointmentId) {
-      handleAppointment();
-    }
-  }, [appointmentId]);
+
 
   // useEffect(() => {
   //   useBookingTimerStore.getState().resetTimer();
@@ -197,82 +167,25 @@ export const SelectAppointmentsView = ({
   //   });
   // };
 
-  const { toSavedDate } = SchedulingsStore();
-  const { userId } = SessionStore();
-
-  useEffect(() => {
-    if (toSchedule) {
-      handlePreAppointment();
-    }
-  }, [toSchedule]);
-
-  const handlePreAppointment = async () => {
-    const body = {
-      userId: userId,
-      availabilityBlockId: toSavedDate,
-      dependents: toSchedule?.parents
-        ? toSchedule?.parents?.map((parent) => ({
-            relationshipTypeId: parent.relationship,
-            documentTypeId: parent.typeDocument,
-            documentNumber: parent.document,
-            firstNames: parent.names,
-            lastNames: parent.lastNames,
-          }))
-        : [],
-      tramiteId: toSchedule?.tramites.id,
-    };
-
-    debugger
-    await mutatePreAppointment({
-      url: `/Appointment/pre-appointment`,
-      schema: CreatePreAppointmentSchema,
-      body,
-    });
-  };
-
   const handleAppointment = async () => {
-    await mutateAppointment({
-      url: `/Appointment/confirm-preappointment/${appointmentId}`,
-    });
-  };
-
-  const onSubmit = (data: any) => {
-    const dependentsCount = data.dependientesCount || 0;
-
-    let dependentsData;
-
-    if (dependentsCount > 0) {
-      dependentsData = Array.from({ length: dependentsCount }).map(
-        (_, index) => ({
-          names: data[`names-${index}`],
-          lastNames: data[`last-names-${index}`],
-          document: data[`document-number-dependent-${index}`],
-          typeDocument: data[`type-document-${index}`],
-          relationship: data[`parent-${index}`].id,
-        })
-      );
+    if (preAppointmentId) {
+      await mutateAppointment({
+        url: `/Appointment/confirm-preappointment/${preAppointmentId}`,
+      });
     }
-
-    const completedData = {
-      ...data,
-      consulate,
-      selectedOption,
-      parents: dependentsData,
-      state: "Agendada",
-      city: 1,
-    };
-    setToSchedule(completedData);
   };
+
+
 
   return (
     <div
       id="select-appointments-view"
       className="max-w-[1200px] mx-auto flex flex-col items-center"
     >
-      <div className="w-11/12 flex flex-col items-center justify-center">
-        <AuthForm<any> onSubmit={onSubmit}>
+      <FormProvider {...methods}>
+        <div className="w-11/12 flex flex-col items-center justify-center">
           <DinamicNav currentStep={step} steps={steps} />
-          <div className="mt-10">
+            <div className="mt-10 w-full">
             {step === 1 ? (
                 <SelectAppointmentForm
                   setConsulate={setConsulate}
@@ -305,12 +218,13 @@ export const SelectAppointmentsView = ({
                   consulate={consulate}
                   setView={(step: number) => setStep(step)}
                   selectedOption={selectedOption!}
+                  onConfirmAppointment={handleAppointment}
                 />
               )
             )}
           </div>
-        </AuthForm>
-      </div>
+        </div>
+      </FormProvider>
     </div>
   );
 };

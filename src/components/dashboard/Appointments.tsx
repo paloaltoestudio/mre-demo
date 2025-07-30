@@ -227,7 +227,7 @@ export const AppointmentCards = () => {
 
   const { mutateAsync: removeAsync } = useMutation({
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
-    onSuccess: (data: ResponseCancelAppointmentType) => {
+    onSuccess: async (data: ResponseCancelAppointmentType) => {
       console.log("Cita cancelada correctamente", data);
       toast.success("Cita archivada correctamente", {
         icon: (
@@ -239,6 +239,9 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-green-500 bg-white text-black shadow-md",
       });
+      
+      // Recargar las citas después de archivar
+      await handleAppointment();
     },
     onError: () => {
       toast.error("Error al archivar la cita", {
@@ -385,16 +388,44 @@ export const AppointmentCards = () => {
 
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        {loader ? (
-          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
-            Cargando citas...
-          </div>
-        ) : noAppointmentsMsg ? (
-          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
-            {noAppointmentsMsg}
-          </div>
-        ) : sche?.appointments && sche.appointments.length > 0 ? (
-          sche.appointments.map((appt, index) => (
+        {(() => {
+          if (loader) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                Cargando citas...
+              </div>
+            );
+          }
+          
+          if (noAppointmentsMsg) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                {noAppointmentsMsg}
+              </div>
+            );
+          }
+          
+          if (!sche?.appointments || sche.appointments.length === 0) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                No se encontraron citas para mostrar
+              </div>
+            );
+          }
+          
+          const filteredAppointments = sche.appointments.filter(
+            (appt) => appt.status !== "Liberada" && appt.status !== "PreAgendada"
+          );
+          
+          if (filteredAppointments.length === 0) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                No hay citas activas para mostrar
+              </div>
+            );
+          }
+          
+          return filteredAppointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
                 className={`${appt.appointmentId} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
@@ -510,6 +541,7 @@ export const AppointmentCards = () => {
                       onClick={() => {
                         setIsOpenCancel(true);
                         setScheduledData(appt);
+                        setRequestRemove(true);
                       }}
                       className="text-blue-600 text-sm py-[5px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
@@ -554,13 +586,8 @@ export const AppointmentCards = () => {
                   )}
                 </div>
               </div>
-            ))
-          ) : (
-            // Caso por defecto cuando no hay citas o hay un error
-            <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
-              No se encontraron citas para mostrar
-            </div>
-          )}
+            ));
+          })()}
       </div>
       {
         scheduledData && isOpen && true
@@ -587,6 +614,7 @@ export const AppointmentCards = () => {
           isOpenCancel={isOpenCancel}
           setIsOpenCancel={setIsOpenCancel}
           setRequestRemove={setRequestRemove}
+          scheduledData={scheduledData}
         />
       )}
     </div>
