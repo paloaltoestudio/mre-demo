@@ -38,6 +38,8 @@ import { SchedulingsStore } from "../../stores/schedulingsStore";
 import type { ResponseExternalLoginType } from "../../types/dashboard/externalLoginTypes";
 import { CreateExternalLoginSchema } from "../../schemas/appointments/externalLogin.schema";
 import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
+import { ReschedulingForm } from "../scheduling/ReschedulingForm";
+import { ReschedulingResume } from "../scheduling/ReschedulingResume";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -55,8 +57,8 @@ export const AppointmentCards = () => {
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
   // const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
-  // const [rescheduledData, setRescheduledData] = useState<AppointmentsType>();
-  // const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
+  const [rescheduledData, setRescheduledData] = useState<AppointmentType>();
+  const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
   const [requestRemove, setRequestRemove] = useState<boolean>(false);
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
@@ -227,7 +229,7 @@ export const AppointmentCards = () => {
 
   const { mutateAsync: removeAsync } = useMutation({
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
-    onSuccess: (data: ResponseCancelAppointmentType) => {
+    onSuccess: async (data: ResponseCancelAppointmentType) => {
       console.log("Cita cancelada correctamente", data);
       toast.success("Cita archivada correctamente", {
         icon: (
@@ -239,6 +241,9 @@ export const AppointmentCards = () => {
         hideProgressBar: true,
         className: "border-l-5 border-green-500 bg-white text-black shadow-md",
       });
+      
+      // Recargar las citas después de archivar
+      await handleAppointment();
     },
     onError: () => {
       toast.error("Error al archivar la cita", {
@@ -385,28 +390,52 @@ export const AppointmentCards = () => {
 
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        {loader ? (
-          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
-            Cargando citas...
-          </div>
-        ) : noAppointmentsMsg ? (
-          <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
-            {noAppointmentsMsg}
-          </div>
-        ) : sche?.appointments && sche.appointments.length > 0 ? (
-          sche.appointments.map((appt, index) => (
+        {(() => {
+          if (loader) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                Cargando citas...
+              </div>
+            );
+          }
+          
+          if (noAppointmentsMsg) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                {noAppointmentsMsg}
+              </div>
+            );
+          }
+          
+          if (!sche?.appointments || sche.appointments.length === 0) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                No se encontraron citas para mostrar
+              </div>
+            );
+          }
+          
+          const filteredAppointments = sche.appointments.filter(
+            (appt) => appt.status !== "Liberada" && appt.status !== "PreAgendada"
+          );
+          
+          if (filteredAppointments.length === 0) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                No hay citas activas para mostrar
+              </div>
+            );
+          }
+          
+          return filteredAppointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
                 className={`${appt.appointmentId} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">
-                    Fecha:{" "}
-                    {`${
-                      appt.date
-                        ? appt.date
-                        : ""
-                    }`}{" "}
+                    Fecha: {`${appt.date ? appt.date : ""}`}{" "}
+                    {/* <br />Oficina: {appt.officeId} <br /> */}
                     {format(toDate(appt?.time), "hh:mm a")}
                   </p>
                   <span
@@ -554,39 +583,34 @@ export const AppointmentCards = () => {
                   )}
                 </div>
               </div>
-            ))
-          ) : (
-            // Caso por defecto cuando no hay citas o hay un error
-            <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
-              No se encontraron citas para mostrar
-            </div>
-          )}
+            ));
+          })()}
       </div>
-      {
-        scheduledData && isOpen && true
-        // <ReschedulingForm
-        //   scheduled={scheduledData!}
-        //   setRescheduledData={setRescheduledData}
-        //   isOpen={isOpen}
-        //   setIsOpen={setIsOpen}
-        //   activeUser={activeUser!}
-        //   setIsOpenResume={setIsOpenResume}
-        // />
-      }
-      {/* {rescheduledData && isOpenResume && (
+      {scheduledData && isOpen && (
+        <ReschedulingForm
+          scheduled={scheduledData!}
+          setRescheduledData={setRescheduledData}
+          // setTimeId={setTimeId}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          activeUser={activeUser!}
+          setIsOpenResume={setIsOpenResume}
+        />
+      )}
+      {rescheduledData && isOpenResume && (
         <ReschedulingResume
           scheduled={rescheduledData!}
-          toDelete={scheduledData!}
           isOpen={isOpenResume}
           setIsOpen={setIsOpenResume}
           activeUser={activeUser!}
         />
-      )} */}
+      )}
       {scheduledData && isOpenCancel && (
         <CancelAppointment
           isOpenCancel={isOpenCancel}
           setIsOpenCancel={setIsOpenCancel}
           setRequestRemove={setRequestRemove}
+          scheduledData={scheduledData}
         />
       )}
     </div>

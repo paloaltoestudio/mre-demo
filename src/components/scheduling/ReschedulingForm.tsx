@@ -1,21 +1,20 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { Modal } from "../Modal";
 import { AuthForm } from "../public/auth/AuthForm";
-import {
-  SchedulingsStore,
-  type SchedulingStoreType,
-} from "../../stores/schedulingsStore";
-import type { UserType } from "../../stores/sessionStore";
 import { estadoColor } from "../dashboard/Appointments";
-import type { Estado } from "../../types/dashboard/AppointmentTypes";
+import type {
+  AppointmentType,
+  Estado,
+} from "../../types/dashboard/AppointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
 import type { DateSchemaType } from "../../types/dashboard/dateTypes";
 import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postPublicRequest } from "../../services/fetchingService";
+import { getPublicRequest } from "../../services/fetchingService";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import type { ResponseTokenType } from "../../types/auth/hashSchemas";
 
 type formType = {
   date: Date;
@@ -23,11 +22,11 @@ type formType = {
 };
 
 export type ReschedulingProps = {
-  scheduled: SchedulingStoreType;
-  setRescheduledData: Dispatch<SetStateAction<SchedulingStoreType | undefined>>;
+  scheduled: AppointmentType;
+  setRescheduledData: Dispatch<SetStateAction<AppointmentType | undefined>>;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  activeUser: UserType;
+  activeUser: ResponseTokenType;
   setIsOpenResume: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -40,19 +39,22 @@ export const ReschedulingForm = ({
   setIsOpenResume,
 }: ReschedulingProps) => {
   const [dates, setDates] = useState<DateSchemaType[]>();
+  useEffect(() => {
+    console.log("agenda", scheduled);
+  }, []);
 
   const onSubmit = (data: formType) => {
-    const scheduledData: SchedulingStoreType = {
+    const scheduledData: AppointmentType = {
       ...scheduled,
-      date: data.date,
-      hora: data.hora,
+      date: data.date.toString(),
+      time: data.hora,
     };
 
     setRescheduledData(scheduledData);
     setIsOpenResume(true);
   };
 
-  const { procedure } = SchedulingsStore();
+  // const { procedure } = SchedulingsStore();
 
   // const { data: DatesData } = usePublicQuery<DatesType>({
   //   key: ["dates"],
@@ -62,7 +64,7 @@ export const ReschedulingForm = ({
   const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutation({
-    mutationFn: postPublicRequest<DateSchemaType[]>,
+    mutationFn: getPublicRequest<DateSchemaType[]>,
     onSuccess: (data: DateSchemaType[]) => {
       queryClient.setQueryData(["all-dates"], data);
       console.log("Fechas", data);
@@ -87,9 +89,8 @@ export const ReschedulingForm = ({
 
   const handleDates = async () => {
     const data = {
-      url: `/api/api/AvailabilityBlock/office/${scheduled.consulate.id}/next-5-days`,
+      url: `/AvailabilityBlock/office/${scheduled.officeId}/next-5-days`,
       schema: outputDatesSchema,
-      body: {}, // <-- Add this line
     };
     await mutateAsync(data);
   };
@@ -118,46 +119,41 @@ export const ReschedulingForm = ({
                 }`}{" "}
               </p>
               <p className="text-sm text-gray-800">
-                <span className="font-medium">Oficina:</span>{" "}
-                {scheduled.consulate.name}
+                <span className="font-medium">Oficina:</span> {scheduled.office}
               </p>
               <div className="text-sm">
                 <span className="font-medium">TD + Doc:</span>
                 <ul className="list-none pl-2 mt-2">
-                  {scheduled.parents?.map((s, idx) => (
+                  {scheduled.dependent?.map((s, idx) => (
                     <li key={idx}>
-                      {s.names} {s.lastNames}
+                      {s.firstNames} {s.lastNames}
                     </li>
                   ))}
-                  {scheduled.selectedOption !== "Para mis dependientes" && (
-                    <li>
-                      {activeUser?.firstName} {activeUser?.lastName}
-                    </li>
-                  )}
+                  <li>
+                    {activeUser?.firstName} {activeUser?.lastName}
+                  </li>
+                  {/* {scheduled.selectedOption !== "Para mis dependientes" && (
+                  )} */}
                 </ul>
               </div>
               <div className="text-sm">
                 <span className="font-medium">TD + Doc:</span>
                 <ul className="list-none pl-2 mt-2">
-                  {scheduled.parents?.map((s, idx) => (
-                    <li key={idx}>
-                      {s.typeDocument.label} {s.document}
-                    </li>
+                  {scheduled.dependent?.map((s, idx) => (
+                    <li key={idx}>{s.documentNumber}</li>
                   ))}
-                  {scheduled.selectedOption !== "Para mis dependientes" && (
-                    <li>
-                      {activeUser?.documentType} {activeUser?.documentNumber}
-                    </li>
-                  )}
+                  <li>{activeUser?.documentNumber}</li>
+                  {/* {scheduled.selectedOption !== "Para mis dependientes" && (
+                  )} */}
                 </ul>
               </div>
               <div>
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    estadoColor[scheduled.state as Estado]
+                    estadoColor[scheduled.status as Estado]
                   }`}
                 >
-                  {scheduled.state}
+                  {scheduled.status}
                 </span>
               </div>
               <div className="text-sm mt-3">
@@ -167,7 +163,9 @@ export const ReschedulingForm = ({
                     <li key={idx}>{s.label}</li>
                   ))}
                 </ul> */}
-                <p className="text-sm text-gray-600">Trámite: {procedure}</p>
+                <p className="text-sm text-gray-600">
+                  Trámite: {scheduled.procedure}
+                </p>
               </div>
             </div>
 
@@ -184,7 +182,7 @@ export const ReschedulingForm = ({
             </div>
 
             <div className="flex justify-end mt-3 gap-2">
-              {scheduled.state === "Agendada" && (
+              {scheduled.status === "Agendada" && (
                 <>
                   <button
                     type="button"

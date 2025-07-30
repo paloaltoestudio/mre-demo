@@ -4,10 +4,12 @@ interface BookingTimerState {
   timeLeft: number; // segundos restantes
   isActive: boolean;
   expiredByTimeout: boolean;
-  startTimer: (duration?: number) => void;
+  preAppointmentId?: number; // ID de la pre-cita
+  startTimer: (duration?: number, preAppointmentId?: number) => void;
   resetTimer: () => void;
   expireTimer: () => void;
   clearExpiredFlag: () => void;
+  setPreAppointmentId: (id?: number) => void;
 }
 
 let timerInterval: NodeJS.Timeout | null = null;
@@ -16,9 +18,10 @@ export const useBookingTimerStore = create<BookingTimerState>((set, get) => ({
   timeLeft: 0,
   isActive: false,
   expiredByTimeout: false,
-  startTimer: (duration = 300) => { // 5 minutos por defecto
+  preAppointmentId: undefined,
+  startTimer: (duration = 300, preAppointmentId?: number) => { // 5 minutos por defecto
     if (timerInterval) clearInterval(timerInterval);
-    set({ timeLeft: duration, isActive: true, expiredByTimeout: false });
+    set({ timeLeft: duration, isActive: true, expiredByTimeout: false, preAppointmentId });
     timerInterval = setInterval(() => {
       const { timeLeft, isActive } = get();
       if (!isActive) {
@@ -35,7 +38,7 @@ export const useBookingTimerStore = create<BookingTimerState>((set, get) => ({
   },
   resetTimer: () => {
     if (timerInterval) clearInterval(timerInterval);
-    set({ timeLeft: 0, isActive: false, expiredByTimeout: false });
+    set({ timeLeft: 0, isActive: false, expiredByTimeout: false, preAppointmentId: undefined });
   },
   expireTimer: () => {
     if (timerInterval) clearInterval(timerInterval);
@@ -43,5 +46,8 @@ export const useBookingTimerStore = create<BookingTimerState>((set, get) => ({
   },
   clearExpiredFlag: () => {
     set({ expiredByTimeout: false });
+  },
+  setPreAppointmentId: (id?: number) => {
+    set({ preAppointmentId: id });
   },
 })); 

@@ -14,12 +14,14 @@ type SummaryProps = {
   consulate: ConsulatesType;
   setView: (step: number) => void;
   selectedOption: string;
+  onConfirmAppointment?: () => void;
 };
 
 export const Summary = ({
   consulate,
   setView,
   selectedOption,
+  onConfirmAppointment,
 }: SummaryProps) => {
   const { watch } = useFormContext();
   const dateWatch = watch("date");
@@ -121,7 +123,7 @@ export const Summary = ({
             Dirección: {consulate.address}
           </p>
         </div>
-        <div className="w-full md:w-[48%] border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md px-4 py-3 flex flex-col shadow-lg">
+        <div className="w-full md:w-[50%] border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md px-4 py-3 flex flex-col shadow-lg">
           <h3 className="font-medium text-lg">Solicitantes</h3>
           <div className="mt-2">
             {selectedOption === "Para mí" ? (
@@ -185,7 +187,8 @@ export const Summary = ({
           Regresar
         </button>
         <button
-          type="submit"
+          type="button"
+          onClick={onConfirmAppointment}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Agendar

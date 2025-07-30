@@ -12,10 +12,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SchedulingsStore } from "../stores/schedulingsStore";
 import { useMutation } from "@tanstack/react-query";
-import { putPublicRequest } from "../services/fetchingService";
+import {
+  putPublicRequest
+} from "../services/fetchingService";
 import type { ResponseCancelAppointmentType } from "../types/dashboard/cancelAppointmentTypes";
 import { CancelDataAppointmentSchema } from "../schemas/appointments/cancelAppointment.schema";
 import { useSendOTP } from "../hooks/Auth/useSendOTP";
+import type { ResponsePreAppointmentType } from "../types/dashboard/preAppointmentTypes";
+import { ReschedulingFormSchema } from "../schemas/appointments/appointments";
 
 type formType = {
   code: number;
@@ -39,6 +43,7 @@ export const VerificationViews = () => {
   const [invalidCode, setInvalidCode] = useState(false);
   const {
     toRemove,
+    reschedulings,
     //  removeScheduled
   } = SchedulingsStore();
 
@@ -70,7 +75,7 @@ export const VerificationViews = () => {
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
     onSuccess: (data: ResponseCancelAppointmentType) => {
       console.log("Cita cancelada correctamente", data);
-      toast.success("Cita eliminada correctamente", {
+      toast.success("Cita cancelada correctamente", {
         icon: (
           <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
         ),
@@ -82,15 +87,52 @@ export const VerificationViews = () => {
       });
     },
     onError: (error) => {
-      console.log(error)
-      toast.error("Error al cancelar la cita, ten en cuenta que solo se pueden cancelar citas con más de 24 horas de anticipación", {
+      console.log(error);
+      toast.error(
+        "Error al cancelar la cita, ten en cuenta que solo se pueden cancelar citas con más de 24 horas de anticipación",
+        {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 3000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        }
+      );
+    },
+  });
+
+  const { toSavedDate } = SchedulingsStore();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: putPublicRequest<ResponsePreAppointmentType>,
+    onSuccess: (data: ResponsePreAppointmentType) => {
+      console.log("Data from reschedule-appointment:", data);
+      toast.success("Cita reagendada correctamente", {
+        icon: (
+          <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+      });
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en el pre agendamiento de la cita", {
         icon: (
           <FontAwesomeIcon
             icon={faCircleExclamation}
             className="text-red-500"
           />
         ),
-        autoClose: 3000,
+        autoClose: 1000,
         draggable: true,
         progress: undefined,
         hideProgressBar: true,
@@ -98,6 +140,16 @@ export const VerificationViews = () => {
       });
     },
   });
+
+  const handleSubmit = async () => {
+    if (toSavedDate) {
+      await mutateAsync({
+        url: "/Appointment/reschedule-appointment",
+        schema: ReschedulingFormSchema,
+        body: reschedulings,
+      });
+    }
+  };
 
   const navigate = useNavigate();
   const onSubmit = async (data: formType) => {
@@ -113,21 +165,7 @@ export const VerificationViews = () => {
         if (official) navigate("/auth/official");
         else navigate("/dashboard/appointments");
         if (locationVerification === "Reagendar") {
-          // rescheduling(toRemove, toReplace);
-          toast.success("Cita reagendada correctamente", {
-            icon: (
-              <FontAwesomeIcon
-                icon={faCircleCheck}
-                className="text-green-500"
-              />
-            ),
-            autoClose: 3000,
-            draggable: true,
-            progress: undefined,
-            hideProgressBar: true,
-            className:
-              "border-l-5 border-green-500 bg-white text-black shadow-md",
-          });
+          await handleSubmit();
         } else if (
           locationVerification === "Eliminar agendamiento" &&
           !official
