@@ -7,8 +7,8 @@ import type {
   Estado,
 } from "../../types/dashboard/AppointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
-import type { DateSchemaType } from "../../types/dashboard/dateTypes";
-import { outputDatesSchema } from "../../schemas/appointments/dates.schema";
+import type { DateSchemaType, DatesSchemaType } from "../../types/dashboard/dateTypes";
+import { DatesResponseSchema } from "../../schemas/appointments/dates.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPublicRequest } from "../../services/fetchingService";
 import { toast } from "react-toastify";
@@ -64,11 +64,11 @@ export const ReschedulingForm = ({
   const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutation({
-    mutationFn: getPublicRequest<DateSchemaType[]>,
-    onSuccess: (data: DateSchemaType[]) => {
-      queryClient.setQueryData(["all-dates"], data);
+    mutationFn: getPublicRequest<DatesSchemaType>,
+    onSuccess: (data: DatesSchemaType) => {
+      queryClient.setQueryData(["all-dates"], data.data);
       console.log("Fechas", data);
-      setDates(data);
+      setDates(data.data);
     },
     onError: () => {
       toast.error("Error al hacer la petición", {
@@ -90,7 +90,7 @@ export const ReschedulingForm = ({
   const handleDates = async () => {
     const data = {
       url: `/AvailabilityBlock/office/${scheduled.officeId}/next-5-days`,
-      schema: outputDatesSchema,
+      schema: DatesResponseSchema,
     };
     await mutateAsync(data);
   };
@@ -122,7 +122,7 @@ export const ReschedulingForm = ({
                 <span className="font-medium">Oficina:</span> {scheduled.office}
               </p>
               <div className="text-sm">
-                <span className="font-medium">TD + Doc:</span>
+                <span className="font-medium">Nombre:</span>
                 <ul className="list-none pl-2 mt-2">
                   {scheduled.dependent?.map((s, idx) => (
                     <li key={idx}>

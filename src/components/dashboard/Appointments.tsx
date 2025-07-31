@@ -299,6 +299,7 @@ export const AppointmentCards = () => {
         setSche(undefined);
       } else {
         setSche(data);
+        console.log("data sche", sche);
         setNoAppointmentsMsg("");
       }
     },
