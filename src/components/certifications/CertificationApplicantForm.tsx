@@ -211,6 +211,25 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
             />
           </div>
 
+          {/* Partícula */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Partícula</label>
+            <Controller
+              name="particula"
+              control={control}
+              render={({ field }) => (
+                <select {...field} className="input w-full">
+                  <option value="">Seleccionar</option>
+                  <option value="de">de</option>
+                  <option value="del">del</option>
+                  <option value="la">la</option>
+                  <option value="las">las</option>
+                  <option value="los">los</option>
+                </select>
+              )}
+            />
+          </div>
+
           {/* Segundo apellido */}
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -230,24 +249,7 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
             />
           </div>
 
-          {/* Partícula */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Partícula</label>
-            <Controller
-              name="particula"
-              control={control}
-              render={({ field }) => (
-                <select {...field} className="input w-full">
-                  <option value="">Seleccionar</option>
-                  <option value="de">de</option>
-                  <option value="del">del</option>
-                  <option value="la">la</option>
-                  <option value="las">las</option>
-                  <option value="los">los</option>
-                </select>
-              )}
-            />
-          </div>
+          
         </div>
 
         {/* Con autorización de tercero */}

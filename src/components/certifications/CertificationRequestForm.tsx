@@ -73,55 +73,15 @@ export const CertificationRequestForm = ({ onNext, onBack }: CertificationReques
 
           {/* Entidad destino */}
           <div>
-            <label className="block text-sm font-medium mb-1">Entidad destino</label>
+            <label className="block text-sm font-medium mb-1">Destino</label>
             <Controller
               name="entidadDestino"
               control={control}
               render={({ field }) => (
                 <select {...field} className="input w-full">
+                  <option value="Entidades">ENTIDADES</option>
                   <option value="FONDO DE PENSIÓN">FONDO DE PENSIÓN</option>
-                  <option value="BANCO">BANCO</option>
-                  <option value="EMPRESA">EMPRESA</option>
-                  <option value="UNIVERSIDAD">UNIVERSIDAD</option>
-                  <option value="GOBIERNO">GOBIERNO</option>
                 </select>
-              )}
-            />
-          </div>
-        </div>
-
-        <hr className="border-gray-200 mb-8" />
-
-        <h2 className="mb-4 text-md font-normal">Autorizador trámite</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {/* Funcionario */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Funcionario <span className="text-red-500">*</span></label>
-            <Controller
-              name="funcionario"
-              control={control}
-              rules={{ required: "El funcionario es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="text" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Oficina */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Oficina <span className="text-red-500">*</span></label>
-            <Controller
-              name="oficina"
-              control={control}
-              rules={{ required: "La oficina es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="text" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
               )}
             />
           </div>
@@ -142,6 +102,7 @@ export const CertificationRequestForm = ({ onNext, onBack }: CertificationReques
             Siguiente
           </button>
         </div>
+
       </section>
     </form>
   );
