@@ -10,7 +10,7 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
     defaultValues: {
       numeroRegistroSolicitud: "",
       numeroPasaporte: "AA12345678",
-      nacionalidad: "SELECCIONADA",
+      nacionalidad: "ECUATORIANA",
       solicitudDe: "VISA",
       categoriaVisa: "TRABAJADOR",
       claseVisa: "VISITANTE",
@@ -32,19 +32,37 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
         aria-label="visa-applicant-form"
         className="w-full"
       >
-        <h2 className="mb-4 text-lg font-semibold">Datos de la Solicitud</h2>
         
-        {/* Datos Solicitud */}
-        <h3 className="mb-4 text-md font-normal">Datos Solicitud</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {/* Número de registro de solicitud */}
+
+        {/* Solicitud */}
+        <h3 className="mb-4 text-md font-normal">Solicitud</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {/* Número de Pasaporte */}
           <div>
-            <label className="block text-sm font-medium mb-1">Número de registro de solicitud</label>
+            <label className="block text-sm font-medium mb-1">Número de Pasaporte <span className="text-red-500">*</span></label>
             <Controller
-              name="numeroRegistroSolicitud"
+              name="numeroPasaporte"
               control={control}
+              disabled
               render={({ field }) => (
-                <input {...field} type="text" className="input w-full" />
+                <>
+                  <input {...field} type="text" className="input w-full bg-gray-100 text-gray-500 cursor-not-allowed" />
+                </>
+              )}
+            />
+          </div>
+
+          {/* Nacionalidad */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
+            <Controller
+              name="nacionalidad"
+              control={control}
+              disabled
+              render={({ field }) => (
+                <>
+                  <input {...field} type="text" className="input w-full bg-gray-100 text-gray-500 cursor-not-allowed" />
+                </>
               )}
             />
           </div>
@@ -63,59 +81,7 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
           </div>
         </div>
 
-        <hr className="border-gray-200 mb-8" />
-
-        {/* Solicitud */}
-        <h3 className="mb-4 text-md font-normal">Solicitud</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {/* Número de Pasaporte */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Número de Pasaporte <span className="text-red-500">*</span></label>
-            <Controller
-              name="numeroPasaporte"
-              control={control}
-              rules={{ required: "El número de pasaporte es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="text" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Nacionalidad */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
-            <Controller
-              name="nacionalidad"
-              control={control}
-              rules={{ required: "La nacionalidad es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="SELECCIONADA">SELECCIONADA</option>
-                    <option value="Colombiana">Colombiana</option>
-                    <option value="Venezolana">Venezolana</option>
-                    <option value="Ecuatoriana">Ecuatoriana</option>
-                    <option value="Peruana">Peruana</option>
-                    <option value="Brasileña">Brasileña</option>
-                    <option value="Argentina">Argentina</option>
-                    <option value="Chilena">Chilena</option>
-                    <option value="Mexicana">Mexicana</option>
-                    <option value="Estadounidense">Estadounidense</option>
-                    <option value="Española">Española</option>
-                    <option value="Francesa">Francesa</option>
-                    <option value="Alemana">Alemana</option>
-                    <option value="Italiana">Italiana</option>
-                    <option value="Británica">Británica</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
           {/* Solicitud de */}
           <div>
             <label className="block text-sm font-medium mb-1">Solicitud de <span className="text-red-500">*</span></label>
@@ -129,6 +95,27 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
                     <option value="VISA">VISA</option>
                     <option value="TRASPASO">TRASPASO</option>
                     <option value="PRORROGA">PRÓRROGA</option>
+                  </select>
+                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
+                </>
+              )}
+            />
+          </div>
+          
+          {/* Clase de Visa */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Clase de Visa <span className="text-red-500">*</span></label>
+            <Controller
+              name="claseVisa"
+              control={control}
+              rules={{ required: "La clase de visa es obligatoria" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <select {...field} className="input w-full">
+                    <option value="VISITANTE">VISITANTE</option>
+                    <option value="MIGRANTE">MIGRANTE</option>
+                    <option value="RESIDENTE">RESIDENTE</option>
+                    <option value="TRANSITORIA">TRANSITORIA</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -159,26 +146,6 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
             />
           </div>
 
-          {/* Clase de Visa */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Clase de Visa <span className="text-red-500">*</span></label>
-            <Controller
-              name="claseVisa"
-              control={control}
-              rules={{ required: "La clase de visa es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="VISITANTE">VISITANTE</option>
-                    <option value="MIGRANTE">MIGRANTE</option>
-                    <option value="RESIDENTE">RESIDENTE</option>
-                    <option value="TRANSITORIA">TRANSITORIA</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
 
           {/* Tipo de Solicitud */}
           <div>

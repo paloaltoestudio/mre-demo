@@ -11,7 +11,7 @@ export const VisaWizard = () => {
 
   // Definir los pasos dinámicamente según el tipo de documento
   const steps = [
-    "Selección del trámite solicitud visa",
+    "Datos del documento",
     "Datos de la solicitud",
     "Datos del solicitante",
     // Solo incluir el paso de menor si el usuario ya seleccionó tipo de documento y no es CC

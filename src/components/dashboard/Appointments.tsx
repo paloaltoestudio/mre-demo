@@ -70,9 +70,7 @@ export const AppointmentCards = () => {
   const [token, setToken] = useState<ResponseHashType>();
   const [noAppointmentsMsg, setNoAppointmentsMsg] = useState<string>("");
 
-  useEffect(() => {
-    handleExternalLogin();
-  }, []);
+
 
   useEffect(() => {
     const rawHash = searchParams.get("hash");
@@ -215,17 +213,17 @@ export const AppointmentCards = () => {
     },
   });
 
-  const handleExternalLogin = async () => {
-    await MutateLoginAsync({
-      url: "https://www.iaidentity.com/ApiCancilleria/api/authenticate",
-      schema: CreateExternalLoginSchema,
-      body: {
-        username: "UserCancilleria",
-        password: "c4nc1ll3r1a.2024",
-      },
-      ext: true,
-    });
-  };
+  // const handleExternalLogin = async () => {
+  //   await MutateLoginAsync({
+  //     url: "https://www.iaidentity.com/ApiCancilleria/api/authenticate",
+  //     schema: CreateExternalLoginSchema,
+  //     body: {
+  //       username: "UserCancilleria",
+  //       password: "c4nc1ll3r1a.2024",
+  //     },
+  //     ext: true,
+  //   });
+  // };
 
   const { mutateAsync: removeAsync } = useMutation({
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
@@ -360,6 +358,18 @@ export const AppointmentCards = () => {
   useEffect(() => {
     handleAppointment();
   }, [activeUser]);
+
+  // Efecto para recargar citas cuando se regresa de una cancelación
+  useEffect(() => {
+    const reloadParam = searchParams.get("reload");
+    if (reloadParam === "true" && activeUser) {
+      handleAppointment();
+      // Limpiar el parámetro de la URL
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("reload");
+      navigate(`/dashboard/appointments?${newSearchParams.toString()}`, { replace: true });
+    }
+  }, [searchParams, activeUser]);
 
   return (
     <div className="p-6">

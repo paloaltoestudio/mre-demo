@@ -15,7 +15,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
       segundoNombre: "Andres",
       primerApellido: "Pérez",
       segundoApellido: "Casas",
-      numeroPasaporte: "123456789",
+      numeroPasaporte: "AA12345678",
       fechaExpedicionPasaporte: "",
       fechaVencimientoPasaporte: "",
       paisNacimiento: "",
@@ -25,28 +25,33 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
       paisResidencia: "",
       ciudadResidencia: "",
       lugarResidencia: "",
-      otraNacionalidad: ""
+      otraNacionalidad: "",
+      autoridad: ""
     }
   });
 
   // Mostrar modal informativo al cargar el componente
   useEffect(() => {
     Swal.fire({
-      title: '<div class="flex items-center gap-3"><div class="text-blue-600 text-4xl">⚠️</div><span class="text-xl font-bold">Requisitos de la solicitud</span></div>',
+      icon: 'warning',
+      title: '<span style="font-size: 1.5rem; font-weight: bold;">Requisitos de la solicitud</span>',
       html: `
         <div class="text-left">
           <p class="font-semibold mb-3">Instrucciones generales:</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Contar con un pasaporte o documento de viaje vigente, en buen estado y con espacio libre para visados.</li>
-            <li>Llenar el formulario electrónico de solicitud de visa.</li>
-            <li>Todos los documentos requisitos diferentes a documentos de identidad o de viaje deberán tener una fecha de expedición no mayor a tres meses antes del registro de la solicitud.</li>
-            <li>Todos los documentos provenientes del exterior deberán contar con apostilla o legalización y traducción oficial al castellano cuando no se encuentre en este idioma. La traducción oficial debe estar legalizada o apostillada según el caso.</li>
-            <li>En el caso de requerirse la presentación de los extractos bancarios, estos los podrá presentar sin apostilla o legalización y sin traducción al castellano, si su contenido puede ser establecido claramente por el oficial de visa.</li>
-            <li>En el caso de requerirse la presentación de los antecedentes judiciales, cuando la solicitud de esta visa se presente ante un consulado de Colombia con sede en el país de origen del extranjero, bastará la certificación de antecedentes judiciales o penales conforme a los procedimientos establecidos en ese país. Cuando la solicitud se presente ante el Grupo Interno de Trabajo de Visa e Inmigración, podrá presentar los antecedentes judiciales o penales certificados por el consulado del país de origen acreditado en Colombia o apostillados y legalizados según el caso.</li>
+            <li>Lea con detenimiento y diligencie la información que se solicita sin errores tipográficos o de digitación. Cualquier imprecisión o equivocación en la información que suministre en este formulario, da lugar a la inadmisión de la solicitud sin reembolso de valores pagados.</li>
+            <li>Debe disponer de al menos 30 minutos para realizar su solicitud en línea.</li>
+            <li>Para iniciar este proceso de solicitud en línea debe disponer de una foto de 3x4cm, a color, con fondo blanco, reciente, de frente, sin accesorios, rostro despejado, en formato JPG de máximo 300 KB. Documentos individuales en formato PDF, legibles, se sugiere en blanco y negro. El peso máximo permitido para el total de documentos adjuntados a una solicitud es de 5MB.</li>
+            <li>Consulte los medios de pago en http://www.cancilleria.gov.co/tramites_servicios/visa/costos-medios-pago-oficinas-atencion</li>
+            <li>Si ya había realizado su solicitud en línea y tiene el número de solicitud, puede actualizar su información ingresando la información requerida. Si no recuerda su número de solicitud contacte a Centro de Atención al Ciudadano +57 (1) 3826999 - Número gratuito nacional: 01 8000 938 000.</li>
+            <li>Tenga en cuenta que, no deberá acudir a la Oficina de Visas en Bogotá a menos que la Autoridad de Visas lo requiera a través de notificación enviada al correo electrónico registrado en el formulario. El trámite de solicitud de visa será atendido en línea.</li>
+            <li>Revise la guía para el diligenciamiento del formulario de solicitud en línea en este link</li>
+            <li>Una visa no garantiza el ingreso al territorio colombiano, sólo permite que un extranjero viaje a un puerto de entrada en Colombia y solicite permiso para ingresar al país de conformidad con la visa que le ha sido expedida.</li>
+            <li>La lista de países o territorios no implica el reconocimiento del nombre o de la condición jurídica de cada uno de ellos.</li>
           </ol>
         </div>
       `,
-      width: '800px',
+      width: '80%',
       confirmButtonText: 'Aceptar para continuar',
       confirmButtonColor: '#2563eb',
       allowOutsideClick: false,
@@ -67,88 +72,10 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
         aria-label="visa-process-selection-form"
         className="w-full"
       >
-        <h2 className="mb-4 text-md font-normal">Selección del trámite solicitud visa</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {/* Tramitada por */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Tramitada por <span className="text-red-500">*</span></label>
-            <Controller
-              name="tramitadaPor"
-              control={control}
-              rules={{ required: "El campo tramitada por es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="TÍTULO PROPIO">TÍTULO PROPIO</option>
-                    <option value="TÍTULO DE TERCERO">TÍTULO DE TERCERO</option>
-                    <option value="PODER ESPECIAL">PODER ESPECIAL</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-        </div>
 
-        <hr className="border-gray-200 mb-8" />
+        <h2 className="mb-4 text-md font-normal">Datos documento</h2>
 
-        <h2 className="mb-4 text-md font-normal">Datos personales del titular de la solicitud</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          {/* Primer Nombre */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Primer Nombre <span className="text-red-500">*</span></label>
-            <Controller
-              name="primerNombre"
-              control={control}
-              rules={{ required: "El primer nombre es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="text" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Segundo Nombre */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Segundo Nombre</label>
-            <Controller
-              name="segundoNombre"
-              control={control}
-              render={({ field }) => (
-                <input {...field} type="text" className="input w-full" />
-              )}
-            />
-          </div>
-
-          {/* Primer Apellido */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Primer Apellido <span className="text-red-500">*</span></label>
-            <Controller
-              name="primerApellido"
-              control={control}
-              rules={{ required: "El primer apellido es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="text" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Segundo Apellido */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Segundo Apellido</label>
-            <Controller
-              name="segundoApellido"
-              control={control}
-              render={({ field }) => (
-                <input {...field} type="text" className="input w-full" />
-              )}
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
           {/* Número de pasaporte */}
           <div>
@@ -160,38 +87,6 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
               render={({ field, fieldState }) => (
                 <>
                   <input {...field} type="text" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Fecha de expedición pasaporte */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Fecha de expedición pasaporte <span className="text-red-500">*</span></label>
-            <Controller
-              name="fechaExpedicionPasaporte"
-              control={control}
-              rules={{ required: "La fecha de expedición es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="date" placeholder="dd/mm/yyyy" className="input w-full" />
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Fecha de vencimiento del pasaporte */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Fecha de vencimiento del pasaporte <span className="text-red-500">*</span></label>
-            <Controller
-              name="fechaVencimientoPasaporte"
-              control={control}
-              rules={{ required: "La fecha de vencimiento es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <input {...field} type="date" placeholder="dd/mm/yyyy" className="input w-full" />
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
               )}
@@ -230,41 +125,13 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
             />
           </div>
 
-          {/* Ciudad de nacimiento */}
+          {/* Fecha de expedición pasaporte */}
           <div>
-            <label className="block text-sm font-medium mb-1">Ciudad de nacimiento <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium mb-1">Fecha de expedición pasaporte <span className="text-red-500">*</span></label>
             <Controller
-              name="ciudadNacimiento"
+              name="fechaExpedicionPasaporte"
               control={control}
-              rules={{ required: "La ciudad de nacimiento es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="Bogota">Bogotá</option>
-                    <option value="Medellin">Medellín</option>
-                    <option value="Cali">Cali</option>
-                    <option value="Barranquilla">Barranquilla</option>
-                    <option value="Cartagena">Cartagena</option>
-                    <option value="Bucaramanga">Bucaramanga</option>
-                    <option value="Pereira">Pereira</option>
-                    <option value="Manizales">Manizales</option>
-                    <option value="Ibague">Ibagué</option>
-                    <option value="Villavicencio">Villavicencio</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Fecha de nacimiento */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Fecha de nacimiento <span className="text-red-500">*</span></label>
-            <Controller
-              name="fechaNacimiento"
-              control={control}
-              rules={{ required: "La fecha de nacimiento es obligatoria" }}
+              rules={{ required: "La fecha de expedición es obligatoria" }}
               render={({ field, fieldState }) => (
                 <>
                   <input {...field} type="date" placeholder="dd/mm/yyyy" className="input w-full" />
@@ -274,133 +141,32 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
             />
           </div>
 
-          {/* Género */}
+          {/* Fecha de vencimiento del pasaporte */}
           <div>
-            <label className="block text-sm font-medium mb-1">Género <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium mb-1">Fecha de vencimiento del pasaporte <span className="text-red-500">*</span></label>
             <Controller
-              name="genero"
+              name="fechaVencimientoPasaporte"
               control={control}
-              rules={{ required: "El género es obligatorio" }}
+              rules={{ required: "La fecha de vencimiento es obligatoria" }}
               render={({ field, fieldState }) => (
                 <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                    <option value="No binario">No binario</option>
-                    <option value="Prefiero no decir">Prefiero no decir</option>
-                  </select>
+                  <input {...field} type="date" placeholder="dd/mm/yyyy" className="input w-full" />
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
               )}
             />
           </div>
 
-          {/* País de residencia */}
-          <div>
-            <label className="block text-sm font-medium mb-1">País de residencia <span className="text-red-500">*</span></label>
+           {/* Autoridad */}
+           <div>
+            <label className="block text-sm font-medium mb-1">Autoridad</label>
             <Controller
-              name="paisResidencia"
-              control={control}
-              rules={{ required: "El país de residencia es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="Colombia">Colombia</option>
-                    <option value="Venezuela">Venezuela</option>
-                    <option value="Ecuador">Ecuador</option>
-                    <option value="Peru">Perú</option>
-                    <option value="Brasil">Brasil</option>
-                    <option value="Argentina">Argentina</option>
-                    <option value="Chile">Chile</option>
-                    <option value="Mexico">México</option>
-                    <option value="Estados Unidos">Estados Unidos</option>
-                    <option value="España">España</option>
-                    <option value="Francia">Francia</option>
-                    <option value="Alemania">Alemania</option>
-                    <option value="Italia">Italia</option>
-                    <option value="Reino Unido">Reino Unido</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Ciudad de residencia */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Ciudad de residencia <span className="text-red-500">*</span></label>
-            <Controller
-              name="ciudadResidencia"
-              control={control}
-              rules={{ required: "La ciudad de residencia es obligatoria" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="Bogota">Bogotá</option>
-                    <option value="Medellin">Medellín</option>
-                    <option value="Cali">Cali</option>
-                    <option value="Barranquilla">Barranquilla</option>
-                    <option value="Cartagena">Cartagena</option>
-                    <option value="Bucaramanga">Bucaramanga</option>
-                    <option value="Pereira">Pereira</option>
-                    <option value="Manizales">Manizales</option>
-                    <option value="Ibague">Ibagué</option>
-                    <option value="Villavicencio">Villavicencio</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Lugar de residencia */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Lugar de residencia <span className="text-red-500">*</span></label>
-            <Controller
-              name="lugarResidencia"
-              control={control}
-              rules={{ required: "El lugar de residencia es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="Urbano">Urbano</option>
-                    <option value="Rural">Rural</option>
-                    <option value="Semiurbano">Semiurbano</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* Otra nacionalidad */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Otra nacionalidad</label>
-            <Controller
-              name="otraNacionalidad"
+              name="autoridad"
               control={control}
               render={({ field }) => (
-                <select {...field} className="input w-full">
-                  <option value="">Seleccionar</option>
-                  <option value="Colombiana">Colombiana</option>
-                  <option value="Venezolana">Venezolana</option>
-                  <option value="Ecuatoriana">Ecuatoriana</option>
-                  <option value="Peruana">Peruana</option>
-                  <option value="Brasileña">Brasileña</option>
-                  <option value="Argentina">Argentina</option>
-                  <option value="Chilena">Chilena</option>
-                  <option value="Mexicana">Mexicana</option>
-                  <option value="Estadounidense">Estadounidense</option>
-                  <option value="Española">Española</option>
-                  <option value="Francesa">Francesa</option>
-                  <option value="Alemana">Alemana</option>
-                  <option value="Italiana">Italiana</option>
-                  <option value="Británica">Británica</option>
-                </select>
+                <>
+                  <input {...field} type="text" className="input w-full" />
+                </>
               )}
             />
           </div>

@@ -163,7 +163,7 @@ export const VerificationViews = () => {
         } else navigate("/auth/verification-files");
       } else {
         if (official) navigate("/auth/official");
-        else navigate("/dashboard/appointments");
+        else navigate("/dashboard/appointments?reload=true");
         if (locationVerification === "Reagendar") {
           await handleSubmit();
         } else if (
