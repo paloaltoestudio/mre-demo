@@ -94,7 +94,6 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
                   <select {...field} className="input w-full">
                     <option value="VISA">VISA</option>
                     <option value="TRASPASO">TRASPASO</option>
-                    <option value="PRORROGA">PRÓRROGA</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -112,10 +111,10 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
               render={({ field, fieldState }) => (
                 <>
                   <select {...field} className="input w-full">
-                    <option value="VISITANTE">VISITANTE</option>
                     <option value="MIGRANTE">MIGRANTE</option>
                     <option value="RESIDENTE">RESIDENTE</option>
-                    <option value="TRANSITORIA">TRANSITORIA</option>
+                    <option value="RESIDENTE ESPECIAL DE PAZ">RESIDENTE ESPECIAL DE PAZ</option>
+                    <option value="VISITANTE">VISITANTE</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -133,12 +132,33 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
               render={({ field, fieldState }) => (
                 <>
                   <select {...field} className="input w-full">
-                    <option value="TRABAJADOR">TRABAJADOR</option>
-                    <option value="ESTUDIANTE">ESTUDIANTE</option>
-                    <option value="TURISTA">TURISTA</option>
-                    <option value="INVERSIONISTA">INVERSIONISTA</option>
-                    <option value="FAMILIAR">FAMILIAR</option>
-                    <option value="DIPLOMATICO">DIPLOMÁTICO</option>
+                  <option value="Asistencia tecnica">Asistencia tecnica</option>
+                  <option value="Caso no previstos">Caso no previstos</option>
+                  <option value="Corresponsal permanente">Corresponsal permanente</option>
+                  <option value="Cortesia">Cortesia</option>
+                  <option value="Cubrimiento periodistico">Cubrimiento periodistico</option>
+                  <option value="Emperesarios TLC">Emperesarios TLC</option>
+                  <option value="Estudiante">Estudiante</option>
+                  <option value="Estudiante/ voluntario religioso">Estudiante/ voluntario religioso</option>
+                  <option value="Eventos">Eventos</option>
+                  <option value="Fomento a la internacionalizacion">Fomento a la internacionalizacion</option>
+                  <option value="Negocios">Negocios</option>
+                  <option value="Nomada Digital">Nomada Digital</option>
+                  <option value="Oficiales no acreditados">Oficiales no acreditados</option>
+                  <option value="Prestado de servicios- obra o labor">Prestado de servicios- obra o labor</option>
+                  <option value="Producciones cinematográficas o documentales de gran formato">Producciones cinematográficas o documentales de gran formato</option>
+                  <option value="Práctica laboral">Práctica laboral</option>
+                  <option value="Religioso">Religioso</option>
+                  <option value="Rentista">Rentista</option>
+                  <option value="Trabajados agricola de temporada">Trabajados agricola de temporada</option>
+                  <option value="Tramistes administrativos y/o judiciales">Tramistes administrativos y/o judiciales</option>
+                  <option value="Transito aeroportuario">Transito aeroportuario</option>
+                  <option value="Tratamiento medico">Tratamiento medico</option>
+                  <option value="Tripulante">Tripulante</option>
+                  <option value="Turismo">Turismo</option>
+                  <option value="Vacaciones y  trabajo">Vacaciones y  trabajo</option>
+                  <option value="Visitante especial">Visitante especial</option>
+                  <option value="Voluntarios coiperantes">Voluntarios coiperantes</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -156,7 +176,11 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
               rules={{ required: "El tipo de solicitud es obligatorio" }}
               render={({ field, fieldState }) => (
                 <>
-                  <input {...field} type="text" className="input w-full" />
+                  <select {...field} className="input w-full">
+                    <option value="">Seleccione una opción</option>
+                    <option value="Individual">Individual</option>
+                    <option value="Grupo familiar">Grupo familiar</option>
+                  </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
               )}
@@ -174,8 +198,7 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
                 <>
                   <select {...field} className="input w-full">
                     <option value="TITULAR PRINCIPAL">TITULAR PRINCIPAL</option>
-                    <option value="DEPENDIENTE">DEPENDIENTE</option>
-                    <option value="ACOMPAÑANTE">ACOMPAÑANTE</option>
+                    <option value="TITULAR PRINCIPAL">TITULAR BENEFICIARIO</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -194,8 +217,7 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
                 <>
                   <select {...field} className="input w-full">
                     <option value="DIRECTAMENTE POR EXTRANJERO">DIRECTAMENTE POR EXTRANJERO</option>
-                    <option value="POR INTERMEDIARIO">POR INTERMEDIARIO</option>
-                    <option value="POR REPRESENTANTE LEGAL">POR REPRESENTANTE LEGAL</option>
+                    <option value="Apoderado">Apoderado</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>

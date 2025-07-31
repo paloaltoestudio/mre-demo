@@ -191,7 +191,6 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                     <option value="Masculino">Masculino</option>
                     <option value="Femenino">Femenino</option>
                     <option value="No binario">No binario</option>
-                    <option value="Prefiero no decir">Prefiero no decir</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -210,12 +209,13 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Soltero">Soltero</option>
                     <option value="Casado">Casado</option>
-                    <option value="Divorciado">Divorciado</option>
-                    <option value="Viudo">Viudo</option>
-                    <option value="Unión Libre">Unión Libre</option>
-                    <option value="Separado">Separado</option>
+                    <option value="Divorciado (a)">Divorciado (a)</option>
+                    <option value="Separado de matrimonio">Separado de matrimonio</option>
+                    <option value="Separado de unión libre">Separado de unión libre</option>
+                    <option value="Soltero(a)">Soltero(a)</option>
+                    <option value="Unión libre">Unión libre</option>
+                    <option value="Viudo (a)">Viudo (a)</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -365,11 +365,14 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                   className="input w-full"
                 >
                   <option value="">Seleccionar</option>
-                  <option value="CC">Cédula de Ciudadanía</option>
-                  <option value="TI">Tarjeta de Identidad</option>
-                  <option value="RC">Registro Civil</option>
-                  <option value="CE">Cédula de Extranjería</option>
-                  <option value="PP">Pasaporte</option>
+                  <option value="Cédula de ciudadania">Cédula de ciudadania</option>
+                  <option value="Cédula de extranjería colombiana">Cédula de extranjería colombiana</option>
+                  <option value="Cedula extranjeria">Cedula extranjeria</option>
+                  <option value="Documento extranjero">Documento extranjero</option>
+                  <option value="Pasaporte">Pasaporte</option>
+                  <option value="Permiso especial permanencia">Permiso especial permanencia</option>
+                  <option value="Registro civil">Registro civil</option>
+                  <option value="Tarjeta de identidad">Tarjeta de identidad</option>
                 </select>
               </div>
 
@@ -584,15 +587,20 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Primaria">Primaria</option>
-                    <option value="Secundaria">Secundaria</option>
-                    <option value="Técnico">Técnico</option>
-                    <option value="Tecnólogo">Tecnólogo</option>
-                    <option value="Pregrado">Pregrado</option>
-                    <option value="Especialización">Especialización</option>
-                    <option value="Maestría">Maestría</option>
+                    <option value="Básica primaria (1°-5°)">Básica primaria (1°-5°)</option>
+                    <option value="Básica secundaria (6°-9°)">Básica secundaria (6°-9°)</option>
                     <option value="Doctorado">Doctorado</option>
-                    <option value="Postdoctorado">Postdoctorado</option>
+                    <option value="Especialización">Especialización</option>
+                    <option value="Formación para el trabajo y el desarrollo humano">Formación para el trabajo y el desarrollo humano</option>
+                    <option value="Maestría">Maestría</option>
+                    <option value="Media académica o clásico (bachiller clásico)">Media académica o clásico (bachiller clásico)</option>
+                    <option value="Media técnica (bachiller técnico)">Media técnica (bachiller técnico)</option>
+                    <option value="Ninguna">Ninguna</option>
+                    <option value="Normalista">Normalista</option>
+                    <option value="Prescolar">Prescolar</option>
+                    <option value="Técnica profesional">Técnica profesional</option>
+                    <option value="Tecnológica">Tecnológica</option>
+                    <option value="Universitario">Universitario</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -611,14 +619,16 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Bachiller">Bachiller</option>
-                    <option value="Técnico">Técnico</option>
-                    <option value="Tecnólogo">Tecnólogo</option>
-                    <option value="Profesional">Profesional</option>
-                    <option value="Especialista">Especialista</option>
-                    <option value="Magíster">Magíster</option>
-                    <option value="Doctor">Doctor</option>
-                    <option value="Postdoctor">Postdoctor</option>
+                    <option value="Doctorado">Doctorado</option>
+                    <option value="Especialización">Especialización</option>
+                    <option value="Maestría">Maestría</option>
+                    <option value="Media académica (bachiller clásico)">Media académica (bachiller clásico)</option>
+                    <option value="Media técnica (bachiller técnico)">Media técnica (bachiller técnico)</option>
+                    <option value="Ninguno">Ninguno</option>
+                    <option value="Normalista">Normalista</option>
+                    <option value="Técnico profesional">Técnico profesional</option>
+                    <option value="Tecnológica">Tecnológica</option>
+                    <option value="Universitario">Universitario</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -637,15 +647,17 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Ciencias Naturales">Ciencias Naturales</option>
-                    <option value="Ingeniería y Tecnología">Ingeniería y Tecnología</option>
-                    <option value="Ciencias Médicas y de la Salud">Ciencias Médicas y de la Salud</option>
-                    <option value="Ciencias Agrícolas">Ciencias Agrícolas</option>
-                    <option value="Ciencias Sociales">Ciencias Sociales</option>
-                    <option value="Humanidades">Humanidades</option>
+                    <option value="Administración de empresas y derecho">Administración de empresas y derecho</option>
+                    <option value="Agropecuario, silvicultura, pesca y veterinaria">Agropecuario, silvicultura, pesca y veterinaria</option>
+                    <option value="Artes y humanidades">Artes y humanidades</option>
+                    <option value="Ciencias naturales, matemáticas y estadística">Ciencias naturales, matemáticas y estadística</option>
+                    <option value="Ciencias sociales, periodismo e información">Ciencias sociales, periodismo e información</option>
                     <option value="Educación">Educación</option>
-                    <option value="Arte y Arquitectura">Arte y Arquitectura</option>
-                    <option value="Administración y Economía">Administración y Economía</option>
+                    <option value="Ingeniería, industria y construcción">Ingeniería, industria y construcción</option>
+                    <option value="Programas y certificaciones genéricos">Programas y certificaciones genéricos</option>
+                    <option value="Salud y bienestar">Salud y bienestar</option>
+                    <option value="Servicios">Servicios</option>
+                    <option value="Tecnologías de la información y la comunicación (TIC)">Tecnologías de la información y la comunicación (TIC)</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -664,20 +676,12 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Matemáticas">Matemáticas</option>
-                    <option value="Física">Física</option>
-                    <option value="Química">Química</option>
-                    <option value="Biología">Biología</option>
-                    <option value="Ingeniería Civil">Ingeniería Civil</option>
-                    <option value="Ingeniería Eléctrica">Ingeniería Eléctrica</option>
-                    <option value="Ingeniería Mecánica">Ingeniería Mecánica</option>
-                    <option value="Medicina">Medicina</option>
-                    <option value="Enfermería">Enfermería</option>
-                    <option value="Psicología">Psicología</option>
-                    <option value="Derecho">Derecho</option>
-                    <option value="Administración de Empresas">Administración de Empresas</option>
-                    <option value="Contaduría">Contaduría</option>
-                    <option value="Economía">Economía</option>
+                    <option value="Artes dramáticas y representativas">Artes dramáticas y representativas</option>
+                    <option value="Artes plásticos, visuales y afines">Artes plásticos, visuales y afines</option>
+                    <option value="Diseño">Diseño</option>
+                    <option value="Música">Música</option>
+                    <option value="Otro programa de bellas artes">Otro programa de bellas artes</option>
+                    <option value="Publicidad y afines">Publicidad y afines</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -900,9 +904,9 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Si">Sí</option>
-                    <option value="No">No</option>
-                    <option value="Parcialmente">Parcialmente</option>
+                    <option value="Por el propio solicitante">Por el propio solicitante</option>
+                    <option value="Por un patrocinador (familiar, anfitrión, empresa u organización)">Por un patrocinador (familiar, anfitrión, empresa u organización)</option>
+                    <option value="Otra (especificar)">Otra (especificar)</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
