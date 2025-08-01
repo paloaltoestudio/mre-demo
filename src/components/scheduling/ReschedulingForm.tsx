@@ -13,12 +13,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPublicRequest } from "../../services/fetchingService";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faCircleExclamation,
+  faCircleCheck 
+} from "@fortawesome/free-solid-svg-icons";
 import type { ResponseTokenType } from "../../types/auth/hashSchemas";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { useNavigate } from "react-router-dom";
 
 type formType = {
   date: Date;
-  hora: string;
+  hora: any; // Cambiado a any porque puede ser un objeto con availabilityId
 };
 
 export type ReschedulingProps = {
@@ -39,19 +44,107 @@ export const ReschedulingForm = ({
   setIsOpenResume,
 }: ReschedulingProps) => {
   const [dates, setDates] = useState<DateSchemaType[]>();
+  const [isLoading, setIsLoading] = useState(false);
+  const { toSavedDate, setRemoveSavedDate } = SchedulingsStore();
+  const navigate = useNavigate();
+  
   useEffect(() => {
     console.log("agenda", scheduled);
   }, []);
 
-  const onSubmit = (data: formType) => {
-    const scheduledData: AppointmentType = {
-      ...scheduled,
-      date: data.date.toString(),
-      time: data.hora,
-    };
+  const onSubmit = async (data: formType) => {
+    if (!toSavedDate) {
+      toast.error("Por favor selecciona una fecha y hora", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+      return;
+    }
 
-    setRescheduledData(scheduledData);
-    setIsOpenResume(true);
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Token para reagendamiento:', token);
+      
+      const reschedulingData = {
+        appointmentOldId: scheduled.appointmentId,
+        availabilityBlockId: toSavedDate,
+      };
+      
+      console.log('Datos de reagendamiento:', reschedulingData);
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/Appointment/reschedule-appointment`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(reschedulingData),
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Respuesta exitosa:', responseData);
+        toast.success("Cita reagendada correctamente", {
+          icon: (
+            <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+          ),
+          autoClose: 3000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+        });
+        setRemoveSavedDate(); // Limpiar el estado
+        setIsOpen(false); // Cerrar el modal
+        // Navegar a las citas actualizadas
+        navigate("/dashboard/appointments?reload=true");
+      } else {
+        const errorData = await response.json();
+        console.error('Error en reagendamiento:', errorData);
+        toast.error("Error al reagendar la cita", {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 3000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
+      }
+    } catch (error) {
+      console.error('Error en reagendamiento:', error);
+      toast.error("Error al reagendar la cita", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // const { procedure } = SchedulingsStore();
@@ -193,9 +286,10 @@ export const ReschedulingForm = ({
                   </button>
                   <button
                     type="submit"
-                    className="text-white font-medium hover:cursor-pointer hover:bg- text-sm p-2 duration-150 hover:bg-blue-700 border-1 border-blue-600  bg-blue-600 rounded-full min-w-[100px]"
+                    disabled={isLoading}
+                    className="text-white font-medium hover:cursor-pointer hover:bg- text-sm p-2 duration-150 hover:bg-blue-700 border-1 border-blue-600  bg-blue-600 rounded-full min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Reagendar
+                    {isLoading ? "Reagendando..." : "Reagendar"}
                   </button>
                 </>
               )}

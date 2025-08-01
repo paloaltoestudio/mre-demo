@@ -35,11 +35,10 @@ import {
   CreateTokenSchema,
 } from "../../schemas/Auth/hashSchemas";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
-import type { ResponseExternalLoginType } from "../../types/dashboard/externalLoginTypes";
-import { CreateExternalLoginSchema } from "../../schemas/appointments/externalLogin.schema";
+
+
 import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
 import { ReschedulingForm } from "../scheduling/ReschedulingForm";
-import { ReschedulingResume } from "../scheduling/ReschedulingResume";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -137,8 +136,6 @@ export const AppointmentCards = () => {
     setUserId,
     setExternalId,
     setLocationVerification,
-    setGlobalToken,
-    setOfficial,
   } = SessionStore();
   const { mutateAsync: MutateToken } = useMutation({
     mutationFn: postPublicRequest<ResponsesTokenType>,
@@ -189,29 +186,7 @@ export const AppointmentCards = () => {
     }
   };
 
-  const { mutateAsync: MutateLoginAsync } = useMutation({
-    mutationFn: postPublicRequest<ResponseExternalLoginType>,
-    onSuccess: (data: ResponseExternalLoginType) => {
-      console.log("externalLogin", data);
-      setGlobalToken(data?.token);
-      setOfficial(false);
-    },
-    onError: () => {
-      toast.error("Ocurrió un error al iniciar la sesión", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-red-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-      });
-    },
-  });
+
 
   // const handleExternalLogin = async () => {
   //   await MutateLoginAsync({
@@ -357,13 +332,18 @@ export const AppointmentCards = () => {
   };
 
   useEffect(() => {
-    handleAppointment();
+    console.log("AppointmentCards: activeUser changed", activeUser);
+    if (activeUser) {
+      handleAppointment();
+    }
   }, [activeUser]);
 
   // Efecto para recargar citas cuando se regresa de una cancelación
   useEffect(() => {
     const reloadParam = searchParams.get("reload");
+    console.log("AppointmentCards: reload param", reloadParam, "activeUser", activeUser);
     if (reloadParam === "true" && activeUser) {
+      console.log("AppointmentCards: Reloading appointments");
       handleAppointment();
       // Limpiar el parámetro de la URL
       const newSearchParams = new URLSearchParams(searchParams);
@@ -372,6 +352,8 @@ export const AppointmentCards = () => {
     }
   }, [searchParams, activeUser]);
 
+  console.log("AppointmentCards: Rendering component", { activeUser, loader, sche, noAppointmentsMsg });
+  
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Mis agendamientos</h2>
@@ -441,13 +423,13 @@ export const AppointmentCards = () => {
           return filteredAppointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
-                className={`${appt.appointmentId} bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2`}
+                className="bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2"
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">
-                    Fecha: {`${appt.date ? appt.date : ""}`}{" "}
+                    Fecha: {`${typeof appt.date === 'string' ? appt.date : ""}`}{" "}
                     {/* <br />Oficina: {appt.officeId} <br /> */}
-                    {format(toDate(appt?.time), "hh:mm a")}
+                    {typeof appt?.time === 'string' ? format(toDate(appt.time), "hh:mm a") : ""}
                   </p>
                   <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -457,9 +439,9 @@ export const AppointmentCards = () => {
                     {appt.status}
                   </span>
                 </div>
-                <p className="text-sm">Trámite: {appt.procedure}</p>
-                <p className="text-sm">Oficina: {appt.office}</p>
-                <p className="text-sm">Dirección: {appt.address}</p>
+                <p className="text-sm">Trámite: {typeof appt.procedure === 'string' ? appt.procedure : ''}</p>
+                <p className="text-sm">Oficina: {typeof appt.office === 'string' ? appt.office : ''}</p>
+                <p className="text-sm">Dirección: {typeof appt.address === 'string' ? appt.address : ''}</p>
 
                 <div className="text-sm mt-3">
                   <span className="font-semibold">Solicitantes:</span>
@@ -608,14 +590,7 @@ export const AppointmentCards = () => {
           setIsOpenResume={setIsOpenResume}
         />
       )}
-      {rescheduledData && isOpenResume && (
-        <ReschedulingResume
-          scheduled={rescheduledData!}
-          isOpen={isOpenResume}
-          setIsOpen={setIsOpenResume}
-          activeUser={activeUser!}
-        />
-      )}
+
       {scheduledData && isOpenCancel && (
         <CancelAppointment
           isOpenCancel={isOpenCancel}

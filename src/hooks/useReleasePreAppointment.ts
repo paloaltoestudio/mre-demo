@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { putPublicRequest, type PutPublicRequestProps } from "../services/fetchingService";
+import { putPublicRequest } from "../services/fetchingService";
 
 export const useReleasePreAppointment = () => {
   return useMutation({

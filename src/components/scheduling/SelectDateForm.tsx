@@ -137,7 +137,7 @@ export const SelectDateForm = ({
             try {
               // Crear la pre-cita antes de iniciar el timer
               const preAppointmentData: CreatePreAppointmentType = {
-                userId: userId,
+                userId: userId || 0,
                 availabilityBlockId: toSavedDate,
                 dependents: dependentsWatch > 0 
                   ? Array.from({ length: dependentsWatch }).map((_, index) => ({

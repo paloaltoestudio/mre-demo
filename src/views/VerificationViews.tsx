@@ -107,7 +107,7 @@ export const VerificationViews = () => {
     },
   });
 
-  const { toSavedDate } = SchedulingsStore();
+  const { toSavedDate, setRemoveSavedDate } = SchedulingsStore();
 
   const { mutateAsync } = useMutation({
     mutationFn: putPublicRequest<ResponsePreAppointmentType>,
@@ -143,12 +143,20 @@ export const VerificationViews = () => {
 
   const handleSubmit = async () => {
     if (toSavedDate) {
-      await mutateAsync({
-        url: "/Appointment/reschedule-appointment",
-        schema: ReschedulingFormSchema,
-        body: reschedulings,
-      });
+      try {
+        await mutateAsync({
+          url: "/Appointment/reschedule-appointment",
+          schema: ReschedulingFormSchema,
+          body: reschedulings,
+        });
+        setRemoveSavedDate(); // Limpiar el estado después del éxito
+        return true; // Indica éxito
+      } catch (error) {
+        console.error("Error en reagendamiento:", error);
+        return false; // Indica error
+      }
     }
+    return false; // Si no hay toSavedDate
   };
 
   const navigate = useNavigate();
@@ -162,23 +170,32 @@ export const VerificationViews = () => {
           navigate("/access/verification-id");
         } else navigate("/auth/verification-files");
       } else {
-        if (official) navigate("/auth/official");
-        else navigate("/dashboard/appointments?reload=true");
-        if (locationVerification === "Reagendar") {
-          await handleSubmit();
-        } else if (
-          locationVerification === "Eliminar agendamiento" &&
-          !official
-        ) {
-          // removeScheduled(toRemove);
-          // Aqui se tira el update para el agendamiento;
-          await CancelPreAppointment({
-            url: `/Appointment/cancel-appointment/${toRemove.appointmentId}`,
-            schema: CancelDataAppointmentSchema,
-            body: {
-              appointmentId: toRemove.appointmentId,
-            },
-          });
+        if (official) {
+          navigate("/auth/official");
+        } else {
+          if (locationVerification === "Reagendar") {
+            const success = await handleSubmit();
+            if (success) {
+              navigate("/dashboard/appointments?reload=true");
+            }
+            // Si no es exitoso, no navegamos y el error ya se muestra en el toast
+          } else if (
+            locationVerification === "Eliminar agendamiento" &&
+            !official
+          ) {
+            // removeScheduled(toRemove);
+            // Aqui se tira el update para el agendamiento;
+            await CancelPreAppointment({
+              url: `/Appointment/cancel-appointment/${toRemove.appointmentId}`,
+              schema: CancelDataAppointmentSchema,
+              body: {
+                appointmentId: toRemove.appointmentId,
+              },
+            });
+            navigate("/dashboard/appointments?reload=true");
+          } else {
+            navigate("/dashboard/appointments?reload=true");
+          }
         }
       }
 

@@ -10,6 +10,12 @@ import { AuthForm } from "../public/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
 import type { ResponseTokenType } from "../../types/auth/hashSchemas";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircleCheck,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 
 export type ReschedulingProps = {
   scheduled: AppointmentType;
@@ -26,37 +32,86 @@ export const ReschedulingResume = ({
   activeUser,
 }: ReschedulingProps) => {
   const { setLocationVerification } = SessionStore();
-  const { setReschedulings, toSavedDate } = SchedulingsStore();
+  const { setReschedulings, toSavedDate, setRemoveSavedDate } = SchedulingsStore();
   const navigate = useNavigate();
 
   return (
     <AuthForm<Record<string, never>>
-      onSubmit={() => {
-        // Map SchedulingStoreType to AppointmentType
-        // const appointmentToRemove = {
-        //   appointmentId: 0, // TODO: Replace with real ID if available
-        //   date:
-        //     toDelete.date instanceof Date
-        //       ? toDelete.date.toISOString()
-        //       : String(toDelete.date),
-        //   time: toDelete.hora ?? "",
-        //   procedure: toDelete.tramites?.name ?? "",
-        //   office: toDelete.consulate?.name ?? "",
-        //   address: toDelete.consulate?.address ?? "",
-        //   requirements: toDelete.tramites?.requirements ?? "",
-        //   status: toDelete.state ?? "",
-        //   dependent: [], // Map dependents if available
-        // };
-        // setToRemove(appointmentToRemove);
-        // setToReplace(scheduled);
+      onSubmit={async () => {
         if (toSavedDate) {
           const reschedulingData = {
             appointmentOldId: scheduled.appointmentId,
             availabilityBlockId: toSavedDate,
           };
           setReschedulings(reschedulingData);
-          setLocationVerification("Reagendar");
-          navigate("/auth/verification-method");
+          
+          // Hacer el reagendamiento directamente sin OTP
+          try {
+            const token = localStorage.getItem('token');
+            console.log('Token para reagendamiento:', token);
+            console.log('Datos de reagendamiento:', reschedulingData);
+            
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/Appointment/reschedule-appointment`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify(reschedulingData),
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (response.ok) {
+              const responseData = await response.json();
+              console.log('Respuesta exitosa:', responseData);
+              toast.success("Cita reagendada correctamente", {
+                icon: (
+                  <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+                ),
+                autoClose: 3000,
+                draggable: true,
+                progress: undefined,
+                hideProgressBar: true,
+                className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+              });
+              setRemoveSavedDate(); // Limpiar el estado
+              // Navegar directamente a las citas después del éxito
+              navigate("/dashboard/appointments?reload=true");
+            } else {
+              const errorData = await response.json();
+              console.error('Error en reagendamiento:', errorData);
+              toast.error("Error al reagendar la cita", {
+                icon: (
+                  <FontAwesomeIcon
+                    icon={faCircleExclamation}
+                    className="text-red-500"
+                  />
+                ),
+                autoClose: 3000,
+                draggable: true,
+                progress: undefined,
+                hideProgressBar: true,
+                className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+              });
+            }
+          } catch (error) {
+            console.error('Error en reagendamiento:', error);
+            toast.error("Error al reagendar la cita", {
+              icon: (
+                <FontAwesomeIcon
+                  icon={faCircleExclamation}
+                  className="text-red-500"
+                />
+              ),
+              autoClose: 3000,
+              draggable: true,
+              progress: undefined,
+              hideProgressBar: true,
+              className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+            });
+          }
         }
       }}
     >
@@ -83,7 +138,7 @@ export const ReschedulingResume = ({
                   ? new Date(scheduled.date).toLocaleDateString("es-ES")
                   : ""
               }`}{" "}
-              {scheduled?.time}
+              {typeof scheduled?.time === 'string' ? scheduled.time : ''}
             </p>
             <p className="text-sm text-gray-800">Oficina: {scheduled.office}</p>
             <p className="text-sm text-gray-800">
