@@ -11,6 +11,7 @@ export const AppointmentSchema = object({
   date: string(),
   time: string(),
   procedure: string(),
+  procedureId: number(),
   office: string(),
   officeId: number(),
   address: string(),

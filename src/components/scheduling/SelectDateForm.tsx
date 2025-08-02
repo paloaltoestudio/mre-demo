@@ -50,9 +50,8 @@ export const SelectDateForm = ({
   // Cambia useMutation por un useEffect directo, ya que solo necesitas obtener datos una vez
   useEffect(() => {
     const fetchDates = async () => {
-      console.log(`${consulate.id}:`, `/AvailabilityBlock/office/${consulate.id}/next-5-days`);
       const data = {
-        url: `/AvailabilityBlock/office/${consulate.id}/next-5-days`,
+        url: `/AvailabilityBlock/office/${consulate.id}/next-5-days?procedureId=${procedureWatcher?.id ?? ""}`,
         schema: DatesResponseSchema,
       };
       try {

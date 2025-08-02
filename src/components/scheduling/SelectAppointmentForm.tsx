@@ -302,7 +302,7 @@ export const SelectAppointmentForm = ({
                   >
                     <h3 className="font-medium text-md">{item.name}</h3>
                     <p className="text-sm text-gray-600">
-                      Dirección: {`${item.address}, ${city}`}
+                      Dirección: {`${item.address}, ${item.cityName}`}
                     </p>
                   </div>
                 ))

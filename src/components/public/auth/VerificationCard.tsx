@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { useFormContext } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 type VerificationCodeProps = {
   title: string;
@@ -19,7 +16,6 @@ export const VerificationCard = ({
   invalidCode,
   methodType = "email",
 }: VerificationCodeProps) => {
-  const navigate = useNavigate();
   const {
     register,
     formState: { errors },
@@ -122,11 +118,6 @@ export const VerificationCard = ({
     inputRefs.current[focusIndex]?.focus();
   };
 
-  const changeMethod = () => {
-    navigate("/auth/verification-code");
-    console.log("Cambiar método de verificación");
-  };
-
   return (
     <div
       id="auth-verication-card"
@@ -135,10 +126,9 @@ export const VerificationCard = ({
       <h3 className="flex flex-col">
         <span className="text-center font-medium">{title}</span>
         <span
-          onClick={changeMethod}
-          className="flex text-gray-500 justify-center text-center hover:text-gray-600 underline gap-2 hover:cursor-pointer"
+          className="flex text-gray-500 justify-center text-center hover:text-gray-600 gap-2"
         >
-          {site} <FontAwesomeIcon icon={faPen} className="w-3.5 pt-1" />
+          {site || "Cargando información de contacto..."} 
         </span>
       </h3>
 

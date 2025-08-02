@@ -28,20 +28,16 @@ type formType = {
 
 export type ReschedulingProps = {
   scheduled: AppointmentType;
-  setRescheduledData: Dispatch<SetStateAction<AppointmentType | undefined>>;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   activeUser: ResponseTokenType;
-  setIsOpenResume: Dispatch<SetStateAction<boolean>>;
 };
 
 export const ReschedulingForm = ({
   scheduled,
-  setRescheduledData,
   isOpen,
   setIsOpen,
   activeUser,
-  setIsOpenResume,
 }: ReschedulingProps) => {
   const [dates, setDates] = useState<DateSchemaType[]>();
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +48,7 @@ export const ReschedulingForm = ({
     console.log("agenda", scheduled);
   }, []);
 
-  const onSubmit = async (data: formType) => {
+  const onSubmit = async (_data: formType) => {
     if (!toSavedDate) {
       toast.error("Por favor selecciona una fecha y hora", {
         icon: (
@@ -182,7 +178,7 @@ export const ReschedulingForm = ({
 
   const handleDates = async () => {
     const data = {
-      url: `/AvailabilityBlock/office/${scheduled.officeId}/next-5-days`,
+      url: `/AvailabilityBlock/office/${scheduled.officeId}/next-5-days?procedureId=${scheduled.procedureId}`,
       schema: DatesResponseSchema,
     };
     await mutateAsync(data);

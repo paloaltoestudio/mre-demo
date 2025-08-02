@@ -29,16 +29,34 @@ export const VerificationViews = () => {
   const [method, setMethod] = useState<{
     type: "email" | "sms" | "whatsapp";
     value: string;
-  }>({ type: "email", value: "default@email.com" });
+  }>({ type: "email", value: "" });
+
+  const maskEmail = (email: string) => {
+    const [name, domain] = email.split("@");
+
+    if (name.length < 2) return email;
+
+    const masked = name[0] + "*".repeat(name.length - 1);
+    return `${masked}@${domain}`;
+  };
+
+  const maskPhone = (phone: string) => {
+    if (phone.length <= 6) return phone;
+
+    const start = phone.slice(0, 3);
+    const end = phone.slice(-3);
+    const masked = "*".repeat(phone.length - 6);
+
+    return `${start}${masked}${end}`;
+  };
   const { fromAuth, registry, typeUser } = useRoutesStore();
   const {
-    user,
-    document,
     locationVerification,
     official,
     setOtp,
     otp,
     externalId,
+    activeUser,
   } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
   const {
@@ -49,27 +67,46 @@ export const VerificationViews = () => {
 
   const { methodSelected } = useParams();
   useEffect(() => {
-    const matchedUser = user.find(
-      (u) => u.documentNumber.toString() === document?.toString()
-    );
+    // Verificar que tenemos los datos necesarios
+    if (!activeUser) {
+      console.warn("No hay usuario activo en el store");
+      return;
+    }
 
-    if (!matchedUser) return;
+    if (!methodSelected) {
+      console.warn("No hay método seleccionado");
+      return;
+    }
 
     const selectedMethod = methodSelected as "email" | "sms" | "whatsapp";
-    const contactValue =
-      methodSelected === "sms"
-        ? matchedUser.phoneNumber
-        : methodSelected === "whatsapp"
-        ? matchedUser.whatsappNumber
-        : matchedUser.email;
+    let contactValue = "";
+    let maskedValue = "";
+
+    if (methodSelected === "sms") {
+      contactValue = activeUser.phone || "";
+      maskedValue = maskPhone(contactValue);
+    } else if (methodSelected === "whatsapp") {
+      contactValue = activeUser.whatsapp || "";
+      maskedValue = maskPhone(contactValue);
+    } else {
+      contactValue = activeUser.email || "";
+      maskedValue = maskEmail(contactValue);
+    }
 
     if (contactValue) {
       setMethod({
         type: selectedMethod,
-        value: contactValue,
+        value: maskedValue,
+      });
+    } else {
+      console.warn("No se encontró valor de contacto para el método:", methodSelected);
+      console.warn("Usuario activo:", {
+        email: activeUser.email,
+        phone: activeUser.phone,
+        whatsapp: activeUser.whatsapp
       });
     }
-  }, [user, methodSelected]);
+  }, [activeUser, methodSelected]);
 
   const { mutateAsync: CancelPreAppointment } = useMutation({
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,

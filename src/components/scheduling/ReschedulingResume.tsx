@@ -4,7 +4,7 @@ import type {
   AppointmentType,
   Estado,
 } from "../../types/dashboard/AppointmentTypes";
-import { SessionStore } from "../../stores/sessionStore";
+// import { SessionStore } from "../../stores/sessionStore";
 import { estadoColor } from "../dashboard/Appointments";
 import { AuthForm } from "../public/auth/AuthForm";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +31,7 @@ export const ReschedulingResume = ({
   setIsOpen,
   activeUser,
 }: ReschedulingProps) => {
-  const { setLocationVerification } = SessionStore();
+  // const { setLocationVerification } = SessionStore();
   const { setReschedulings, toSavedDate, setRemoveSavedDate } = SchedulingsStore();
   const navigate = useNavigate();
 

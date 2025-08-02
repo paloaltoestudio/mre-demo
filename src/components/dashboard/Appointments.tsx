@@ -56,8 +56,6 @@ export const AppointmentCards = () => {
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
   // const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
-  const [rescheduledData, setRescheduledData] = useState<AppointmentType>();
-  const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
   const [requestRemove, setRequestRemove] = useState<boolean>(false);
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
@@ -582,12 +580,10 @@ export const AppointmentCards = () => {
       {scheduledData && isOpen && (
         <ReschedulingForm
           scheduled={scheduledData!}
-          setRescheduledData={setRescheduledData}
           // setTimeId={setTimeId}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           activeUser={activeUser!}
-          setIsOpenResume={setIsOpenResume}
         />
       )}
 
