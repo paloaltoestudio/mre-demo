@@ -1,7 +1,5 @@
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
-import { DependentInformationMock } from "../../mocks/dashboardMocks/DependentInformation";
-import { documentTypes } from "../../mocks/authMocks/LoginMock";
 import { resources } from "../../mocks/authMocks/FilesMock";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,8 +8,13 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { DropzoneComponent } from "../public/auth/DropzoneComponent";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FileRejection } from "react-dropzone";
+import type { ResponseDocumentTypesType } from "../../types/auth/documentTypes";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { ResponseDependentsSchema } from "../../schemas/appointments/dependentsSchema";
+import type { ResponseDependentsType } from "../../types/dashboard/DependentInformation";
 
 const customStyles = {
   control: (provided: any, state: any) => ({
@@ -19,7 +22,7 @@ const customStyles = {
     borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
     boxShadow: "none",
     padding: "0.25rem 0.5rem",
-    minHeight: "3rem",
+    minHeight: "1rem",
   }),
   indicatorSeparator: () => ({ display: "none" }),
 };
@@ -44,6 +47,25 @@ export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
     },
     []
   );
+
+  const [documentTypes, setDocumentTypes] = useState<
+    ResponseDocumentTypesType["data"]
+  >([]);
+  const queryClient = useQueryClient();
+
+  const { data: dependentTypes } = usePublicQuery<ResponseDependentsType>({
+    key: ["/RelationshipTypes"],
+    url: "/RelationshipTypes",
+    schema: ResponseDependentsSchema,
+  });
+
+  useEffect(() => {
+    const documents = queryClient.getQueryData<ResponseDocumentTypesType>([
+      "/api-documentTypes",
+    ]);
+    setDocumentTypes(documents?.data || []);
+  }, []);
+
   return (
     <div className="w-full p-5 shadow-lg border border-gray-100 rounded-lg">
       <h3 className="font-medium">
@@ -60,26 +82,27 @@ export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
           name={`parent-${aggregate}`}
           control={control}
           rules={{
-            required: "El parentesco es obligatorio",
+            required: "El tipo de parentesco es obligatorio",
             validate: (value) => {
-              if (!value) return "Por favor, selecciona un parentesco.";
+              if (!value) return "Por favor, selecciona un tipo de parentesco";
               return true;
             },
           }}
           render={({ field, fieldState }) => (
             <div>
               <Select
-                inputId={`parent-${aggregate}`}
-                options={DependentInformationMock}
+                id={`parent-${aggregate}`}
+                options={dependentTypes?.data || []}
                 menuPortalTarget={document.body}
-                menuPosition="fixed"
                 styles={{
                   ...customStyles,
                   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                 }}
-                formatOptionLabel={({ label }) => <span>{label}</span>}
-                {...field}
+                value={field.value}
                 onChange={(selected) => field.onChange(selected)}
+                getOptionLabel={(option) => option.name}
+                getOptionValue={(option) => String(option.id)}
+                placeholder="Seleccione un parentesco"
               />
               {fieldState.error && (
                 <span className="text-red-500 text-sm">
@@ -105,24 +128,27 @@ export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
             rules={{
               required: "El tipo de documento es obligatorio",
               validate: (value) => {
-                if (!value)
-                  return "Por favor, selecciona un tipo de documento.";
+                if (!value) return "Por favor, selecciona un tipo de documento";
                 return true;
               },
             }}
             render={({ field, fieldState }) => (
               <div>
                 <Select
-                  inputId={`type-document-${aggregate}`}
-                  menuPortalTarget={document.body}
+                  id={`parent-${aggregate}`}
                   options={documentTypes}
+                  menuPortalTarget={document.body}
                   styles={{
                     ...customStyles,
                     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                   }}
-                  formatOptionLabel={({ label }) => <span>{label}</span>}
-                  {...field}
-                  onChange={(selected) => field.onChange(selected)}
+                  value={
+                    documentTypes.find((opt) => opt.id === field.value) || null
+                  }
+                  onChange={(selected) => field.onChange(selected?.id)}
+                  getOptionLabel={(option) => option.name}
+                  getOptionValue={(option) => String(option.id)}
+                  placeholder="Seleccione un tipo de documento"
                 />
                 {fieldState.error && (
                   <span className="text-red-500 text-sm">

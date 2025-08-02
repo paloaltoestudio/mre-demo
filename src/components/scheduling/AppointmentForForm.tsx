@@ -1,24 +1,28 @@
 import { type Dispatch, type SetStateAction } from "react";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
-import {
-  countryOptions,
-  proceduresOptions,
-} from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { Controller, useFormContext } from "react-hook-form";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRight,
+  faCircleExclamation,
   faPeopleGroup,
   faSmile,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 import { CancelBtn } from "./CancelBtn";
+import { useQueryClient } from "@tanstack/react-query";
+import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { toast } from "react-toastify";
+import type { ProceduresResponseType } from "../../types/dashboard/proceduresTypes";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { ProcedureResponseSchema } from "../../schemas/appointments/proceduresInfo.schema";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
-  setView?: Dispatch<SetStateAction<number>>;
+  setView?: (step: number) => void;
   selectedOption: string | undefined;
   setSelectedOption: Dispatch<SetStateAction<string | undefined>>;
 };
@@ -61,10 +65,23 @@ const Chip = ({ label, onRemove }: ChipProps) => (
 export const AppointmentForForm = ({
   consulate,
   setView,
-  selectedOption = "Para mí",
+  selectedOption,
   setSelectedOption,
 }: AppointmentForFormProps) => {
-  const { control, setValue } = useFormContext();
+  const queryClient = useQueryClient();
+  const { control, setValue, watch } = useFormContext();
+  const countryOptions: CountriesInfoType = queryClient.getQueryData([
+    "countriesInfo",
+  ])!;
+  const { country } = SchedulingsStore();
+  const procedureWatcher = watch("tramites");
+
+  const { data: procedures } = usePublicQuery<ProceduresResponseType>({
+    key: ["procedures"],
+    url: `/Procedure/by-office/${consulate.id}`,
+    schema: ProcedureResponseSchema,
+  });
+
 
   return (
     <section
@@ -74,29 +91,10 @@ export const AppointmentForForm = ({
     >
       <div className="border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md w-full  px-4 py-3 justify-center flex flex-col shadow-lg">
         <h3 className="font-medium text-md flex items-center gap-1">
-          <span className="w-5 h-5 flex justify-center items-center">
-            <img
-              src={
-                countryOptions.filter(
-                  (country) => country.value === consulate.country
-                )[0].icon
-              }
-              alt={consulate.consulate.name}
-            />
-          </span>
-          {
-            countryOptions.filter(
-              (country) => country.value === consulate.country
-            )[0].label
-          }
+          {countryOptions?.data?.filter((c) => c.id === country)?.[0].name}
         </h3>
-        <h3 className="font-medium text-md">{consulate.consulate.name}</h3>
-        <p className="text-sm text-gray-600">
-          Dirección: {consulate.consulate.address}
-        </p>
-        <p className="text-sm text-gray-600">
-          Teléfono: {consulate.consulate.phone}
-        </p>
+        <h3 className="font-medium text-md">{consulate.name}</h3>
+        <p className="text-sm text-gray-600">Dirección: {consulate.address}</p>
       </div>
 
       <div className="mt-6 w-full">
@@ -112,47 +110,62 @@ export const AppointmentForForm = ({
             name="tramites"
             control={control}
             rules={{
-              required: "Selecciona al menos un trámite",
+              required: "El trámite es obligatorio",
+              validate: (value) => {
+                if (!value) return "Por favor, selecciona un trámite.";
+                return true;
+              },
             }}
-            render={({ field, fieldState }) => (
-              <div className="w-full mt-4">
-                <Select
-                  options={proceduresOptions}
-                  isMulti
-                  styles={{
-                    ...customStyles,
-                    multiValue: () => ({ display: "none" }),
-                    multiValueLabel: () => ({ display: "none" }),
-                    multiValueRemove: () => ({ display: "none" }),
-                  }}
-                  closeMenuOnSelect={true}
-                  {...field}
-                  value={field.value}
-                  onChange={(selected) => field.onChange(selected)}
-                />
+            render={({ field, fieldState }) => {
+              // const selectedProcedure = procedures?.data?.find(
+              //   (procedure) => procedure.id === field.value
+              // );
+              const selectedProcedure = field.value;
+              return (
+                <div className="w-full mt-4">
+                  <Select
+                    options={procedures?.data}
+                    styles={{
+                      ...customStyles,
+                      multiValue: () => ({ display: "none" }),
+                      multiValueLabel: () => ({ display: "none" }),
+                      multiValueRemove: () => ({ display: "none" }),
+                    }}
+                    formatOptionLabel={({ name }) => (
+                      <div className="flex items-center gap-2">
+                        <span>{name}</span>
+                      </div>
+                    )}
+                    closeMenuOnSelect={true}
+                    {...field}
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => option.id.toString()}
+                    value={selectedProcedure || null}
+                    onChange={(selected) => {
+                      field.onChange(selected);
+                    }}
+                  />
 
-                <div className="mt-2 flex flex-wrap">
-                  {field.value?.map((option: any) => (
-                    <Chip
-                      key={option.value}
-                      label={option.label}
-                      onRemove={() => {
-                        const newValue = field.value.filter(
-                          (o: any) => o.value !== option.value
-                        );
-                        field.onChange(newValue);
-                      }}
-                    />
-                  ))}
+                  <div className="mt-2 flex flex-wrap">
+                    {selectedProcedure && (
+                      <Chip
+                        key={selectedProcedure.id}
+                        label={selectedProcedure?.name || ""}
+                        onRemove={() => {
+                          field.onChange(null);
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  {fieldState.error && (
+                    <span className="text-red-500 text-sm">
+                      {fieldState.error.message}
+                    </span>
+                  )}
                 </div>
-
-                {fieldState.error && (
-                  <span className="text-red-500 text-sm">
-                    {fieldState.error.message}
-                  </span>
-                )}
-              </div>
-            )}
+              );
+            }}
           />
         </div>
 
@@ -280,6 +293,48 @@ export const AppointmentForForm = ({
         <button
           type="button"
           onClick={() => {
+            if (procedureWatcher === undefined || !selectedOption) {
+              toast.error("Completa el formulario", {
+                icon: (
+                  <FontAwesomeIcon
+                    icon={faCircleExclamation}
+                    className="text-red-500"
+                  />
+                ),
+                autoClose: 1000,
+                draggable: true,
+                progress: undefined,
+                hideProgressBar: true,
+                className:
+                  "border-l-5 border-red-500 bg-white text-black shadow-md",
+              });
+              return;
+            }
+
+            // Validación para dependientes
+            const dependentsCount = watch("dependientesCount") || 0;
+            if (
+              (selectedOption === "Para mis dependientes" || 
+               selectedOption === "Para mí y mis dependientes") && 
+              dependentsCount === 0
+            ) {
+              toast.error("Debes seleccionar al menos un dependiente", {
+                icon: (
+                  <FontAwesomeIcon
+                    icon={faCircleExclamation}
+                    className="text-red-500"
+                  />
+                ),
+                autoClose: 1000,
+                draggable: true,
+                progress: undefined,
+                hideProgressBar: true,
+                className:
+                  "border-l-5 border-red-500 bg-white text-black shadow-md",
+              });
+              return;
+            }
+
             setView?.(3);
           }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"

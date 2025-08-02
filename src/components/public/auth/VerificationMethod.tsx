@@ -1,34 +1,40 @@
 import { useFormContext } from "react-hook-form";
-import { SessionStore, type UserType } from "../../../stores/sessionStore";
+import { SessionStore } from "../../../stores/sessionStore";
 import { useEffect, useState } from "react";
+import { useSendOTP } from "../../../hooks/Auth/useSendOTP";
+import type { ResponseTokenType } from "../../../types/auth/hashSchemas";
 
 type MethodType = "email" | "sms" | "whatsapp";
 
-export const VerificationMethod = () => {
-  const { user, document } = SessionStore();
+type VerificationMethodProps = {
+  submitted?: string;
+};
+
+export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
+  const { activeUser, externalId, setOtp } = SessionStore();
   const methods = useFormContext();
   const selectedMethod = methods.watch("method");
   const isFormValid = !!selectedMethod;
   const [methodList, setMethodList] = useState<MethodType[]>([]);
-  const [sessionUser, setSessionUser] = useState<UserType>();
+  const [sessionUser, setSessionUser] = useState<ResponseTokenType>();
+  const { sendOTP } = useSendOTP({ setOtp });
+
+  useEffect(() => {
+    if (submitted?.trim() && externalId) sendOTP(externalId, submitted);
+  }, [submitted]);
 
   useEffect(() => {
     const methods: string[] = [];
-    const matchedUser = user.find(
-      (u) => u.documentNumber.toString() === document.toString()
-    );
+    if (activeUser) {
+      const { email, phone, whatsapp } = activeUser;
 
-    if (!matchedUser) return;
+      if (email?.trim()) methods.push("email");
+      if (phone?.trim()) methods.push("sms");
+      if (whatsapp?.trim()) methods.push("whatsapp");
 
-    const { email, phoneCode, phoneNumber, whatsappCode, whatsappNumber } =
-      matchedUser;
-
-    if (email) methods.push("email");
-    if (phoneCode && phoneNumber) methods.push("sms");
-    if (whatsappCode && whatsappNumber) methods.push("whatsapp");
-
-    setSessionUser(matchedUser);
-    setMethodList([...new Set(methods)] as MethodType[]);
+      setSessionUser(activeUser);
+      setMethodList([...new Set(methods)] as MethodType[]);
+    }
   }, []);
 
   const maskEmail = (email: string) => {
@@ -76,7 +82,7 @@ export const VerificationMethod = () => {
                 value:
                   method === "email"
                     ? maskEmail(sessionUser?.email || "")
-                    : maskPhone(sessionUser?.phoneNumber || ""),
+                    : maskPhone(sessionUser?.phone || ""),
               })}
               {...methods.register("method", {
                 required: "Debe seleccionar un método de verificación",
@@ -94,8 +100,8 @@ export const VerificationMethod = () => {
                 {method === "email"
                   ? maskEmail(sessionUser?.email || "")
                   : method === "sms"
-                  ? maskPhone(sessionUser?.phoneNumber || "")
-                  : maskPhone(sessionUser?.whatsappNumber || "")}
+                  ? maskPhone(sessionUser?.phone || "")
+                  : maskPhone(sessionUser?.whatsapp || "")}
               </span>
             </div>
           </div>

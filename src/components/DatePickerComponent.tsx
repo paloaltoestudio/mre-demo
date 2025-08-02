@@ -3,11 +3,42 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { es } from "date-fns/locale";
 import { Box } from "@mui/material";
-import { horarios } from "../mocks/dashboardMocks/DatePickerMocks";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
+import type { DateSchemaType } from "../types/dashboard/dateTypes";
+import { format } from "date-fns";
+import { toDate } from "../configs/formats";
+import { SchedulingsStore } from "../stores/schedulingsStore";
+import { useEffect } from "react";
 
-export const DatePickerComponent = () => {
+type DatePickerComponentProps = {
+  dateInfo: DateSchemaType[];
+};
+
+export const DatePickerComponent = ({ dateInfo }: DatePickerComponentProps) => {
   const { control } = useFormContext();
+
+  const selectedDate: Date = useWatch({ control, name: "date" });
+
+  const formatDate = (date: Date | string | undefined | null) => {
+    if (!date) return "";
+    const parsed =
+      typeof date === "string" ? new Date(date + "T00:00:00") : new Date(date);
+    return isNaN(parsed.getTime()) ? "" : format(parsed, "yyyy-MM-dd");
+  };
+  
+  const availableTimes = selectedDate
+    ? dateInfo.filter(
+        (item) => formatDate(item.date) === formatDate(selectedDate)
+      )
+    : [];
+
+  const { setValue } = useFormContext();
+
+  useEffect(() => {
+    setValue("hora", null);
+  }, [selectedDate]);
+
+  const { setToSavedDate } = SchedulingsStore();
 
   return (
     <div className="flex flex-col md:flex-row gap-10">
@@ -15,13 +46,19 @@ export const DatePickerComponent = () => {
         <Controller
           name="date"
           control={control}
-          defaultValue={new Date()}
+          defaultValue={null}
           render={({ field }) => (
             <StaticDatePicker
               displayStaticWrapperAs="desktop"
-              value={field.value}
-              onChange={(newDate) => field.onChange(newDate)}
+              value={field.value?.date || null}
+              onChange={(newDate) => {
+                return field.onChange(newDate);
+              }}
               slots={{ actionBar: () => null }}
+              shouldDisableDate={(date) => {
+                const formatted = formatDate(date as Date);
+                return !dateInfo.some((d) => formatDate(d.date) === formatted);
+              }}
             />
           )}
         />
@@ -33,23 +70,32 @@ export const DatePickerComponent = () => {
           <Controller
             name="hora"
             control={control}
-            defaultValue=""
+            defaultValue={null}
             render={({ field }) => (
               <div className="flex gap-2 flex-wrap">
-                {horarios?.map((hora) => (
-                  <button
-                    key={hora}
-                    type="button"
-                    onClick={() => {
-                      field.onChange(hora);
-                    }}
-                    className={`py-2 px-7 rounded-full border-[#ccc] cursor-pointer hover:bg-gray-200 border-2 ${
-                      field.value === hora ? "border-blue-500 bg-gray-300" : ""
-                    }`}
-                  >
-                    {hora}
-                  </button>
-                ))}
+                {availableTimes.length > 0 ? (
+                  availableTimes.map((hora) => (
+                    <button
+                      key={hora.availabilityId}
+                      type="button"
+                      onClick={() => {
+                        setToSavedDate(hora.availabilityId);
+                        return field.onChange(hora);
+                      }}
+                      className={`py-2 px-7 rounded-full border-[#ccc] cursor-pointer hover:bg-gray-200 border-2 ${hora.availabilityId} ${
+                        field.value?.availabilityId === hora.availabilityId
+                          ? "border-blue-500 bg-gray-300"
+                          : ""
+                      }`}
+                    >
+                      {format(toDate(hora.time), "hh:mm a")}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No hay horarios disponibles para esta fecha
+                  </p>
+                )}
               </div>
             )}
           />

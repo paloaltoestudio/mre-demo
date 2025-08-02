@@ -1,44 +1,192 @@
-import { type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { Modal } from "../Modal";
 import { AuthForm } from "../public/auth/AuthForm";
-import type { SchedulingStoreType } from "../../stores/schedulingsStore";
-import type { UserType } from "../../stores/sessionStore";
 import { estadoColor } from "../dashboard/Appointments";
-import type { Estado } from "../../types/dashboard/AppointmentTypes";
+import type {
+  AppointmentType,
+  Estado,
+} from "../../types/dashboard/AppointmentTypes";
 import { DatePickerComponent } from "../DatePickerComponent";
+import type { DateSchemaType, DatesSchemaType } from "../../types/dashboard/dateTypes";
+import { DatesResponseSchema } from "../../schemas/appointments/dates.schema";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getPublicRequest } from "../../services/fetchingService";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { 
+  faCircleExclamation,
+  faCircleCheck 
+} from "@fortawesome/free-solid-svg-icons";
+import type { ResponseTokenType } from "../../types/auth/hashSchemas";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { useNavigate } from "react-router-dom";
 
 type formType = {
   date: Date;
-  hora: string;
+  hora: any; // Cambiado a any porque puede ser un objeto con availabilityId
 };
 
 export type ReschedulingProps = {
-  scheduled: SchedulingStoreType;
-  setRescheduledData: Dispatch<SetStateAction<SchedulingStoreType | undefined>>;
+  scheduled: AppointmentType;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  activeUser: UserType;
-  setIsOpenResume: Dispatch<SetStateAction<boolean>>;
+  activeUser: ResponseTokenType;
 };
 
 export const ReschedulingForm = ({
   scheduled,
-  setRescheduledData,
   isOpen,
   setIsOpen,
   activeUser,
-  setIsOpenResume
 }: ReschedulingProps) => {
-  const onSubmit = (data: formType) => {
-    const scheduledData: SchedulingStoreType = {
-      ...scheduled,
-      date: data.date,
-      hora: data.hora,
-    };
+  const [dates, setDates] = useState<DateSchemaType[]>();
+  const [isLoading, setIsLoading] = useState(false);
+  const { toSavedDate, setRemoveSavedDate } = SchedulingsStore();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    console.log("agenda", scheduled);
+  }, []);
 
-    setRescheduledData(scheduledData);
-    setIsOpenResume(true);
+  const onSubmit = async (_data: formType) => {
+    if (!toSavedDate) {
+      toast.error("Por favor selecciona una fecha y hora", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Token para reagendamiento:', token);
+      
+      const reschedulingData = {
+        appointmentOldId: scheduled.appointmentId,
+        availabilityBlockId: toSavedDate,
+      };
+      
+      console.log('Datos de reagendamiento:', reschedulingData);
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/Appointment/reschedule-appointment`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(reschedulingData),
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Respuesta exitosa:', responseData);
+        toast.success("Cita reagendada correctamente", {
+          icon: (
+            <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+          ),
+          autoClose: 3000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+        });
+        setRemoveSavedDate(); // Limpiar el estado
+        setIsOpen(false); // Cerrar el modal
+        // Navegar a las citas actualizadas
+        navigate("/dashboard/appointments?reload=true");
+      } else {
+        const errorData = await response.json();
+        console.error('Error en reagendamiento:', errorData);
+        toast.error("Error al reagendar la cita", {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 3000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
+      }
+    } catch (error) {
+      console.error('Error en reagendamiento:', error);
+      toast.error("Error al reagendar la cita", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // const { procedure } = SchedulingsStore();
+
+  // const { data: DatesData } = usePublicQuery<DatesType>({
+  //   key: ["dates"],
+  //   url: `/DateTimeAvailable/by-${scheduled.tramites.id}-${scheduled.country}`,
+  //   schema: DatesSchema,
+  // });
+  const queryClient = useQueryClient();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: getPublicRequest<DatesSchemaType>,
+    onSuccess: (data: DatesSchemaType) => {
+      queryClient.setQueryData(["all-dates"], data.data);
+      console.log("Fechas", data);
+      setDates(data.data);
+    },
+    onError: () => {
+      toast.error("Error al hacer la petición", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const handleDates = async () => {
+    const data = {
+      url: `/AvailabilityBlock/office/${scheduled.officeId}/next-5-days?procedureId=${scheduled.procedureId}`,
+      schema: DatesResponseSchema,
+    };
+    await mutateAsync(data);
+  };
+
+  useEffect(() => {
+    handleDates();
+  }, []);
 
   return (
     <AuthForm<formType> onSubmit={onSubmit}>
@@ -60,55 +208,53 @@ export const ReschedulingForm = ({
                 }`}{" "}
               </p>
               <p className="text-sm text-gray-800">
-                <span className="font-medium">Oficina:</span>{" "}
-                {scheduled.consulate.consulate.name}
+                <span className="font-medium">Oficina:</span> {scheduled.office}
               </p>
               <div className="text-sm">
-                <span className="font-medium">TD + Doc:</span>
+                <span className="font-medium">Nombre:</span>
                 <ul className="list-none pl-2 mt-2">
-                  {scheduled.parents?.map((s, idx) => (
+                  {scheduled.dependent?.map((s, idx) => (
                     <li key={idx}>
-                      {s.names} {s.lastNames}
+                      {s.firstNames} {s.lastNames}
                     </li>
                   ))}
-                  {scheduled.selectedOption !== "Para mis dependientes" && (
-                    <li>
-                      {activeUser?.firstName} {activeUser?.lastName}
-                    </li>
-                  )}
+                  <li>
+                    {activeUser?.firstName} {activeUser?.lastName}
+                  </li>
+                  {/* {scheduled.selectedOption !== "Para mis dependientes" && (
+                  )} */}
                 </ul>
               </div>
               <div className="text-sm">
                 <span className="font-medium">TD + Doc:</span>
                 <ul className="list-none pl-2 mt-2">
-                  {scheduled.parents?.map((s, idx) => (
-                    <li key={idx}>
-                      {s.typeDocument.label} {s.document}
-                    </li>
+                  {scheduled.dependent?.map((s, idx) => (
+                    <li key={idx}>{s.documentNumber}</li>
                   ))}
-                  {scheduled.selectedOption !== "Para mis dependientes" && (
-                    <li>
-                      {activeUser?.documentType} {activeUser?.documentNumber}
-                    </li>
-                  )}
+                  <li>{activeUser?.documentNumber}</li>
+                  {/* {scheduled.selectedOption !== "Para mis dependientes" && (
+                  )} */}
                 </ul>
               </div>
               <div>
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    estadoColor[scheduled.state as Estado]
+                    estadoColor[scheduled.status as Estado]
                   }`}
                 >
-                  {scheduled.state}
+                  {scheduled.status}
                 </span>
               </div>
               <div className="text-sm mt-3">
                 <span className="font-semibold">Tipo de trámite:</span>
-                <ul className="list-none pl-2 mt-2">
+                {/* <ul className="list-none pl-2 mt-2">
                   {scheduled.tramites?.map((s, idx) => (
                     <li key={idx}>{s.label}</li>
                   ))}
-                </ul>
+                </ul> */}
+                <p className="text-sm text-gray-600">
+                  Trámite: {scheduled.procedure}
+                </p>
               </div>
             </div>
 
@@ -118,12 +264,14 @@ export const ReschedulingForm = ({
               </h2>
 
               <div className="w-full px-5 mt-5">
-                <DatePickerComponent />
+                <DatePickerComponent
+                  dateInfo={dates || ([] as DateSchemaType[])}
+                />
               </div>
             </div>
 
             <div className="flex justify-end mt-3 gap-2">
-              {scheduled.state === "Agendada" && (
+              {scheduled.status === "Agendada" && (
                 <>
                   <button
                     type="button"
@@ -134,9 +282,10 @@ export const ReschedulingForm = ({
                   </button>
                   <button
                     type="submit"
-                    className="text-white font-medium hover:cursor-pointer hover:bg- text-sm p-2 duration-150 hover:bg-blue-700 border-1 border-blue-600  bg-blue-600 rounded-full min-w-[100px]"
+                    disabled={isLoading}
+                    className="text-white font-medium hover:cursor-pointer hover:bg- text-sm p-2 duration-150 hover:bg-blue-700 border-1 border-blue-600  bg-blue-600 rounded-full min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Reagendar
+                    {isLoading ? "Reagendando..." : "Reagendar"}
                   </button>
                 </>
               )}

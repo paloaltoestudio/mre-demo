@@ -6,8 +6,20 @@ import { useRoutesStore } from "../stores/routesStore";
 import { SessionStore } from "../stores/sessionStore";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleCheck,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { SchedulingsStore } from "../stores/schedulingsStore";
+import { useMutation } from "@tanstack/react-query";
+import {
+  putPublicRequest
+} from "../services/fetchingService";
+import type { ResponseCancelAppointmentType } from "../types/dashboard/cancelAppointmentTypes";
+import { CancelDataAppointmentSchema } from "../schemas/appointments/cancelAppointment.schema";
+import { useSendOTP } from "../hooks/Auth/useSendOTP";
+import type { ResponsePreAppointmentType } from "../types/dashboard/preAppointmentTypes";
+import { ReschedulingFormSchema } from "../schemas/appointments/appointments";
 
 type formType = {
   code: number;
@@ -17,92 +29,226 @@ export const VerificationViews = () => {
   const [method, setMethod] = useState<{
     type: "email" | "sms" | "whatsapp";
     value: string;
-  }>({ type: "email", value: "default@email.com" });
+  }>({ type: "email", value: "" });
+
+  const maskEmail = (email: string) => {
+    const [name, domain] = email.split("@");
+
+    if (name.length < 2) return email;
+
+    const masked = name[0] + "*".repeat(name.length - 1);
+    return `${masked}@${domain}`;
+  };
+
+  const maskPhone = (phone: string) => {
+    if (phone.length <= 6) return phone;
+
+    const start = phone.slice(0, 3);
+    const end = phone.slice(-3);
+    const masked = "*".repeat(phone.length - 6);
+
+    return `${start}${masked}${end}`;
+  };
   const { fromAuth, registry, typeUser } = useRoutesStore();
-  const { code, user, document, locationVerification } = SessionStore();
+  const {
+    locationVerification,
+    official,
+    setOtp,
+    otp,
+    externalId,
+    activeUser,
+  } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
-  const { toRemove, toReplace, rescheduling, removeScheduled } = SchedulingsStore();
+  const {
+    toRemove,
+    reschedulings,
+    //  removeScheduled
+  } = SchedulingsStore();
 
   const { methodSelected } = useParams();
   useEffect(() => {
-    const matchedUser = user.find(
-      (u) => u.documentNumber.toString() === document?.toString()
-    );
+    // Verificar que tenemos los datos necesarios
+    if (!activeUser) {
+      console.warn("No hay usuario activo en el store");
+      return;
+    }
 
-    if (!matchedUser) return;
+    if (!methodSelected) {
+      console.warn("No hay método seleccionado");
+      return;
+    }
 
     const selectedMethod = methodSelected as "email" | "sms" | "whatsapp";
-    const contactValue =
-      methodSelected === "sms"
-        ? matchedUser.phoneNumber
-        : methodSelected === "whatsapp"
-        ? matchedUser.whatsappNumber
-        : matchedUser.email;
+    let contactValue = "";
+    let maskedValue = "";
+
+    if (methodSelected === "sms") {
+      contactValue = activeUser.phone || "";
+      maskedValue = maskPhone(contactValue);
+    } else if (methodSelected === "whatsapp") {
+      contactValue = activeUser.whatsapp || "";
+      maskedValue = maskPhone(contactValue);
+    } else {
+      contactValue = activeUser.email || "";
+      maskedValue = maskEmail(contactValue);
+    }
 
     if (contactValue) {
       setMethod({
         type: selectedMethod,
-        value: contactValue,
+        value: maskedValue,
+      });
+    } else {
+      console.warn("No se encontró valor de contacto para el método:", methodSelected);
+      console.warn("Usuario activo:", {
+        email: activeUser.email,
+        phone: activeUser.phone,
+        whatsapp: activeUser.whatsapp
       });
     }
-  }, [user, methodSelected]);
+  }, [activeUser, methodSelected]);
+
+  const { mutateAsync: CancelPreAppointment } = useMutation({
+    mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
+    onSuccess: (data: ResponseCancelAppointmentType) => {
+      console.log("Cita cancelada correctamente", data);
+      toast.success("Cita cancelada correctamente", {
+        icon: (
+          <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error(
+        "Error al cancelar la cita, ten en cuenta que solo se pueden cancelar citas con más de 24 horas de anticipación",
+        {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 3000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        }
+      );
+    },
+  });
+
+  const { toSavedDate, setRemoveSavedDate } = SchedulingsStore();
+
+  const { mutateAsync } = useMutation({
+    mutationFn: putPublicRequest<ResponsePreAppointmentType>,
+    onSuccess: (data: ResponsePreAppointmentType) => {
+      console.log("Data from reschedule-appointment:", data);
+      toast.success("Cita reagendada correctamente", {
+        icon: (
+          <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+      });
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en el pre agendamiento de la cita", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const handleSubmit = async () => {
+    if (toSavedDate) {
+      try {
+        await mutateAsync({
+          url: "/Appointment/reschedule-appointment",
+          schema: ReschedulingFormSchema,
+          body: reschedulings,
+        });
+        setRemoveSavedDate(); // Limpiar el estado después del éxito
+        return true; // Indica éxito
+      } catch (error) {
+        console.error("Error en reagendamiento:", error);
+        return false; // Indica error
+      }
+    }
+    return false; // Si no hay toSavedDate
+  };
 
   const navigate = useNavigate();
-  const onSubmit = (data: formType) => {
-    if (+data.code !== code) setInvalidCode(true);
+  const onSubmit = async (data: formType) => {
+    console.log("Form submitted with data:", data);
+    console.log("OTP:", otp);
+    if (data.code.toString() !== otp?.toString()) setInvalidCode(true);
     else {
       if (fromAuth === false) {
         if (registry && typeUser === "Ciudadano") {
           navigate("/access/verification-id");
         } else navigate("/auth/verification-files");
       } else {
-        navigate("/dashboard/appointments");
-        if (locationVerification === "Reagendar") {
-          rescheduling(toRemove, toReplace);
-          toast.success("Cita reagendada correctamente", {
-            icon: (
-              <FontAwesomeIcon
-                icon={faCircleCheck}
-                className="text-green-500"
-              />
-            ),
-            autoClose: 3000,
-            draggable: true,
-            progress: undefined,
-            hideProgressBar: true,
-            className:
-              "border-l-5 border-green-500 bg-white text-black shadow-md",
-          });
-        }else if(locationVerification === "Eliminar agendamiento"){
-          removeScheduled(toRemove);
-          toast.success("Cita eliminada correctamente", {
-            icon: (
-              <FontAwesomeIcon
-                icon={faCircleCheck}
-                className="text-green-500"
-              />
-            ),
-            autoClose: 3000,
-            draggable: true,
-            progress: undefined,
-            hideProgressBar: true,
-            className:
-              "border-l-5 border-green-500 bg-white text-black shadow-md",
-          });
+        if (official) {
+          navigate("/auth/official");
+        } else {
+          if (locationVerification === "Reagendar") {
+            const success = await handleSubmit();
+            if (success) {
+              navigate("/dashboard/appointments?reload=true");
+            }
+            // Si no es exitoso, no navegamos y el error ya se muestra en el toast
+          } else if (
+            locationVerification === "Eliminar agendamiento" &&
+            !official
+          ) {
+            // removeScheduled(toRemove);
+            // Aqui se tira el update para el agendamiento;
+            await CancelPreAppointment({
+              url: `/Appointment/cancel-appointment/${toRemove.appointmentId}`,
+              schema: CancelDataAppointmentSchema,
+              body: {
+                appointmentId: toRemove.appointmentId,
+              },
+            });
+            navigate("/dashboard/appointments?reload=true");
+          } else {
+            navigate("/dashboard/appointments?reload=true");
+          }
         }
       }
+
+      setOtp(null);
     }
   };
 
+  const { sendOTP } = useSendOTP({ setOtp });
+
   const resendCode = () => {
-    toast.success("Código enviado", {
-      icon: <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />,
-      autoClose: 3000,
-      draggable: true,
-      progress: undefined,
-      hideProgressBar: true,
-      className: "border-l-5 border-green-500 bg-white text-black shadow-md",
-    });
+    useEffect(() => {
+      if (methodSelected && externalId) {
+        const submitted = methodSelected;
+        sendOTP(externalId, submitted);
+      }
+    }, [methodSelected]);
   };
 
   return (

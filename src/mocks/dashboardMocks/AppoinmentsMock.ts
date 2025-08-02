@@ -240,204 +240,54 @@ export const cityOptions = [
 // ];
 
 export const consulatesOptions = [
-  // Colombia - Medellín
-  {
-    country: "CO",
-    city: "MED",
-    consulate: {
-      name: "Consulado Medellín 1",
-      address: "Calle 42B N° 52-106",
-      phone: 3001111111,
-    },
-  },
-  {
-    country: "CO",
-    city: "MED",
-    consulate: {
-      name: "Consulado Medellín 2",
-      address: "Carrera 45 #53-200",
-      phone: 3002222222,
-    },
-  },
+  // Colombia
+  { id: 1, name: "Consulado Medellín 1", cityId: 1, cityName: "Medellín" },
+  { id: 2, name: "Consulado Medellín 2", cityId: 1, cityName: "Medellín" },
+  { id: 3, name: "Consulado Bogotá 1", cityId: 2, cityName: "Bogotá" },
+  { id: 4, name: "Consulado Bogotá 2", cityId: 2, cityName: "Bogotá" },
 
-  // Colombia - Bogotá
-  {
-    country: "CO",
-    city: "BOG",
-    consulate: {
-      name: "Consulado Bogotá 1",
-      address: "Calle 110 #10-20",
-      phone: 3011111111,
-    },
-  },
-  {
-    country: "CO",
-    city: "BOG",
-    consulate: {
-      name: "Consulado Bogotá 2",
-      address: "Calle 110 #10-21",
-      phone: 3012222222,
-    },
-  },
+  // Ecuador
+  { id: 5, name: "Consulado Quito 1", cityId: 3, cityName: "Quito" },
+  { id: 6, name: "Consulado Quito 2", cityId: 3, cityName: "Quito" },
+  { id: 7, name: "Consulado Guayaquil 1", cityId: 4, cityName: "Guayaquil" },
+  { id: 8, name: "Consulado Guayaquil 2", cityId: 4, cityName: "Guayaquil" },
 
-  // Ecuador - Quito
-  {
-    country: "EC",
-    city: "QUI",
-    consulate: {
-      name: "Consulado Quito 1",
-      address: "Av. Amazonas N37-123",
-      phone: 3021111111,
-    },
-  },
-  {
-    country: "EC",
-    city: "QUI",
-    consulate: {
-      name: "Consulado Quito 2",
-      address: "Calle Juan León Mera 456",
-      phone: 3022222222,
-    },
-  },
+  // Francia
+  { id: 9, name: "Consulado París 1", cityId: 5, cityName: "Paris" },
+  { id: 10, name: "Consulado París 2", cityId: 5, cityName: "Paris" },
+  { id: 11, name: "Consulado Lyon 1", cityId: 6, cityName: "Lyon" },
+  { id: 12, name: "Consulado Lyon 2", cityId: 6, cityName: "Lyon" },
 
-  // Ecuador - Guayaquil
-  {
-    country: "EC",
-    city: "GUA",
-    consulate: {
-      name: "Consulado Guayaquil 1",
-      address: "Av. 9 de Octubre 100",
-      phone: 3031111111,
-    },
-  },
-  {
-    country: "EC",
-    city: "GUA",
-    consulate: {
-      name: "Consulado Guayaquil 2",
-      address: "Malecón 2000",
-      phone: 3032222222,
-    },
-  },
+  // Italia
+  { id: 13, name: "Consulado Roma 1", cityId: 7, cityName: "Roma" },
+  { id: 14, name: "Consulado Roma 2", cityId: 7, cityName: "Roma" },
+  { id: 15, name: "Consulado Milán 1", cityId: 8, cityName: "Milán" },
+  { id: 16, name: "Consulado Milán 2", cityId: 8, cityName: "Milán" },
 
-  // Francia - París
+  // Estados Unidos
   {
-    country: "FR",
-    city: "PAR",
-    consulate: {
-      name: "Consulado París 1",
-      address: "Rue de Rivoli 99",
-      phone: 3041111111,
-    },
+    id: 17,
+    name: "Consulado Los Ángeles 1",
+    cityId: 9,
+    cityName: "Los Ángeles",
   },
   {
-    country: "FR",
-    city: "PAR",
-    consulate: {
-      name: "Consulado París 2",
-      address: "Boulevard Haussmann 45",
-      phone: 3042222222,
-    },
-  },
-
-  // Francia - Lyon
-  {
-    country: "FR",
-    city: "LYO",
-    consulate: {
-      name: "Consulado Lyon 1",
-      address: "Rue de la République 10",
-      phone: 3051111111,
-    },
+    id: 18,
+    name: "Consulado Los Ángeles 2",
+    cityId: 9,
+    cityName: "Los Ángeles",
   },
   {
-    country: "FR",
-    city: "LYO",
-    consulate: {
-      name: "Consulado Lyon 2",
-      address: "Place Bellecour 20",
-      phone: 3052222222,
-    },
-  },
-
-  // Italia - Roma
-  {
-    country: "IT",
-    city: "ROM",
-    consulate: {
-      name: "Consulado Roma 1",
-      address: "Via del Corso 123",
-      phone: 3061111111,
-    },
+    id: 19,
+    name: "Consulado Nueva York 1",
+    cityId: 10,
+    cityName: "Nueva York",
   },
   {
-    country: "IT",
-    city: "ROM",
-    consulate: {
-      name: "Consulado Roma 2",
-      address: "Piazza Venezia 1",
-      phone: 3062222222,
-    },
-  },
-
-  // Italia - Milán
-  {
-    country: "IT",
-    city: "MIL",
-    consulate: {
-      name: "Consulado Milán 1",
-      address: "Corso Buenos Aires 50",
-      phone: 3071111111,
-    },
-  },
-  {
-    country: "IT",
-    city: "MIL",
-    consulate: {
-      name: "Consulado Milán 2",
-      address: "Piazza del Duomo",
-      phone: 3072222222,
-    },
-  },
-
-  // Estados Unidos - Los Ángeles
-  {
-    country: "US",
-    city: "LA",
-    consulate: {
-      name: "Consulado Los Ángeles 1",
-      address: "Wilshire Blvd 1234",
-      phone: 3081111111,
-    },
-  },
-  {
-    country: "US",
-    city: "LA",
-    consulate: {
-      name: "Consulado Los Ángeles 2",
-      address: "Sunset Blvd 4321",
-      phone: 3082222222,
-    },
-  },
-
-  // Estados Unidos - Nueva York
-  {
-    country: "US",
-    city: "NYK",
-    consulate: {
-      name: "Consulado Nueva York 1",
-      address: "5th Avenue 789",
-      phone: 3091111111,
-    },
-  },
-  {
-    country: "US",
-    city: "NYK",
-    consulate: {
-      name: "Consulado Nueva York 2",
-      address: "Madison Ave 101",
-      phone: 3092222222,
-    },
+    id: 20,
+    name: "Consulado Nueva York 2",
+    cityId: 10,
+    cityName: "Nueva York",
   },
 ];
 
@@ -445,21 +295,11 @@ export const proceduresOptions = [
   {
     value: "pasaporte",
     label: "Pasaporte",
-    requeriments: ["Requisito 1", "Requisito 2"],
+    requeriments: ["Pasaporte vigente, fotografía reciente, soporte económico y carta de solicitud."],
   },
   {
     value: "visa",
     label: "Visa",
-    requeriments: ["Requisito 1", "Requisito 2"],
+    requeriments: ["Cédula de ciudadanía en formato válido, diligenciar formulario web, asistir a la cita."],
   },
-  // {
-  //   value: "registroCivil",
-  //   label: "Registro Civil",
-  //   requeriments: ["Requisito 1", "Requisito 2"],
-  // },
-  // {
-  //   value: "tramiteConsular",
-  //   label: "Trámite Consular",
-  //   requeriments: ["Requisito 1", "Requisito 2"],
-  // },
 ];

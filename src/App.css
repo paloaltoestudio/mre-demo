@@ -40,3 +40,60 @@
 .read-the-docs {
   color: #888;
 } */
+
+input, select {
+  border: 1px solid  #d1d5db;
+  box-shadow: none;
+  padding: 0.25rem 0.5rem;
+  min-height: 3rem;
+  border-radius: 4px;
+}
+input:focus, select:focus {
+  border: 1px solid #3b82f6;
+}
+
+.select_react input {
+  min-height: 0;
+}
+
+.swal2-border-radius {
+  border-radius: 16px !important;
+  border: 4px solid #3b82f6 !important;
+}
+
+.swal2-confirm-custom {
+  background: #3466cc !important;
+  color: #fff !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  padding: 0.75em 2.5em !important;
+  font-size: 1.1em !important;
+  box-shadow: none !important;
+  border: none !important;
+  transition: background 0.2s;
+}
+.swal2-confirm-custom:hover {
+  background: #274a99 !important;
+}
+
+.swal2-cancel-custom {
+  background: #fff !important;
+  color: #3466cc !important;
+  border: 1px solid #3466cc !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  padding: 0.75em 2.5em !important;
+  font-size: 1.1em !important;
+  box-shadow: none !important;
+  transition: all 0.2s;
+}
+
+.swal2-cancel-custom:hover {
+  background: #d9d9d9 !important;
+  border-color: #d9d9d9 !important;
+  color: #fff !important;
+}
+
+select {
+  text-transform: uppercase;
+}

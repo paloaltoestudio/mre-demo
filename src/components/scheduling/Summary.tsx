@@ -1,38 +1,62 @@
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
-import {
-  cityOptions,
-  countryOptions,
-  proceduresOptions,
-} from "../../mocks/dashboardMocks/AppoinmentsMock";
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { SessionStore, type UserType } from "../../stores/sessionStore";
+import { useEffect, useState } from "react";
+import { useActiveUser } from "../../hooks/useActiveUser";
 import { CancelBtn } from "./CancelBtn";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { useQueryClient } from "@tanstack/react-query";
+import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
+import type { unicProceduresResponseType } from "../../types/dashboard/proceduresTypes";
 
 type SummaryProps = {
   consulate: ConsulatesType;
-  setView: Dispatch<SetStateAction<number>>;
+  setView: (step: number) => void;
   selectedOption: string;
+  onConfirmAppointment?: () => void;
 };
 
 export const Summary = ({
   consulate,
   setView,
   selectedOption,
+  onConfirmAppointment,
 }: SummaryProps) => {
   const { watch } = useFormContext();
   const dateWatch = watch("date");
-  const proceduresWatch = watch("tramites");
   const dependentsWatch = watch("dependientesCount") || 0;
-  const { user, document } = SessionStore();
-  const [activeUser, setActiveUser] = useState<UserType>();
+  const cityWatch = watch("city");
+  const { activeUser } = useActiveUser();
+  const { country } = SchedulingsStore();
+  const queryClient = useQueryClient();
+  const countryOptions: CountriesInfoType = queryClient.getQueryData([
+    "countriesInfo",
+  ])!;
+  const { control } = useFormContext();
+  const [nameCity, setNameCity] = useState<string>("");
+  const selectedCountry = useWatch({
+    control,
+    name: "country",
+  });
 
-  useEffect(() => {
-    const newUser = user.find(
-      (user) => user.documentNumber.toString() === document.toString()
-    );
-    setActiveUser(newUser);
-  }, []);
+  const selectedProcedure: unicProceduresResponseType["data"] = useWatch({
+    control,
+    name: "tramites",
+  });
+
+  // const { data: Procedure } = usePublicQuery<unicProceduresResponseType>({
+  //   key: ["SelectedProcedure", selectedProcedure],
+  //   url: `/Procedure/getProcedure/${selectedProcedure}`,
+  //   schema: unicProcedureResponseSchema,
+  //   options: {
+  //     enabled: !!selectedProcedure,
+  //   },
+  // });
+
+  // useEffect(() => {
+  //   console.log("Procedure", Procedure);
+  // }, [Procedure]);
 
   const [dependentsInfo, setDependentsInfo] = useState<
     {
@@ -42,6 +66,12 @@ export const Summary = ({
       typeDocument: string;
     }[]
   >();
+
+  const { data: citiesData } = usePublicQuery<CountriesInfoType>({
+    key: ["all-cities", selectedCountry],
+    url: `/City/by-country/${country}`,
+    schema: CountriesInfoSchema,
+  });
 
   useEffect(() => {
     if (dependentsWatch > 0) {
@@ -54,8 +84,16 @@ export const Summary = ({
         })
       );
       setDependentsInfo(dependentsData);
+    } else {
+      setDependentsInfo(undefined);
     }
-  }, []);
+  }, [dependentsWatch, watch]);
+
+  useEffect(() => {
+    const cityName = citiesData?.data?.filter((c) => c.id === cityWatch)[0]
+      ?.name;
+    setNameCity(cityName || "");
+  }, [citiesData]);
 
   return (
     <section
@@ -74,31 +112,20 @@ export const Summary = ({
               : "No seleccionada"}
           </p>
           <p className="text-sm text-gray-600">
-            Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")}
+            Trámites: {selectedProcedure?.name}
+            {/* Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")} */}
           </p>
-          <p className="text-sm text-gray-600">
-            Oficina: {consulate.consulate.name}
-          </p>
+          <p className="text-sm text-gray-600">Oficina: {consulate.name}</p>
           <p className="text-sm text-gray-600">
             País:{" "}
-            {
-              countryOptions.filter(
-                (country) => country.value === consulate.country
-              )[0].label
-            }
+            {countryOptions?.data?.filter((c) => c.id === country)[0].name}
           </p>
+          <p className="text-sm text-gray-600">Ciudad: {nameCity}</p>
           <p className="text-sm text-gray-600">
-            Ciudad:{" "}
-            {
-              cityOptions.filter((city) => city.value === consulate.city)[0]
-                .label
-            }
-          </p>
-          <p className="text-sm text-gray-600">
-            Dirección: {consulate.consulate.address}
+            Dirección: {consulate.address}
           </p>
         </div>
-        <div className="w-full md:w-[48%] border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md px-4 py-3 flex flex-col shadow-lg">
+        <div className="w-full md:w-[50%] border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md px-4 py-3 flex flex-col shadow-lg">
           <h3 className="font-medium text-lg">Solicitantes</h3>
           <div className="mt-2">
             {selectedOption === "Para mí" ? (
@@ -133,28 +160,20 @@ export const Summary = ({
         <p className="text-sm text-gray-600">
           Debes tener en cuenta los requisitos para los siguientes trámites:
         </p>
-
-        {proceduresWatch?.length > 0 &&
-          proceduresOptions
-            .filter((procedureOption) =>
-              proceduresWatch.some(
-                (p: any) => p.value === procedureOption.value
-              )
-            )
-            ?.map((procedure: any, index: number) => (
-              <div key={index} className="mt-2">
-                <h3 className="font-medium text-md">{procedure.label}</h3>
-                <ul className="list-disc pl-5 mb-1 p-2">
-                  {procedure.requeriments?.map(
-                    (req: string, reqIndex: number) => (
-                      <li key={reqIndex} className="text-sm text-gray-600 ml-2">
-                        {req}
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            ))}
+        {
+          <div className="mt-2">
+            <h3 className="font-medium text-md">{selectedProcedure.name}</h3>
+            <ul className="list-disc pl-5 mb-1 p-2">
+              {selectedProcedure.requirements
+                .split(",")
+                .map((req: string, reqIndex: number) => (
+                  <li key={reqIndex} className="text-sm text-gray-600 ml-2">
+                    {req}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        }
       </div>
       <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">
         <CancelBtn />
@@ -170,7 +189,8 @@ export const Summary = ({
           Regresar
         </button>
         <button
-          type="submit"
+          type="button"
+          onClick={onConfirmAppointment}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Agendar

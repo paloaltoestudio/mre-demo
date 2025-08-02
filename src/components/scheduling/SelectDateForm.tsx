@@ -1,15 +1,31 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useState } from "react";
 import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
-import { countryOptions } from "../../mocks/dashboardMocks/AppoinmentsMock";
 import { DatePickerComponent } from "../DatePickerComponent";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRight,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { useFormContext } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
+import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import type { DateSchemaType } from "../../types/dashboard/dateTypes";
+import { getPublicRequest } from "../../services/fetchingService";
+import { toast } from "react-toastify";
+import { DatesResponseSchema } from "../../schemas/appointments/dates.schema";
+import type {
+  unicProceduresResponseType
+} from "../../types/dashboard/proceduresTypes";
+import { useBookingTimerStore } from "../../stores/bookingTimerStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCreatePreAppointment } from "../../hooks/useCreatePreAppointment";
+import { SessionStore } from "../../stores/sessionStore";
+import type { CreatePreAppointmentType } from "../../types/dashboard/preAppointmentTypes";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
-  setView: Dispatch<SetStateAction<number>>;
+  setView: (step: number) => void;
   selectedOption?: string;
 };
 
@@ -19,10 +35,53 @@ export const SelectDateForm = ({
   selectedOption,
 }: SelectDateFormProps) => {
   const { watch } = useFormContext();
-
-  const procedures = watch("tramites");
+  const queryClient = useQueryClient();
   const countDependents = watch("dependientesCount") || 0;
   const dependentsWatch = watch("dependientesCount") || 0;
+  const countryOptions: CountriesInfoType = queryClient.getQueryData([
+    "countriesInfo",
+  ])!;
+  const { country } = SchedulingsStore();
+  const [dates, setDates] = useState<DateSchemaType[]>();
+  const { mutateAsync: createPreAppointment } = useCreatePreAppointment();
+  const { userId } = SessionStore();
+  const { toSavedDate } = SchedulingsStore();
+
+  // Cambia useMutation por un useEffect directo, ya que solo necesitas obtener datos una vez
+  useEffect(() => {
+    const fetchDates = async () => {
+      const data = {
+        url: `/AvailabilityBlock/office/${consulate.id}/next-5-days?procedureId=${procedureWatcher?.id ?? ""}`,
+        schema: DatesResponseSchema,
+      };
+      try {
+        const result = await getPublicRequest(data) as { data: DateSchemaType[] };
+        setDates(result.data);
+      } catch (error) {
+        toast.error("Error al hacer la petición", {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 1000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
+      }
+    };
+
+    fetchDates();
+  }, []);
+
+  const procedureWatcher: unicProceduresResponseType["data"] =
+    watch("tramites");
+
+
+  // Eliminar el useEffect de expiración, ya no es necesario
 
   return (
     <section
@@ -30,31 +89,13 @@ export const SelectDateForm = ({
       aria-label="appointment-for-form"
       className="w-full"
     >
+      
       <div className="border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md w-full  px-4 py-3 justify-center flex flex-col shadow-lg">
         <h3 className="font-medium text-md flex items-center gap-1">
-          <span className="w-5 h-5 flex justify-center items-center">
-            <img
-              src={
-                countryOptions.filter(
-                  (country) => country.value === consulate.country
-                )[0].icon
-              }
-              alt={consulate.consulate.name}
-            />
-          </span>
-          {
-            countryOptions.filter(
-              (country) => country.value === consulate.country
-            )[0].label
-          }
+          {countryOptions?.data?.filter((c) => c.id === country)[0].name}
         </h3>
-        <h3 className="font-medium text-md">{consulate.consulate.name}</h3>
-        <p className="text-sm text-gray-600">
-          Dirección: {consulate.consulate.address}
-        </p>
-        <p className="text-sm text-gray-600">
-          Teléfono: {consulate.consulate.phone}
-        </p>
+        <h3 className="font-medium text-md">{consulate.name}</h3>
+        <p className="text-sm text-gray-600">Dirección: {consulate.address}</p>
         <p className="text-sm text-gray-600">
           Número de solicitantes:{" "}
           {countDependents === 0
@@ -64,7 +105,7 @@ export const SelectDateForm = ({
             : countDependents}
         </p>
         <p className="text-sm text-gray-600">
-          Trámites: {procedures?.map((p: any) => p.label).join(", ")}
+          Trámite: {procedureWatcher?.name}
         </p>
       </div>
 
@@ -74,7 +115,7 @@ export const SelectDateForm = ({
         </h2>
 
         <div className="w-full px-5 mt-5">
-          <DatePickerComponent />
+          <DatePickerComponent dateInfo={dates || ([] as DateSchemaType[])} />
         </div>
       </div>
       <div className="w-full flex gap-5 items-end justify-end mt-10 mb-10">
@@ -91,9 +132,28 @@ export const SelectDateForm = ({
         </button>
         <button
           type="button"
-          onClick={() => {
-            if (dependentsWatch > 0) setView?.(4);
-            else setView?.(5);
+          onClick={async () => {
+            try {
+              // Crear la pre-cita antes de iniciar el timer
+              // No enviamos datos de dependientes en este paso ya que aún no están disponibles
+              const preAppointmentData: CreatePreAppointmentType = {
+                userId: userId || 0,
+                availabilityBlockId: toSavedDate,
+                dependents: [], // Array vacío - los dependientes se agregarán después
+                tramiteId: watch("tramites")?.id || 0,
+              };
+
+              const result = await createPreAppointment(preAppointmentData);
+              
+              // Iniciar temporizador con el ID de la pre-cita
+              // Iniciar temporizador con el ID de la pre-cita
+              useBookingTimerStore.getState().startTimer(300, result.appointmentId!);
+              
+              if (dependentsWatch > 0) setView?.(4);
+              else setView?.(5);
+            } catch (error) {
+              console.error("Error al crear la pre-cita:", error);
+            }
           }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >

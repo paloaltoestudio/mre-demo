@@ -1,37 +1,21 @@
 import Select from "react-select";
-import {
-  cityOptions,
-  consulatesOptions,
-  countryOptions,
-} from "../../mocks/dashboardMocks/AppoinmentsMock";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import {
-  faArrowRight,
-  faCircleExclamation,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
-import type { ConsulatesType } from "../../types/dashboard/AppointmentTypes";
 import { CancelBtn } from "./CancelBtn";
-import { toast } from "react-toastify";
-// import type {
-//   CountriesInfoType,
-//   CountryInfoType,
-// } from "../../types/dashboard/countryInfo";
-// import { getPublicRequest } from "../../services/fetchingService";
-// import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo";
-
-const customStyles = {
-  control: (provided: any, state: any) => ({
-    ...provided,
-    borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
-    boxShadow: "none",
-    padding: "0.25rem 0.5rem",
-    minHeight: "3rem",
-  }),
-  indicatorSeparator: () => ({ display: "none" }),
-};
+import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
+import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
+import type {
+  OfficeInfoType,
+  OfficesInfoType,
+} from "../../types/dashboard/officeInfo";
+import { OfficesInfoSchema } from "../../schemas/appointments/officeInfo.schema";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { usePublicQuery } from "../../hooks/usePublicQuery";
+import { useGeocod, useSetPosition } from "../../hooks/useGeocod";
+import { customStyles } from "../common/reactSelectStyles";
 
 const containerStyle = {
   width: "100%",
@@ -44,26 +28,30 @@ const initialLocation = {
 };
 
 type SelectAppointmentFormProps = {
-  setConsulate: Dispatch<SetStateAction<ConsulatesType>>;
-  setView?: Dispatch<SetStateAction<number>>;
-  // countries?: CountriesInfoType["data"];
+  setConsulate: Dispatch<SetStateAction<OfficeInfoType>>;
+  setView?: (step: number) => void;
+  countries?: CountriesInfoType["data"];
 };
 
 export const SelectAppointmentForm = ({
   setConsulate,
   setView,
-}: // countries,
-SelectAppointmentFormProps) => {
+  countries,
+}: SelectAppointmentFormProps) => {
   const [mapLocation, setMapLocation] = useState(initialLocation);
-  const [markerPosition, setMarkerPosition] = useState(initialLocation);
-  // const [country, setCountry] = useState<CountryInfoType>();
-  const [location, setLocation] = useState<string>();
-  const [showConsulates, setShowConsulates] = useState<
-    ConsulatesType[] | undefined
-  >();
-  const [selectedOption, setSelectedOption] = useState<ConsulatesType>();
+  const [markerPosition, setMarkerPosition] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(initialLocation);
+  const [address, setAddress] = useState<string>("");
+  // const [showConsulates, setShowConsulates] = useState<
+  //   OfficesInfoType["data"] | undefined
+  // >();
+  const [selectedOption, setSelectedOption] = useState<OfficeInfoType>();
+  const { setCountry } = SchedulingsStore();
+  const [city, setCity] = useState<string>();
 
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
   const selectedCountry = useWatch({
     control,
     name: "country",
@@ -74,62 +62,106 @@ SelectAppointmentFormProps) => {
     name: "city",
   });
 
-  // useEffect(() => {
-  //   requestCities();
-  //   setCountry(selectedCountry.value);
-  // }, [selectedCountry]);
-
   useEffect(() => {
-    let filtered = consulatesOptions;
-
-    if (selectedCountry && !selectedCity) {
-      filtered = consulatesOptions.filter(
-        (item) => item.country === selectedCountry.value
-      );
-    } else if (selectedCountry && selectedCity) {
-      filtered = consulatesOptions.filter(
-        (item) =>
-          item.country === selectedCountry.value &&
-          item.city === selectedCity.value
-      );
+    if (selectedCountry) {
+      setCountry(selectedCountry);
+      setValue("city", null), setCity("");
     }
+  }, [selectedCountry]);
 
-    setShowConsulates(filtered);
-  }, [selectedCity, selectedCountry, consulatesOptions]);
+  const { data: citiesData } = usePublicQuery<CountriesInfoType>({
+    key: ["citiesInfo", selectedCountry],
+    url: `/City/by-country/${selectedCountry}`,
+    schema: CountriesInfoSchema,
+    options: {
+      enabled: !!selectedCountry,
+    },
+  });
+
+  const { data: officeData } = usePublicQuery<OfficesInfoType>({
+    key: ["officeInfo", selectedCountry, selectedCity],
+    url: `/Office/by-city/${selectedCity}`,
+    schema: OfficesInfoSchema,
+    options: {
+      enabled: !!selectedCountry && !!selectedCity,
+    },
+  });
 
   useEffect(() => {
-    if (!location) return;
+    if (!address) return;
 
     const apiKey = import.meta.env.VITE_MAPS_API_KEY;
 
     fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-        location
+        address
       )}&key=${apiKey}`
     )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "OK") {
           const loc = data.results[0].geometry.location;
-          setMapLocation(loc); // Centra el mapa
-          setMarkerPosition(loc); // Posiciona el marcador
+          setMapLocation(loc);
+          setMarkerPosition(loc);
         } else {
           console.error("Error al geocodificar:", data.status);
         }
       })
-      .catch((error) => {
-        console.error("Error en la solicitud de geocodificación:", error);
-      });
-  }, [location]);
+      .catch(() => {});
+  }, [address]);
 
-  // const requestCities = async () => {
-  //   const cities = await getPublicRequest({
-  //     url: `/City/by-country/${country?.id}`,
-  //     schema: CountriesInfoSchema,
-  //   });
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setMapLocation({ lat: latitude, lng: longitude });
+          setMarkerPosition({ lat: latitude, lng: longitude });
+          const latLng = { lat: latitude, lng: longitude };
 
-  //   console.log("Cities:", cities);
-  // };
+          useGeocod({
+            latLng,
+            countries: countries!,
+            setAddress,
+            setCountry,
+            setValue,
+            setCity,
+          });
+        },
+        () => {}
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (city !== "") {
+      const cityId = citiesData?.data?.filter(
+        (c) => c.name.toLowerCase() === city?.toLowerCase()
+      )[0]?.id;
+
+      if (cityId) setValue("city", cityId);
+    }
+  }, [city]);
+
+  const handleCity = async (cityName: string | undefined) => {
+    if (cityName) {
+      const latLng = await useSetPosition(cityName, setMarkerPosition);
+
+      setMapLocation(latLng);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedCity) {
+      setValue("city", selectedCity);
+
+      const cityData = citiesData?.data?.find(
+        (c) => c.id === selectedCity
+      )?.name;
+      setCity(cityData);
+      handleCity(cityData);
+    }
+  }, [selectedCity]);
 
   return (
     <section
@@ -157,32 +189,37 @@ SelectAppointmentFormProps) => {
                 return true;
               },
             }}
-            render={({ field, fieldState }) => (
-              <div>
-                <Select
-                  inputId="country"
-                  options={countryOptions}
-                  styles={customStyles}
-                  formatOptionLabel={({ label, icon }) => (
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={icon}
-                        alt={label}
-                        className="w-[20px] h-[15px]"
-                      />
-                      <span>{label}</span>
-                    </div>
+            render={({ field, fieldState }) => {
+              const selectedCountry = countries?.find(
+                (c) => c.id === field.value
+              );
+              return (
+                <div>
+                  <Select
+                    inputId="country"
+                    options={countries}
+                    styles={customStyles}
+                    className="select_react"
+                    formatOptionLabel={({ name }) => (
+                      <div className="flex items-center gap-2">
+                        <span>{name}</span>
+                      </div>
+                    )}
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => option.id.toString()}
+                    value={selectedCountry || null}
+                    onChange={(selected) => {
+                      return field.onChange(selected?.id || null);
+                    }}
+                  />
+                  {fieldState.error && (
+                    <span className="text-red-500 text-sm">
+                      {fieldState.error.message}
+                    </span>
                   )}
-                  {...field}
-                  onChange={(selected) => field.onChange(selected)}
-                />
-                {fieldState.error && (
-                  <span className="text-red-500 text-sm">
-                    {fieldState.error.message}
-                  </span>
-                )}
-              </div>
-            )}
+                </div>
+              );
+            }}
           />
         </div>
         <div className="relative w-[48%] xl:w-[600px]">
@@ -196,29 +233,37 @@ SelectAppointmentFormProps) => {
                 return true;
               },
             }}
-            render={({ field, fieldState }) => (
-              <div>
-                <Select
-                  inputId="city"
-                  options={cityOptions.filter(
-                    (option) => option.country === (selectedCountry?.value || "CO")
-                  ) || []}
-                  styles={customStyles}
-                  formatOptionLabel={({ label }) => (
-                    <div className="flex items-center gap-2">
-                      <span>{label}</span>
-                    </div>
+            render={({ field, fieldState }) => {
+              const selectedCity = citiesData?.data?.find(
+                (c) => c.id === field.value
+              );
+              return (
+                <div>
+                  <Select
+                    inputId="city"
+                    options={citiesData?.data}
+                    styles={customStyles}
+                    className="select_react"
+                    formatOptionLabel={({ name }) => (
+                      <div className="flex items-center gap-2">
+                        <span>{name}</span>
+                      </div>
+                    )}
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => option.id.toString()}
+                    value={selectedCity || null}
+                    onChange={(selected) =>
+                      field.onChange(selected?.id || null)
+                    }
+                  />
+                  {fieldState.error && (
+                    <span className="text-red-500 text-sm">
+                      {fieldState.error.message}
+                    </span>
                   )}
-                  {...field}
-                  onChange={(selected) => field.onChange(selected)}
-                />
-                {fieldState.error && (
-                  <span className="text-red-500 text-sm">
-                    {fieldState.error.message}
-                  </span>
-                )}
-              </div>
-            )}
+                </div>
+              );
+            }}
           />
         </div>
       </div>
@@ -229,47 +274,50 @@ SelectAppointmentFormProps) => {
           <div
             id="consulates"
             aria-label="consulates"
-            className="flex flex-wrap flex-row rounded-sm gap-3 w-full lg:w-[550px] h-[400px] overflow-auto"
+            className="rounded-sm w-full lg:w-[550px] max-h-[230px] lg:max-h-[400px] overflow-auto"
           >
-            {selectedCountry && selectedCity ? (
-              showConsulates?.map((item) => (
+            <div className="flex flex-wrap flex-row gap-3">
+              {selectedCountry && selectedCity ? (
+                officeData?.data?.map((item) => (
+                  <div
+                    key={item.name}
+                    className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 min-h-[100px] justify-center flex flex-col ${
+                      selectedOption === item
+                        ? "border-blue-500 bg-gray-200"
+                        : "border-gray-300"
+                    }`}
+                    onClick={async () => {
+                      setSelectedOption(item);
+                      setConsulate(item);
+
+                      const position = await useSetPosition(
+                        `${item.address}, ${city}`,
+                        setMarkerPosition
+                      );
+                      if (position) {
+                        setMarkerPosition(position);
+                        setMapLocation(position);
+                      }
+                    }}
+                  >
+                    <h3 className="font-medium text-md">{item.name}</h3>
+                    <p className="text-sm text-gray-600">
+                      Dirección: {`${item.address}, ${item.cityName}`}
+                    </p>
+                  </div>
+                ))
+              ) : (
                 <div
-                  key={item.consulate.address}
-                  className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 max-h-[100px] justify-center flex flex-col ${
-                    selectedOption === item
-                      ? "border-blue-500 bg-gray-200"
-                      : "border-gray-300"
-                  }`}
-                  onClick={() => {
-                    setSelectedOption(item);
-                    setLocation(item.consulate.address);
-                    setConsulate(item);
-                  }}
+                  className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md flex-1 text-center  p-2 max-h-[100px] justify-center flex flex-col`}
                 >
-                  <h3 className="font-medium text-md">{item.consulate.name}</h3>
+                  <h3 className="font-medium text-md">Ten presente que:</h3>
                   <p className="text-sm text-gray-600">
-                    Dirección: {item.consulate.address}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Teléfono: {item.consulate.phone}
+                    Para ver las oficinas disponibles, primero debes seleccionar
+                    un país y una ciudad.
                   </p>
                 </div>
-              ))
-            ) : (
-              <div
-                className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md flex-1 text-center  p-2 max-h-[100px] justify-center flex flex-col`}
-              >
-                <h3 className="font-medium text-md">Ten presente que:</h3>
-                <p className="text-sm text-gray-600">
-                  Para ver las oficinas disponibles, primero debes seleccionar
-                  un país y una ciudad.
-                </p>
-                {/*
-                <p className="text-sm text-gray-600">
-                  Teléfono: {item.consulate.phone}
-                </p> */}
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div
@@ -277,15 +325,13 @@ SelectAppointmentFormProps) => {
             aria-label="map"
             className="bg-slate-200 w-full h-[400px] lg:w-6/12"
           >
-            <LoadScript googleMapsApiKey={import.meta.env.VITE_MAPS_API_KEY!}>
-              <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={mapLocation}
-                zoom={14}
-              >
-                <Marker position={markerPosition} />
-              </GoogleMap>
-            </LoadScript>
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={mapLocation}
+              zoom={12}
+            >
+              {markerPosition !== null && <Marker position={markerPosition} />}
+            </GoogleMap>
           </div>
         </div>
       </div>
@@ -295,23 +341,23 @@ SelectAppointmentFormProps) => {
         <button
           type="button"
           onClick={() => {
-            if (!selectedOption) {
-              toast.error("Selecciona una oficina", {
-                icon: (
-                  <FontAwesomeIcon
-                    icon={faCircleExclamation}
-                    className="text-red-500"
-                  />
-                ),
-                autoClose: 1000,
-                draggable: true,
-                progress: undefined,
-                hideProgressBar: true,
-                className:
-                  "border-l-5 border-red-500 bg-white text-black shadow-md",
-              });
-              return;
-            }
+            // if (!selectedOption || (!selectedCity && !selectedCountry)) {
+            //   toast.error("Selecciona una oficina", {
+            //     icon: (
+            //       <FontAwesomeIcon
+            //         icon={faCircleExclamation}
+            //         className="text-red-500"
+            //       />
+            //     ),
+            //     autoClose: 1000,
+            //     draggable: true,
+            //     progress: undefined,
+            //     hideProgressBar: true,
+            //     className:
+            //       "border-l-5 border-red-500 bg-white text-black shadow-md",
+            //   });
+            //   return;
+            // }
             setView?.(2);
           }}
           className="bg-[#3466cc] text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8]"

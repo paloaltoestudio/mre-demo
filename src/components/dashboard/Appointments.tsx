@@ -1,16 +1,43 @@
-import { useNavigate } from "react-router-dom";
-import type { Estado } from "../../types/dashboard/AppointmentTypes";
-import { SessionStore, type UserType } from "../../stores/sessionStore";
-import {
-  SchedulingsStore,
-  type SchedulingStoreType,
-} from "../../stores/schedulingsStore";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import type {
+  AppointmentsType,
+  AppointmentType,
+  Estado,
+} from "../../types/dashboard/AppointmentTypes";
+import { SessionStore } from "../../stores/sessionStore";
+import { useActiveUser } from "../../hooks/useActiveUser";
+import { useTokenExpiration } from "../../hooks/useTokenExpiration";
 import { useEffect, useState } from "react";
-import { ReschedulingResume } from "../scheduling/ReschedulingResume";
+import { ENV_CONFIG } from "../../configs/environment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendar } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCalendar,
+  faCircleCheck,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { CancelAppointment } from "../scheduling/CancelAppointment";
+import { format } from "date-fns";
+import { toDate } from "../../configs/formats";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import {
+  postPublicRequest,
+  putPublicRequest,
+} from "../../services/fetchingService";
+import { postAppointmentSchema } from "../../schemas/appointments/appointments";
+import type {
+  ResponseHashType,
+  ResponsesTokenType,
+} from "../../types/auth/hashSchemas";
+import {
+  CreateHashSchema,
+  CreateTokenSchema,
+} from "../../schemas/Auth/hashSchemas";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
+
+
+import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
 import { ReschedulingForm } from "../scheduling/ReschedulingForm";
 
 export const estadoColor: Record<Estado, string> = {
@@ -22,48 +49,309 @@ export const estadoColor: Record<Estado, string> = {
 
 export const AppointmentCards = () => {
   const navigate = useNavigate();
-  const { user, document, setLocationVerification } = SessionStore();
-  const { scheduled, removeScheduled, setToRemove } = SchedulingsStore();
-  const [activeUser, setActiveUser] = useState<UserType>();
+  const { setToRemove } = SchedulingsStore();
+  const { activeUser, setActiveUser, setTokenExpiration } = useActiveUser();
+  const { setTokenExpiration: setExpiration } = useTokenExpiration();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
-  const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
-  const [rescheduledData, setRescheduledData] = useState<SchedulingStoreType>();
-  const [isOpenResume, setIsOpenResume] = useState<boolean>(false);
+  const [scheduledData, setScheduledData] = useState<AppointmentType>();
+  // const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
   const [requestRemove, setRequestRemove] = useState<boolean>(false);
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
   >({});
-  const [loader, setLoader] = useState<boolean>(true); // Cambiar por el isLoading real con axios o tanstack;
+  const [loader, setLoader] = useState<boolean>(true);
+  const [sche, setSche] = useState<AppointmentsType>();
+  const [searchParams] = useSearchParams();
+  const [hash, setHash] = useState<string | null>();
+  const [token, setToken] = useState<ResponseHashType>();
+  const [noAppointmentsMsg, setNoAppointmentsMsg] = useState<string>("");
+
+
 
   useEffect(() => {
-    const newUser = user.find(
-      (user) => user.documentNumber.toString() === document.toString()
-    );
-    setActiveUser(newUser);
+    const rawHash = searchParams.get("hash");
+
+    if (rawHash) {
+      const corrected = rawHash.replace(/ /g, "+");
+      const decoded = decodeURIComponent(corrected);
+      setHash(decoded);
+    } else {
+      setHash(null);
+    }
+
     setTimeout(() => {
       setLoader(false);
     }, 500);
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
-    if (rescheduledData && isOpenResume) setIsOpen(false);
-  }, [rescheduledData, isOpenResume]);
+    if (hash) {
+      handleHash();
+    }
+  }, [hash]);
+  useEffect(() => {
+    if (token) {
+      handleToken();
+    }
+  }, [token]);
 
-  const handleRemove = () => {
+  const { mutateAsync: MutateHash } = useMutation({
+    mutationFn: postPublicRequest<ResponseHashType>,
+    onSuccess: (data: ResponseHashType) => {
+      // console.log("token hash", data);
+      console.log("Response external data", data);
+      setToken(data);
+
+      // Configurar expiración del token
+      if (data.expiracion) {
+        setTokenExpiration(data.expiracion);
+        setExpiration(data.expiracion);
+      }
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en la generación del token", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+      // Redirigir a la app externa después de mostrar el error
+      setTimeout(() => {
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+      }, 2000);
+    },
+  });
+
+  const {
+    setUserId,
+    setExternalId,
+    setLocationVerification,
+  } = SessionStore();
+  const { mutateAsync: MutateToken } = useMutation({
+    mutationFn: postPublicRequest<ResponsesTokenType>,
+    onSuccess: (data: ResponsesTokenType) => {
+      setExternalId(token?.externalId!);
+      setActiveUser(data[0]);
+      setUserId(data[0].id);
+    },
+    onError: () => {
+      toast.error("Ocurrió un error en la generación del token", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+
+      // Redirigir a la app externa después de mostrar el error
+      setTimeout(() => {
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+      }, 2000);
+    },
+  });
+
+  const handleHash = async () => {
+    if (hash) {
+      await MutateHash({
+        url: "/Token/decrypt",
+        schema: CreateHashSchema,
+        body: { hash: hash! },
+      });
+    }
+  };
+
+  const handleToken = async () => {
+    if (token) {
+      await MutateToken({
+        url: "/User/external",
+        schema: CreateTokenSchema,
+        body: { externalId: token?.externalId },
+      });
+    }
+  };
+
+
+
+  // const handleExternalLogin = async () => {
+  //   await MutateLoginAsync({
+  //     url: "https://www.iaidentity.com/ApiCancilleria/api/authenticate",
+  //     schema: CreateExternalLoginSchema,
+  //     body: {
+  //       username: "UserCancilleria",
+  //       password: "c4nc1ll3r1a.2024",
+  //     },
+  //     ext: true,
+  //   });
+  // };
+
+  const { mutateAsync: removeAsync } = useMutation({
+    mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
+    onSuccess: async (data: ResponseCancelAppointmentType) => {
+      console.log("Cita cancelada correctamente", data);
+      toast.success("Cita archivada correctamente", {
+        icon: (
+          <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+      });
+      
+      // Recargar las citas después de archivar
+      await handleAppointment();
+    },
+    onError: () => {
+      toast.error("Error al archivar la cita", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 3000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+    },
+  });
+
+  const handleRemove = async () => {
     if (scheduledData && requestRemove) {
-      setToRemove(scheduledData);
-      setLocationVerification("Eliminar agendamiento");
+      if (scheduledData.status === "Agendada") {
+        setLocationVerification("Eliminar agendamiento");
+
+        setToRemove(scheduledData);
+
+        setTimeout(() => {
+          navigate("/auth/verification-method");
+        }, 500);
+      } else if (scheduledData.status === "Cancelada") {
+        setToRemove(scheduledData);
+
+        await removeAsync({
+          url: `/Appointment/archive-appointment/${scheduledData.appointmentId}`,
+        });
+      }
       setIsOpenCancel(false);
       setRequestRemove(false);
-      navigate("/auth/verification-method");
     }
   };
 
   useEffect(() => {
     handleRemove();
-  }, [requestRemove, scheduledData, removeScheduled]);
+  }, [
+    requestRemove,
+    scheduledData,
+    // removeScheduled
+  ]);
 
+  const { mutateAsync } = useMutation({
+    mutationFn: postPublicRequest<AppointmentsType>,
+    onSuccess: (data: any) => {
+      if (data && data.errors && Array.isArray(data.errors) && data.errors.includes("No se encontraron citas para el usuario.")) {
+        setNoAppointmentsMsg("No se encontraron citas para el usuario.");
+        setLoader(false);
+        setSche(undefined);
+      } else {
+        setSche(data);
+        console.log("data sche", sche);
+        setNoAppointmentsMsg("");
+      }
+    },
+    onError: (error: any) => {
+      console.log("Error completo:", error);
+      console.log("Error response:", error?.response);
+      console.log("Error response data:", error?.response?.data);
+      
+      // Verificar si el error contiene el mensaje específico de no citas
+      const errorMessage = "No se encontraron citas para el usuario.";
+      
+      if (
+        error?.response?.data?.errors &&
+        Array.isArray(error.response.data.errors) &&
+        error.response.data.errors.includes(errorMessage)
+      ) {
+        console.log("Detectado mensaje de no citas, mostrando mensaje amigable");
+        setNoAppointmentsMsg(errorMessage);
+        setLoader(false);
+        setSche(undefined);
+        return;
+      }
+      
+      // Otros errores: mostrar toast
+      console.log("Error no relacionado con citas, mostrando toast");
+      toast.error("Ocurrió un error al traer los agendamientos", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+      setLoader(false);
+    },
+  });
+
+  const handleAppointment = async () => {
+    const postData = {
+      firstName: activeUser?.firstName,
+      lastName: activeUser?.lastName,
+      documentNumber: String(activeUser?.documentNumber),
+    };
+
+    return await mutateAsync({
+      url: "/Appointment/by-user",
+      schema: postAppointmentSchema,
+      body: postData,
+    });
+  };
+
+  useEffect(() => {
+    console.log("AppointmentCards: activeUser changed", activeUser);
+    if (activeUser) {
+      handleAppointment();
+    }
+  }, [activeUser]);
+
+  // Efecto para recargar citas cuando se regresa de una cancelación
+  useEffect(() => {
+    const reloadParam = searchParams.get("reload");
+    console.log("AppointmentCards: reload param", reloadParam, "activeUser", activeUser);
+    if (reloadParam === "true" && activeUser) {
+      console.log("AppointmentCards: Reloading appointments");
+      handleAppointment();
+      // Limpiar el parámetro de la URL
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("reload");
+      navigate(`/dashboard/appointments?${newSearchParams.toString()}`, { replace: true });
+    }
+  }, [searchParams, activeUser]);
+
+  console.log("AppointmentCards: Rendering component", { activeUser, loader, sche, noAppointmentsMsg });
+  
   return (
     <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Mis agendamientos</h2>
@@ -82,69 +370,90 @@ export const AppointmentCards = () => {
         </div>
         <p className="text-sm">
           <span className="font-semibold">Nombres y apellidos:</span>{" "}
-          {activeUser?.firstName
-            ? `${activeUser.firstName} ${activeUser.lastName}`
-            : "Luis Alberto Diaz Castro"}
+          {activeUser?.firstName &&
+            `${activeUser.firstName} ${activeUser.lastName}`}
         </p>
         <p className="text-sm">
           <span className="font-semibold">Documento:</span>{" "}
-          {activeUser?.firstName
-            ? `${activeUser.documentNumber}`
-            : "10256341"}
+          {activeUser?.documentNumber && `${activeUser.documentNumber}`}
         </p>
       </div>
 
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        {scheduled && !loader
-          ? scheduled.map((appt, index) => (
+        {(() => {
+          if (loader) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                Cargando citas...
+              </div>
+            );
+          }
+          
+          if (noAppointmentsMsg) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                {noAppointmentsMsg}
+              </div>
+            );
+          }
+          
+          if (!sche?.appointments || sche.appointments.length === 0) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                No se encontraron citas para mostrar
+              </div>
+            );
+          }
+          
+          const filteredAppointments = sche.appointments.filter(
+            (appt) => appt.status !== "Liberada" && appt.status !== "PreAgendada"
+          );
+          
+          if (filteredAppointments.length === 0) {
+            return (
+              <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
+                No hay citas activas para mostrar
+              </div>
+            );
+          }
+          
+          return filteredAppointments.map((appt, index) => (
               <div
                 key={`${appt.date}${index}`}
                 className="bg-white hover:bg-gray-100 border border-gray-100 rounded-lg shadow-lg p-6 flex flex-col gap-2"
               >
                 <div className="flex justify-between items-center">
                   <p className="text-sm">
-                    Fecha:{" "}
-                    {`${
-                      appt.date
-                        ? new Date(appt.date).toLocaleDateString("es-ES")
-                        : ""
-                    }`}{" "}
-                    {appt?.hora}
+                    Fecha: {`${typeof appt.date === 'string' ? appt.date : ""}`}{" "}
+                    {/* <br />Oficina: {appt.officeId} <br /> */}
+                    {typeof appt?.time === 'string' ? format(toDate(appt.time), "hh:mm a") : ""}
                   </p>
                   <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      estadoColor[appt.state as Estado]
+                      estadoColor[appt.status as Estado]
                     }`}
                   >
-                    {appt.state}
+                    {appt.status}
                   </span>
                 </div>
-                <p className="text-sm">
-                  Trámite:{" "}
-                  {appt.tramites?.map((tramite) => tramite.label).join(", ")}
-                </p>
-                <p className="text-sm">
-                  Oficina: {appt.consulate.consulate.name}
-                </p>
-                <p className="text-sm">
-                  Dirección: {appt.consulate.consulate.address}
-                </p>
-                <p className="text-sm">Código de confirmación: 23423</p>
+                <p className="text-sm">Trámite: {typeof appt.procedure === 'string' ? appt.procedure : ''}</p>
+                <p className="text-sm">Oficina: {typeof appt.office === 'string' ? appt.office : ''}</p>
+                <p className="text-sm">Dirección: {typeof appt.address === 'string' ? appt.address : ''}</p>
 
                 <div className="text-sm mt-3">
                   <span className="font-semibold">Solicitantes:</span>
                   <ul className="list-none mt-1">
-                    {appt.parents?.map((s, idx) => (
+                    <li>
+                      {sche.applicant?.firstName} {sche.applicant?.lastName}{" "}
+                      <br />
+                      {sche.applicant?.documentNumber}
+                    </li>
+                    {appt.dependent?.map((s, idx) => (
                       <li key={idx}>
-                        {s?.names} {s?.lastNames}. {s?.typeDocument.label}:{" "}
-                        {s?.document}
+                        {s?.firstNames} {s?.lastNames} / {s?.documentNumber}
                       </li>
                     ))}
-                    <li>
-                      {activeUser?.firstName} {activeUser?.lastName}.{" "}
-                      {activeUser?.documentType}: {activeUser?.documentNumber}
-                    </li>
                   </ul>
                 </div>
 
@@ -152,78 +461,86 @@ export const AppointmentCards = () => {
                   <div className="text-sm mt-3">
                     <span className="font-semibold">Requisitos:</span>
                     <ul className="list-none mt-1">
-                      {appt.tramites.map((s, idx) => (
-                        <li key={idx}>
-                          {s.requeriments
-                            ?.map((requirement) => requirement)
-                            .join(", ")}
-                        </li>
-                      ))}
+                                          {appt.requirements
+                      ?.split(",")
+                      ?.map((req: string, reqIndex: number) => (
+                          <li
+                            key={reqIndex}
+                            className="text-sm text-gray-600 ml-2 capitalize"
+                          >
+                            {req}
+                          </li>
+                        ))}
                     </ul>
                   </div>
                 )}
 
                 <div className="flex justify-end mt-3 gap-2">
-                  {appt.state === "Agendada" && (
+                  {appt.status && (
                     <>
                       <button
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
                           setShowRequirementsMap((prev) => ({
                             ...prev,
                             [appt.date.toString() + index]:
                               !prev[appt.date.toString() + index],
-                          }))
-                        }
+                          }));
+                        }}
                         className="text-blue-600 hover:underline text-sm font-medium mr-auto"
                       >
                         {showRequirementsMap[appt.date.toString() + index]
                           ? "Ocultar requisitos"
                           : "Ver requisitos"}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsOpenCancel(true);
-                          setScheduledData(appt);
-                        }}
-                        className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsOpen(true);
-                          setScheduledData(appt);
-                        }}
-                        className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
-                      >
-                        <FontAwesomeIcon
-                          icon={faCalendar}
-                          className="text-blue-500 text-lg mr-2"
-                        />
-                        Reagendar
-                      </button>
+                      {appt.status === "Agendada" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsOpenCancel(true);
+                              setScheduledData(appt);
+                            }}
+                            className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsOpen(true);
+                              setScheduledData(appt);
+                            }}
+                            className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                          >
+                            <FontAwesomeIcon
+                              icon={faCalendar}
+                              className="text-blue-500 text-lg mr-2"
+                            />
+                            Reagendar
+                          </button>
+                        </>
+                      )}
                     </>
                   )}
-                  {appt.state === "Cancelada" && (
+                  {appt.status === "Cancelada" && (
                     <button
                       type="button"
                       onClick={() => {
                         setIsOpenCancel(true);
                         setScheduledData(appt);
                       }}
-                      className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                      className="text-blue-600 text-sm py-[5px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                     >
                       <FontAwesomeIcon
                         icon={faTrash}
-                        className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                        className="text-blue-500 text-lg mr-2"
                       />
                       Archivar
                     </button>
                   )}
-                  {appt.state === "Atendida" && (
+                  {appt.status === "Atendida" && (
                     <button
                       type="button"
                       onClick={() => {
@@ -239,7 +556,7 @@ export const AppointmentCards = () => {
                       />
                     </button>
                   )}
-                  {appt.state === "Pendiente" && (
+                  {appt.status === "Pendiente" && (
                     <button
                       type="button"
                       onClick={() => {
@@ -257,65 +574,25 @@ export const AppointmentCards = () => {
                   )}
                 </div>
               </div>
-            ))
-          : [1, 2].map((item, index) => (
-              <div
-                key={`${item}-${index}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6"
-              >
-                <div className="">
-                  {[1, 2].map((item) => (
-                    <div
-                      key={item}
-                      className="p-6 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 space-y-3">
-                          <div className="h-5 bg-gray-200 rounded animate-pulse w-64"></div>
-                          <div className="h-4 bg-gray-200 rounded animate-pulse w-48"></div>
-                          <div className="h-4 bg-gray-200 rounded animate-pulse w-48"></div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
-                              <div className="h-4 bg-blue-200 rounded animate-pulse w-32"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+            ));
+          })()}
       </div>
       {scheduledData && isOpen && (
         <ReschedulingForm
           scheduled={scheduledData!}
-          setRescheduledData={setRescheduledData}
+          // setTimeId={setTimeId}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           activeUser={activeUser!}
-          setIsOpenResume={setIsOpenResume}
         />
       )}
-      {rescheduledData && isOpenResume && (
-        <ReschedulingResume
-          scheduled={rescheduledData!}
-          toDelete={scheduledData!}
-          isOpen={isOpenResume}
-          setIsOpen={setIsOpenResume}
-          activeUser={activeUser!}
-        />
-      )}
+
       {scheduledData && isOpenCancel && (
         <CancelAppointment
           isOpenCancel={isOpenCancel}
           setIsOpenCancel={setIsOpenCancel}
           setRequestRemove={setRequestRemove}
+          scheduledData={scheduledData}
         />
       )}
     </div>
