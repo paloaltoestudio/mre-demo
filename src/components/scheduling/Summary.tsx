@@ -84,8 +84,10 @@ export const Summary = ({
         })
       );
       setDependentsInfo(dependentsData);
+    } else {
+      setDependentsInfo(undefined);
     }
-  }, []);
+  }, [dependentsWatch, watch]);
 
   useEffect(() => {
     const cityName = citiesData?.data?.filter((c) => c.id === cityWatch)[0]
