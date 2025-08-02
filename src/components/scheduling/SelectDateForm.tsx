@@ -135,18 +135,11 @@ export const SelectDateForm = ({
           onClick={async () => {
             try {
               // Crear la pre-cita antes de iniciar el timer
+              // No enviamos datos de dependientes en este paso ya que aún no están disponibles
               const preAppointmentData: CreatePreAppointmentType = {
                 userId: userId || 0,
                 availabilityBlockId: toSavedDate,
-                dependents: dependentsWatch > 0 
-                  ? Array.from({ length: dependentsWatch }).map((_, index) => ({
-                      relationshipTypeId: watch(`parent-${index}`)?.id || 0,
-                      documentTypeId: watch(`type-document-${index}`) || 0,
-                      documentNumber: watch(`document-number-dependent-${index}`) || "",
-                      firstNames: watch(`names-${index}`) || "",
-                      lastNames: watch(`last-names-${index}`) || "",
-                    }))
-                  : [],
+                dependents: [], // Array vacío - los dependientes se agregarán después
                 tramiteId: watch("tramites")?.id || 0,
               };
 

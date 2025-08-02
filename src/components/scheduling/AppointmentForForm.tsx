@@ -310,6 +310,31 @@ export const AppointmentForForm = ({
               });
               return;
             }
+
+            // Validación para dependientes
+            const dependentsCount = watch("dependientesCount") || 0;
+            if (
+              (selectedOption === "Para mis dependientes" || 
+               selectedOption === "Para mí y mis dependientes") && 
+              dependentsCount === 0
+            ) {
+              toast.error("Debes seleccionar al menos un dependiente", {
+                icon: (
+                  <FontAwesomeIcon
+                    icon={faCircleExclamation}
+                    className="text-red-500"
+                  />
+                ),
+                autoClose: 1000,
+                draggable: true,
+                progress: undefined,
+                hideProgressBar: true,
+                className:
+                  "border-l-5 border-red-500 bg-white text-black shadow-md",
+              });
+              return;
+            }
+
             setView?.(3);
           }}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
