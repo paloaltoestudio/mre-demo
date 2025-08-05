@@ -3,6 +3,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useFormContext } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
+import { useEditAppointment } from "../../hooks/useEditAppointment";
+import { useBookingTimerStore } from "../../stores/bookingTimerStore";
+import type { DependentData } from "../../types/dashboard/editAppointmentTypes";
 
 type DependentInformationFormProps = {
   setView: (step: number) => void;
@@ -13,6 +16,50 @@ export const DependentInformationForm = ({
 }: DependentInformationFormProps) => {
   const { watch } = useFormContext();
   const countDependents = watch("dependientesCount") || 0;
+  const { mutateAsync: editAppointment, isPending } = useEditAppointment();
+  const { preAppointmentId } = useBookingTimerStore();
+
+  const handleContinue = async () => {
+    if (!preAppointmentId) {
+      console.error("No hay preAppointmentId disponible");
+      return;
+    }
+
+    try {
+      // Recopilar datos de dependientes del formulario
+      const dependentsData: DependentData[] = [];
+      
+      for (let i = 0; i < countDependents; i++) {
+        const relationshipType = watch(`parent-${i}`);
+        const documentType = watch(`type-document-${i}`);
+        const documentNumber = watch(`document-number-dependent-${i}`);
+        const firstNames = watch(`names-${i}`);
+        const lastNames = watch(`last-names-${i}`);
+
+        if (relationshipType && documentType && documentNumber && firstNames && lastNames) {
+          dependentsData.push({
+            relationshipTypeId: relationshipType.id,
+            documentTypeId: documentType,
+            documentNumber: documentNumber.toString(),
+            firstNames,
+            lastNames,
+          });
+        }
+      }
+
+      // Editar la cita con los datos de dependientes
+      await editAppointment({
+        appointmentId: preAppointmentId,
+        dependents: dependentsData,
+      });
+
+      // Si la edición es exitosa, continuar al siguiente paso
+      setView(5);
+    } catch (error) {
+      console.error("Error al editar la cita con dependientes:", error);
+      // El error ya se maneja en el hook useEditAppointment
+    }
+  };
 
   return (
     <section
@@ -44,12 +91,11 @@ export const DependentInformationForm = ({
         </button>
         <button
           type="button"
-          onClick={() => {
-            setView(5);
-          }}
-          className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
+          onClick={handleContinue}
+          disabled={isPending}
+          className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Continuar
+          {isPending ? "Guardando..." : "Continuar"}
           <span className="ml-2">
             <FontAwesomeIcon icon={faArrowRight} />
           </span>

@@ -445,13 +445,11 @@ export const AppointmentCards = () => {
                   <span className="font-semibold">Solicitantes:</span>
                   <ul className="list-none mt-1">
                     <li>
-                      {sche.applicant?.firstName} {sche.applicant?.lastName}{" "}
-                      <br />
-                      {sche.applicant?.documentNumber}
+                      {sche.applicant?.firstName} {sche.applicant?.lastName}{" "} - No. Documento: {sche.applicant?.documentNumber}
                     </li>
                     {appt.dependent?.map((s, idx) => (
                       <li key={idx}>
-                        {s?.firstNames} {s?.lastNames} / {s?.documentNumber}
+                        {s?.firstNames} {s?.lastNames} - No. Documento: {s?.documentNumber}
                       </li>
                     ))}
                   </ul>
