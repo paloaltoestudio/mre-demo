@@ -407,7 +407,7 @@ export const AppointmentCards = () => {
           }
           
           const filteredAppointments = sche.appointments.filter(
-            (appt) => appt.status !== "Liberada" && appt.status !== "PreAgendada"
+            (appt) => appt.status !== "Liberada" && appt.status !== "PreAgendada" && appt.status !== "ReAgendada"
           );
           
           if (filteredAppointments.length === 0) {
