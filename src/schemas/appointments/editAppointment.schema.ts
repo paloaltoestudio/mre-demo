@@ -1,4 +1,4 @@
-import { array, number, object, string } from "valibot";
+import { array, boolean, number, object, string, optional } from "valibot";
 
 export const EditAppointmentSchema = object({
   appointmentId: number(),
@@ -20,5 +20,5 @@ export const EditAppointmentResponseSchema = object({
   data: object({
     appointmentId: number(),
   }),
-  errors: string().optional(),
+  errors: optional(string()),
 }); 
