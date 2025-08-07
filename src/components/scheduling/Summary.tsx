@@ -9,6 +9,8 @@ import type { CountriesInfoType } from "../../types/dashboard/countryInfo";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { CountriesInfoSchema } from "../../schemas/appointments/countryInfo.schema";
 import type { unicProceduresResponseType } from "../../types/dashboard/proceduresTypes";
+import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
+import { format } from "date-fns";
 
 type SummaryProps = {
   consulate: ConsulatesType;
@@ -25,6 +27,7 @@ export const Summary = ({
 }: SummaryProps) => {
   const { watch } = useFormContext();
   const dateWatch = watch("date");
+  const horaWatch = watch("hora");
   const dependentsWatch = watch("dependientesCount") || 0;
   const cityWatch = watch("city");
   const { activeUser } = useActiveUser();
@@ -35,6 +38,7 @@ export const Summary = ({
   ])!;
   const { control } = useFormContext();
   const [nameCity, setNameCity] = useState<string>("");
+  const { logTraceabilityEvent } = useTraceabilityLog();
   const selectedCountry = useWatch({
     control,
     name: "country",
@@ -44,19 +48,6 @@ export const Summary = ({
     control,
     name: "tramites",
   });
-
-  // const { data: Procedure } = usePublicQuery<unicProceduresResponseType>({
-  //   key: ["SelectedProcedure", selectedProcedure],
-  //   url: `/Procedure/getProcedure/${selectedProcedure}`,
-  //   schema: unicProcedureResponseSchema,
-  //   options: {
-  //     enabled: !!selectedProcedure,
-  //   },
-  // });
-
-  // useEffect(() => {
-  //   console.log("Procedure", Procedure);
-  // }, [Procedure]);
 
   const [dependentsInfo, setDependentsInfo] = useState<
     {
@@ -95,6 +86,49 @@ export const Summary = ({
     setNameCity(cityName || "");
   }, [citiesData]);
 
+  const handleConfirmAppointment = () => {
+    // Crear la fecha completa de la cita combinando fecha y hora
+    let appointmentDateTime = null;
+    if (dateWatch && horaWatch) {
+      const selectedDate = new Date(dateWatch);
+      const [hours, minutes] = horaWatch.time.split(":");
+      selectedDate.setHours(Number(hours), Number(minutes), 0, 0);
+      appointmentDateTime = selectedDate.toISOString();
+    }
+
+    // Log cuando el usuario confirma la cita
+    logTraceabilityEvent({
+      procedure: "agendamiento",
+      procedureStatus: "confirmacion_cita",
+      modifiedFields: {
+        appointmentDate: appointmentDateTime,
+        appointmentDateLocal: dateWatch && horaWatch ? 
+          `${format(new Date(dateWatch), "yyyy-MM-dd")} ${horaWatch.time}` : null,
+        selectedProcedure: selectedProcedure,
+        selectedOption,
+        dependentsCount: dependentsWatch,
+        dependentsInfo: dependentsInfo,
+        officeId: consulate.id,
+        officeName: consulate.name,
+        officeAddress: consulate.address,
+        countryId: country,
+        countryName: countryOptions?.data?.filter((c) => c.id === country)[0]?.name,
+        cityId: cityWatch,
+        cityName: nameCity,
+        userInfo: {
+          firstName: activeUser?.firstName,
+          lastName: activeUser?.lastName,
+          documentNumber: activeUser?.documentNumber
+        }
+      },
+      observations: `Usuario confirmó cita para ${selectedProcedure?.name} en ${consulate.name} el ${dateWatch && horaWatch ? 
+        `${format(new Date(dateWatch), "dd/MM/yyyy")} a las ${horaWatch.time}` : 'fecha no seleccionada'}`
+    });
+
+    // Llamar a la función original de confirmación
+    onConfirmAppointment?.();
+  };
+
   return (
     <section
       id="appointment-for-form"
@@ -107,13 +141,12 @@ export const Summary = ({
         <div className="w-full md:w-[48%] border-1 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md px-4 py-3 flex flex-col shadow-lg">
           <p className="text-sm text-gray-600">
             Fecha:{" "}
-            {dateWatch
-              ? new Date(dateWatch).toLocaleDateString()
+            {dateWatch && horaWatch
+              ? `${format(new Date(dateWatch), "dd/MM/yyyy")} a las ${horaWatch.time}`
               : "No seleccionada"}
           </p>
           <p className="text-sm text-gray-600">
             Trámites: {selectedProcedure?.name}
-            {/* Trámites: {proceduresWatch?.map((p: any) => p.label).join(", ")} */}
           </p>
           <p className="text-sm text-gray-600">Oficina: {consulate.name}</p>
           <p className="text-sm text-gray-600">
@@ -190,7 +223,7 @@ export const Summary = ({
         </button>
         <button
           type="button"
-          onClick={onConfirmAppointment}
+          onClick={handleConfirmAppointment}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Agendar

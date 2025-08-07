@@ -22,6 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCreatePreAppointment } from "../../hooks/useCreatePreAppointment";
 import { SessionStore } from "../../stores/sessionStore";
 import type { CreatePreAppointmentType } from "../../types/dashboard/preAppointmentTypes";
+import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
 
 type SelectDateFormProps = {
   consulate: ConsulatesType;
@@ -46,6 +47,7 @@ export const SelectDateForm = ({
   const { mutateAsync: createPreAppointment } = useCreatePreAppointment();
   const { userId } = SessionStore();
   const { toSavedDate } = SchedulingsStore();
+  const { logTraceabilityEvent } = useTraceabilityLog();
 
   // Cambia useMutation por un useEffect directo, ya que solo necesitas obtener datos una vez
   useEffect(() => {
@@ -80,8 +82,43 @@ export const SelectDateForm = ({
   const procedureWatcher: unicProceduresResponseType["data"] =
     watch("tramites");
 
+  const handleContinue = async () => {
+    try {
+      // Crear la pre-cita antes de iniciar el timer
+      const preAppointmentData: CreatePreAppointmentType = {
+        userId: userId || 0,
+        availabilityBlockId: toSavedDate,
+        dependents: [], // Array vacío - los dependientes se agregarán después
+        tramiteId: watch("tramites")?.id || 0,
+      };
 
-  // Eliminar el useEffect de expiración, ya no es necesario
+      const result = await createPreAppointment(preAppointmentData);
+      
+      // Iniciar temporizador con el ID de la pre-cita
+      useBookingTimerStore.getState().startTimer(300, result.appointmentId!);
+      
+      // Log cuando se continúa al siguiente paso después de seleccionar fecha/hora
+      logTraceabilityEvent({
+        procedure: "agendamiento",
+        procedureStatus: "continuar_seleccion_fecha",
+        modifiedFields: {
+          selectedDate: toSavedDate,
+          selectedProcedure: procedureWatcher,
+          selectedOption,
+          dependentsCount: dependentsWatch,
+          officeId: consulate.id,
+          officeName: consulate.name,
+          preAppointmentId: result.appointmentId
+        },
+        observations: `Usuario continuó después de seleccionar fecha/hora para ${procedureWatcher?.name} en ${consulate.name}`
+      });
+      
+      if (dependentsWatch > 0) setView?.(4);
+      else setView?.(5);
+    } catch (error) {
+      console.error("Error al crear la pre-cita:", error);
+    }
+  };
 
   return (
     <section
@@ -132,29 +169,7 @@ export const SelectDateForm = ({
         </button>
         <button
           type="button"
-          onClick={async () => {
-            try {
-              // Crear la pre-cita antes de iniciar el timer
-              // No enviamos datos de dependientes en este paso ya que aún no están disponibles
-              const preAppointmentData: CreatePreAppointmentType = {
-                userId: userId || 0,
-                availabilityBlockId: toSavedDate,
-                dependents: [], // Array vacío - los dependientes se agregarán después
-                tramiteId: watch("tramites")?.id || 0,
-              };
-
-              const result = await createPreAppointment(preAppointmentData);
-              
-              // Iniciar temporizador con el ID de la pre-cita
-              // Iniciar temporizador con el ID de la pre-cita
-              useBookingTimerStore.getState().startTimer(300, result.appointmentId!);
-              
-              if (dependentsWatch > 0) setView?.(4);
-              else setView?.(5);
-            } catch (error) {
-              console.error("Error al crear la pre-cita:", error);
-            }
-          }}
+          onClick={handleContinue}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Continuar

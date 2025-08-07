@@ -16,6 +16,7 @@ import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { useGeocod, useSetPosition } from "../../hooks/useGeocod";
 import { customStyles } from "../common/reactSelectStyles";
+import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
 
 const containerStyle = {
   width: "100%",
@@ -44,12 +45,10 @@ export const SelectAppointmentForm = ({
     lng: number;
   } | null>(initialLocation);
   const [address, setAddress] = useState<string>("");
-  // const [showConsulates, setShowConsulates] = useState<
-  //   OfficesInfoType["data"] | undefined
-  // >();
   const [selectedOption, setSelectedOption] = useState<OfficeInfoType>();
   const { setCountry } = SchedulingsStore();
   const [city, setCity] = useState<string>();
+  const { logTraceabilityEvent } = useTraceabilityLog();
 
   const { control, setValue } = useFormContext();
   const selectedCountry = useWatch({
@@ -99,49 +98,27 @@ export const SelectAppointmentForm = ({
     )
       .then((res) => res.json())
       .then((data) => {
-        if (data.status === "OK") {
-          const loc = data.results[0].geometry.location;
-          setMapLocation(loc);
-          setMarkerPosition(loc);
-        } else {
-          console.error("Error al geocodificar:", data.status);
+        if (data.results && data.results.length > 0) {
+          const location = data.results[0].geometry.location;
+          setMapLocation(location);
+          setMarkerPosition(location);
         }
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error("Error fetching geocode:", error);
+      });
   }, [address]);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setMapLocation({ lat: latitude, lng: longitude });
-          setMarkerPosition({ lat: latitude, lng: longitude });
-          const latLng = { lat: latitude, lng: longitude };
-
-          useGeocod({
-            latLng,
-            countries: countries!,
-            setAddress,
-            setCountry,
-            setValue,
-            setCity,
-          });
-        },
-        () => {}
+    if (city && citiesData?.data) {
+      const cityData = citiesData.data.find(
+        (c) => c.name.toLowerCase() === city.toLowerCase()
       );
+      if (cityData) {
+        setValue("city", cityData.id);
+      }
     }
-  }, []);
-
-  useEffect(() => {
-    if (city !== "") {
-      const cityId = citiesData?.data?.filter(
-        (c) => c.name.toLowerCase() === city?.toLowerCase()
-      )[0]?.id;
-
-      if (cityId) setValue("city", cityId);
-    }
-  }, [city]);
+  }, [city, citiesData?.data, setValue]);
 
   const handleCity = async (cityName: string | undefined) => {
     if (cityName) {
@@ -162,6 +139,47 @@ export const SelectAppointmentForm = ({
       handleCity(cityData);
     }
   }, [selectedCity]);
+
+  const handleOfficeSelection = async (item: OfficeInfoType) => {
+    setSelectedOption(item);
+    setConsulate(item);
+
+    const position = await useSetPosition(
+      `${item.address}, ${city}`,
+      setMarkerPosition
+    );
+    if (position) {
+      setMarkerPosition(position);
+      setMapLocation(position);
+    }
+  };
+
+  const handleContinue = () => {
+    // Log cuando se continúa al siguiente paso
+    const countryData = countries?.find(c => c.id === selectedCountry);
+    const cityData = citiesData?.data?.find(c => c.id === selectedCity);
+    
+    logTraceabilityEvent({
+      procedure: "agendamiento",
+      procedureStatus: "continuar_seleccion_lugar",
+      modifiedFields: {
+        selectedOffice: selectedOption ? {
+          id: selectedOption.id,
+          name: selectedOption.name,
+          address: selectedOption.address
+        } : null,
+        selectedCity: selectedCity,
+        selectedCountry: selectedCountry,
+        countryName: countryData?.name,
+        cityName: cityData?.name
+      },
+      observations: selectedOption 
+        ? `Usuario continuó después de seleccionar oficina: ${selectedOption.name}`
+        : "Usuario continuó sin seleccionar oficina"
+    });
+
+    setView?.(2);
+  };
 
   return (
     <section
@@ -252,9 +270,9 @@ export const SelectAppointmentForm = ({
                     getOptionLabel={(option) => option.name}
                     getOptionValue={(option) => option.id.toString()}
                     value={selectedCity || null}
-                    onChange={(selected) =>
-                      field.onChange(selected?.id || null)
-                    }
+                    onChange={(selected) => {
+                      return field.onChange(selected?.id || null);
+                    }}
                   />
                   {fieldState.error && (
                     <span className="text-red-500 text-sm">
@@ -268,71 +286,56 @@ export const SelectAppointmentForm = ({
         </div>
       </div>
 
-      <div id="appointments-options" className="mt-10">
-        <h2 className="mb-5 text-lg font-semibold">Oficina más cercana</h2>
-        <div className="flex flex-col h-auto lg:flex-row gap-5">
-          <div
-            id="consulates"
-            aria-label="consulates"
-            className="rounded-sm w-full lg:w-[550px] max-h-[230px] lg:max-h-[400px] overflow-auto"
-          >
-            <div className="flex flex-wrap flex-row gap-3">
-              {selectedCountry && selectedCity ? (
-                officeData?.data?.map((item) => (
-                  <div
-                    key={item.name}
-                    className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 min-h-[100px] justify-center flex flex-col ${
-                      selectedOption === item
-                        ? "border-blue-500 bg-gray-200"
-                        : "border-gray-300"
-                    }`}
-                    onClick={async () => {
-                      setSelectedOption(item);
-                      setConsulate(item);
-
-                      const position = await useSetPosition(
-                        `${item.address}, ${city}`,
-                        setMarkerPosition
-                      );
-                      if (position) {
-                        setMarkerPosition(position);
-                        setMapLocation(position);
-                      }
-                    }}
-                  >
-                    <h3 className="font-medium text-md">{item.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      Dirección: {`${item.address}, ${item.cityName}`}
-                    </p>
-                  </div>
-                ))
-              ) : (
+      <div className="flex flex-row gap-5 w-full justify-between mt-5">
+        <div
+          id="consulates"
+          aria-label="consulates"
+          className="rounded-sm w-full lg:w-[550px] max-h-[230px] lg:max-h-[400px] overflow-auto"
+        >
+          <div className="flex flex-wrap flex-row gap-3">
+            {selectedCountry && selectedCity ? (
+              officeData?.data?.map((item) => (
                 <div
-                  className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md flex-1 text-center  p-2 max-h-[100px] justify-center flex flex-col`}
+                  key={item.name}
+                  className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-pointer rounded-md w-[48%]  p-2 min-h-[100px] justify-center flex flex-col ${
+                    selectedOption === item
+                      ? "border-blue-500 bg-gray-200"
+                      : "border-gray-300"
+                  }`}
+                  onClick={() => handleOfficeSelection(item)}
                 >
-                  <h3 className="font-medium text-md">Ten presente que:</h3>
+                  <h3 className="font-medium text-md">{item.name}</h3>
                   <p className="text-sm text-gray-600">
-                    Para ver las oficinas disponibles, primero debes seleccionar
-                    un país y una ciudad.
+                    Dirección: {`${item.address}, ${item.cityName}`}
                   </p>
                 </div>
-              )}
-            </div>
+              ))
+            ) : (
+              <div
+                className={`border-2 border-gray-200 hover:bg-gray-100 hover:cursor-default rounded-md flex-1 text-center  p-2 max-h-[100px] justify-center flex flex-col`}
+              >
+                <h3 className="font-medium text-md">Ten presente que:</h3>
+                <p className="text-sm text-gray-600">
+                  Para ver las oficinas disponibles, primero debes seleccionar
+                  un país y una ciudad.
+                </p>
+              </div>
+            )}
           </div>
+        </div>
 
-          <div
-            id="map"
-            aria-label="map"
-            className="bg-slate-200 w-full h-[400px] lg:w-6/12"
+        <div
+          id="map"
+          aria-label="map"
+          className="bg-slate-200 w-full h-[400px] lg:w-6/12"
+        >
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={mapLocation}
+            zoom={12}
           >
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={mapLocation}
-              zoom={12}
-            >
-              {markerPosition !== null && <Marker position={markerPosition} />}
-            </GoogleMap>
-          </div>
+            {markerPosition !== null && <Marker position={markerPosition} />}
+          </GoogleMap>
         </div>
       </div>
       <div className="w-full flex flex-row items-end justify-end mt-10 mb-10">
@@ -340,26 +343,7 @@ export const SelectAppointmentForm = ({
 
         <button
           type="button"
-          onClick={() => {
-            // if (!selectedOption || (!selectedCity && !selectedCountry)) {
-            //   toast.error("Selecciona una oficina", {
-            //     icon: (
-            //       <FontAwesomeIcon
-            //         icon={faCircleExclamation}
-            //         className="text-red-500"
-            //       />
-            //     ),
-            //     autoClose: 1000,
-            //     draggable: true,
-            //     progress: undefined,
-            //     hideProgressBar: true,
-            //     className:
-            //       "border-l-5 border-red-500 bg-white text-black shadow-md",
-            //   });
-            //   return;
-            // }
-            setView?.(2);
-          }}
+          onClick={handleContinue}
           className="bg-[#3466cc] text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8]"
         >
           Continuar

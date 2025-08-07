@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import type { ProceduresResponseType } from "../../types/dashboard/proceduresTypes";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { ProcedureResponseSchema } from "../../schemas/appointments/proceduresInfo.schema";
+import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
@@ -75,6 +76,7 @@ export const AppointmentForForm = ({
   ])!;
   const { country } = SchedulingsStore();
   const procedureWatcher = watch("tramites");
+  const { logTraceabilityEvent } = useTraceabilityLog();
 
   const { data: procedures } = usePublicQuery<ProceduresResponseType>({
     key: ["procedures"],
@@ -82,6 +84,65 @@ export const AppointmentForForm = ({
     schema: ProcedureResponseSchema,
   });
 
+  const handleContinue = () => {
+    if (procedureWatcher === undefined || !selectedOption) {
+      toast.error("Completa el formulario", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className:
+          "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+      return;
+    }
+
+    // Validación para dependientes
+    const dependentsCount = watch("dependientesCount") || 0;
+    if (
+      (selectedOption === "Para mis dependientes" || 
+       selectedOption === "Para mí y mis dependientes") && 
+      dependentsCount === 0
+    ) {
+      toast.error("Debes seleccionar al menos un dependiente", {
+        icon: (
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="text-red-500"
+          />
+        ),
+        autoClose: 1000,
+        draggable: true,
+        progress: undefined,
+        hideProgressBar: true,
+        className:
+          "border-l-5 border-red-500 bg-white text-black shadow-md",
+      });
+      return;
+    }
+
+    // Log cuando se continúa al siguiente paso
+    logTraceabilityEvent({
+      procedure: "agendamiento",
+      procedureStatus: "continuar_seleccion_tipo",
+      modifiedFields: {
+        selectedOption,
+        selectedProcedure: procedureWatcher,
+        dependentsCount,
+        officeId: consulate.id,
+        officeName: consulate.name
+      },
+      observations: `Usuario continuó con tipo: ${selectedOption}, procedimiento: ${procedureWatcher?.name}, dependientes: ${dependentsCount}`
+    });
+
+    setView?.(3);
+  };
 
   return (
     <section
@@ -98,13 +159,74 @@ export const AppointmentForForm = ({
       </div>
 
       <div className="mt-6 w-full">
-        <h2 className="font-medium text-lg">¿Qué trámite vas a realizar?</h2>
+        <h2 className="font-medium text-lg">
+          Selecciona para quién es la cita
+        </h2>
+        <div className="w-full flex flex-col lg:flex-row lg:justify-between items-center mt-4">
+          <div
+            onClick={() => {
+              setSelectedOption("Para mí");
+              setValue("dependientesCount", 0);
+            }}
+            className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+            ${
+              selectedOption === "Para mí"
+                ? "border-blue-500 bg-gray-200"
+                : "border-gray-300"
+            }`}
+          >
+            <FontAwesomeIcon icon={faUser} size="2x" />
+            <span>
+              <h3 className="text-md font-medium">Para mí</h3> <p></p>
+            </span>
+          </div>
+          <div
+            onClick={() => setSelectedOption("Para mis dependientes")}
+            className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+            ${
+              selectedOption === "Para mis dependientes"
+                ? "border-blue-500 bg-gray-200"
+                : "border-gray-300"
+            }`}
+          >
+            <FontAwesomeIcon icon={faSmile} size="2x" />
+            <span>
+              <h3 className="text-md font-medium">Para mis dependientes</h3>{" "}
+              <p className="text-gray-500 text-sm">
+                {"(Menores de edad, adultos mayores, otros)"}
+              </p>
+            </span>
+          </div>
+          <div
+            onClick={() => setSelectedOption("Para mí y mis dependientes")}
+            className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
+            ${
+              selectedOption === "Para mí y mis dependientes"
+                ? "border-blue-500 bg-gray-200"
+                : "border-gray-300"
+            }`}
+          >
+            <FontAwesomeIcon icon={faPeopleGroup} size="2x" />
+            <span>
+              <h3 className="text-md font-medium">
+                Para mí y mis dependientes
+              </h3>{" "}
+              <p className="text-gray-500 text-sm">
+                {"(Incluye al solicitante y dependientes)"}
+              </p>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 w-full">
+        <h2 className="font-medium text-lg">Selecciona el trámite</h2>
         <div className="relative w-full mt-4">
           <label
-            htmlFor="country"
+            htmlFor="tramites"
             className="absolute left-3 -top-2.5 bg-white px-1 text-sm text-gray-600 z-10"
           >
-            Selecciona
+            Trámite <span className="text-red-500">*</span>
           </label>
           <Controller
             name="tramites"
@@ -112,141 +234,71 @@ export const AppointmentForForm = ({
             rules={{
               required: "El trámite es obligatorio",
               validate: (value) => {
-                if (!value) return "Por favor, selecciona un trámite.";
+                if (!value) return "Por favor, selecciona un trámite";
                 return true;
               },
             }}
-            render={({ field, fieldState }) => {
-              // const selectedProcedure = procedures?.data?.find(
-              //   (procedure) => procedure.id === field.value
-              // );
-              const selectedProcedure = field.value;
-              return (
-                <div className="w-full mt-4">
-                  <Select
-                    options={procedures?.data}
-                    styles={{
-                      ...customStyles,
-                      multiValue: () => ({ display: "none" }),
-                      multiValueLabel: () => ({ display: "none" }),
-                      multiValueRemove: () => ({ display: "none" }),
-                    }}
-                    formatOptionLabel={({ name }) => (
-                      <div className="flex items-center gap-2">
-                        <span>{name}</span>
-                      </div>
-                    )}
-                    closeMenuOnSelect={true}
-                    {...field}
-                    getOptionLabel={(option) => option.name}
-                    getOptionValue={(option) => option.id.toString()}
-                    value={selectedProcedure || null}
-                    onChange={(selected) => {
-                      field.onChange(selected);
-                    }}
-                  />
-
-                  <div className="mt-2 flex flex-wrap">
-                    {selectedProcedure && (
-                      <Chip
-                        key={selectedProcedure.id}
-                        label={selectedProcedure?.name || ""}
-                        onRemove={() => {
-                          field.onChange(null);
-                        }}
-                      />
-                    )}
-                  </div>
-
-                  {fieldState.error && (
-                    <span className="text-red-500 text-sm">
-                      {fieldState.error.message}
-                    </span>
-                  )}
-                </div>
-              );
-            }}
+            render={({ field, fieldState }) => (
+              <div>
+                <Select
+                  id="tramites"
+                  options={procedures?.data || []}
+                  menuPortalTarget={document.body}
+                  styles={{
+                    ...customStyles,
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                  }}
+                  value={field.value}
+                  onChange={(selected) => {
+                    field.onChange(selected);
+                  }}
+                  getOptionLabel={(option) => option.name}
+                  getOptionValue={(option) => String(option.id)}
+                  placeholder="Seleccione un trámite"
+                />
+                {fieldState.error && (
+                  <span className="text-red-500 text-sm">
+                    {fieldState.error.message}
+                  </span>
+                )}
+              </div>
+            )}
           />
         </div>
+      </div>
 
+      {(selectedOption === "Para mis dependientes" ||
+        selectedOption === "Para mí y mis dependientes") && (
         <div className="mt-6 w-full">
           <h2 className="font-medium text-lg">
-            Selecciona para quién es la cita
+            Número de dependientes
           </h2>
-          <div className="w-full flex flex-col lg:flex-row lg:justify-between items-center mt-4">
-            <div
-              onClick={() => {
-                setSelectedOption("Para mí");
-                setValue("dependientesCount", 0);
+          <div className="relative w-full mt-4">
+            <label
+              htmlFor="dependientesCount"
+              className="absolute left-3 -top-2.5 bg-white px-1 text-sm text-gray-600 z-10"
+            >
+              Cantidad <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="dependientesCount"
+              control={control}
+              rules={{
+                required: "La cantidad es obligatoria",
+                validate: (value) => {
+                  if (!value || value < 1) return "Debe ser al menos 1";
+                  return true;
+                },
               }}
-              className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
-              ${
-                selectedOption === "Para mí"
-                  ? "border-blue-500 bg-gray-200"
-                  : "border-gray-300"
-              }`}
-            >
-              <FontAwesomeIcon icon={faUser} size="2x" />
-              <span>
-                <h3 className="text-md font-medium">Para mí</h3> <p></p>
-              </span>
-            </div>
-            <div
-              onClick={() => setSelectedOption("Para mis dependientes")}
-              className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
-              ${
-                selectedOption === "Para mis dependientes"
-                  ? "border-blue-500 bg-gray-200"
-                  : "border-gray-300"
-              }`}
-            >
-              <FontAwesomeIcon icon={faSmile} size="2x" />
-              <span>
-                <h3 className="text-md font-medium">Para mis dependientes</h3>{" "}
-                <p className="text-gray-500 text-sm">
-                  {"(Menores de edad, adultos mayores, otros)"}
-                </p>
-              </span>
-            </div>
-            <div
-              onClick={() => setSelectedOption("Para mí y mis dependientes")}
-              className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
-              ${
-                selectedOption === "Para mí y mis dependientes"
-                  ? "border-blue-500 bg-gray-200"
-                  : "border-gray-300"
-              }`}
-            >
-              <FontAwesomeIcon icon={faPeopleGroup} size="2x" />
-              <span>
-                <h3 className="text-md font-medium">
-                  Para mí y mis dependientes
-                </h3>{" "}
-                <p className="text-gray-500 text-sm">
-                  {"(Menores de edad, adultos mayores, otros)"}
-                </p>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {(selectedOption === "Para mis dependientes" ||
-          selectedOption === "Para mí y mis dependientes") && (
-          <div className="mt-7 w-full flex gap-5">
-            <h2 className="font-medium text-lg flex items-center ">
-              Cantidad de dependientes
-            </h2>
-            <div className="flex items-center gap-4">
-              <Controller
-                name="dependientesCount"
-                control={control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <div className="flex items-center gap-4">
+              render={({ field, fieldState }) => (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <span
-                      onClick={() =>
-                        field.onChange(Math.max(0, field.value - 1))
-                      }
+                      onClick={() => {
+                        if (field.value > 0) {
+                          field.onChange(field.value - 1);
+                        }
+                      }}
                       className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
                     >
                       <FontAwesomeIcon
@@ -263,7 +315,9 @@ export const AppointmentForForm = ({
                     />
 
                     <span
-                      onClick={() => field.onChange(field.value + 1)}
+                      onClick={() => {
+                        field.onChange(field.value + 1);
+                      }}
                       className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
                     >
                       <FontAwesomeIcon
@@ -272,12 +326,12 @@ export const AppointmentForForm = ({
                       />
                     </span>
                   </div>
-                )}
-              />
-            </div>
+                </div>
+              )}
+            />
           </div>
-        )}
-      </div>
+        </div>
+      )}
       <div className="w-full flex flex-row gap-5 items-end justify-end mt-10 mb-10">
         <CancelBtn />
 
@@ -292,51 +346,7 @@ export const AppointmentForForm = ({
         </button>
         <button
           type="button"
-          onClick={() => {
-            if (procedureWatcher === undefined || !selectedOption) {
-              toast.error("Completa el formulario", {
-                icon: (
-                  <FontAwesomeIcon
-                    icon={faCircleExclamation}
-                    className="text-red-500"
-                  />
-                ),
-                autoClose: 1000,
-                draggable: true,
-                progress: undefined,
-                hideProgressBar: true,
-                className:
-                  "border-l-5 border-red-500 bg-white text-black shadow-md",
-              });
-              return;
-            }
-
-            // Validación para dependientes
-            const dependentsCount = watch("dependientesCount") || 0;
-            if (
-              (selectedOption === "Para mis dependientes" || 
-               selectedOption === "Para mí y mis dependientes") && 
-              dependentsCount === 0
-            ) {
-              toast.error("Debes seleccionar al menos un dependiente", {
-                icon: (
-                  <FontAwesomeIcon
-                    icon={faCircleExclamation}
-                    className="text-red-500"
-                  />
-                ),
-                autoClose: 1000,
-                draggable: true,
-                progress: undefined,
-                hideProgressBar: true,
-                className:
-                  "border-l-5 border-red-500 bg-white text-black shadow-md",
-              });
-              return;
-            }
-
-            setView?.(3);
-          }}
+          onClick={handleContinue}
           className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
         >
           Continuar
