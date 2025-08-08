@@ -1,7 +1,7 @@
 # Sistema de Logs de Trazabilidad - Módulo de Agendamiento
 
 ## Descripción
-Sistema de registro de logs para rastrear las acciones del usuario en el módulo de agendamiento de citas. Los logs se registran únicamente cuando el usuario continúa al siguiente paso, cancela el proceso, o cuando se agota el timeout.
+Sistema de registro de logs para rastrear las acciones del usuario en el módulo de agendamiento de citas. Los logs se registran únicamente cuando el usuario continúa al siguiente paso, cancela el proceso, reagenda citas, cancela citas existentes, archiva citas, o cuando se agota el timeout.
 
 ## Archivos Creados
 
@@ -49,65 +49,65 @@ Sistema de registro de logs para rastrear las acciones del usuario en el módulo
   - Timeout expirado automáticamente
   - Error en el manejo del timeout
 
+### 7. ReschedulingForm.tsx
+- **Logs implementados:**
+  - Reagendamiento exitoso
+  - Error en el reagendamiento
+
+### 8. ReschedulingResume.tsx
+- **Logs implementados:**
+  - Reagendamiento exitoso desde resumen
+  - Error en el reagendamiento desde resumen
+
+### 9. Appointments.tsx
+- **Logs implementados:**
+  - Archivado exitoso de citas
+  - Error en el archivado
+
+### 10. VerificationViews.tsx
+- **Logs implementados:**
+  - Cancelación exitosa de citas
+  - Error en la cancelación
+
 ## Eventos Registrados
 
 ### SelectAppointmentForm
 1. **`continuar_seleccion_lugar`** - Cuando el usuario continúa después de seleccionar país, ciudad y oficina
 
 ### AppointmentForForm
-1. **`continuar_seleccion_tipo`** - Cuando el usuario continúa después de seleccionar tipo de cita, trámite y dependientes
+2. **`continuar_seleccion_tipo`** - Cuando el usuario continúa después de seleccionar tipo de cita, trámite y dependientes
 
 ### SelectDateForm
-1. **`continuar_seleccion_fecha`** - Cuando el usuario continúa después de seleccionar fecha y hora
+3. **`continuar_seleccion_fecha`** - Cuando el usuario continúa después de seleccionar fecha y hora
 
 ### Summary
-1. **`confirmacion_cita`** - Cuando el usuario confirma y agenda la cita (evento final)
+4. **`confirmacion_cita`** - Cuando el usuario confirma la cita (evento final)
 
 ### CancelBtn
-1. **`cancelacion_proceso`** - Cuando el usuario cancela el proceso de agendamiento
-2. **`error_cancelacion`** - Cuando hay un error al cancelar el proceso
+5. **`cancelacion_proceso`** - Cuando el usuario cancela el proceso de agendamiento
+6. **`error_cancelacion`** - Error al cancelar el proceso
 
 ### BookingTimerExpirationHandler
-1. **`timeout_expirado`** - Cuando se agota el tiempo de reserva automáticamente
-2. **`error_timeout`** - Cuando hay un error al manejar el timeout
+7. **`timeout_expirado`** - Cuando se agota el timeout automáticamente
+8. **`error_timeout`** - Error al manejar el timeout
+
+### ReschedulingForm
+9. **`reagendamiento_exitoso`** - Cuando se reagenda exitosamente una cita
+10. **`error_reagendamiento`** - Error al reagendar una cita
+
+### ReschedulingResume
+11. **`reagendamiento_exitoso_resumen`** - Cuando se reagenda exitosamente desde el resumen
+12. **`error_reagendamiento_resumen`** - Error al reagendar desde el resumen
+
+### Appointments
+13. **`archivado_exitoso`** - Cuando se archiva exitosamente una cita
+14. **`error_archivado`** - Error al archivar una cita
+
+### VerificationViews
+15. **`cancelacion_exitosa`** - Cuando se cancela exitosamente una cita
+16. **`error_cancelacion`** - Error al cancelar una cita
 
 ## Estructura del Payload
-
-```json
-{
-  "procedure": "agendamiento",
-  "user": "id_del_usuario",
-  "timestamp": "2025-08-07T16:16:28.606Z",
-  "modifiedFields": "JSON con campos modificados",
-  "procedureStatus": "estado_del_procedimiento",
-  "observations": "observaciones_del_evento",
-  "ip": "ip_del_usuario"
-}
-```
-
-## API Endpoint
-- **URL:** `POST /Traceability/CreateTraceabilityLog`
-- **Método:** POST
-- **Headers:** Content-Type: application/json
-
-## Características Técnicas
-
-### Obtención de IP
-- Utiliza el servicio `https://api.ipify.org?format=json`
-- Fallback a "unknown" si hay error
-
-### Manejo de Errores
-- Los errores se registran en consola pero no se muestran al usuario
-- No interrumpe el flujo normal de la aplicación
-
-### Datos Capturados
-- **Usuario:** ID del usuario desde SessionStore
-- **Timestamp:** Fecha y hora exacta del evento
-- **IP:** Dirección IP del usuario
-- **Campos modificados:** JSON con los datos relevantes del evento
-- **Observaciones:** Descripción legible del evento
-
-## Ejemplos de Logs
 
 ### Continuar Selección de Lugar
 ```json
@@ -183,59 +183,122 @@ Sistema de registro de logs para rastrear las acciones del usuario en el módulo
   "procedure": "agendamiento",
   "procedureStatus": "confirmacion_cita",
   "modifiedFields": {
-    "appointmentDate": "2025-01-15T10:00:00.000Z",
+    "appointmentDate": "2025-08-08T14:00:00.000Z",
+    "appointmentDateLocal": "2025-08-08 14:00",
     "selectedProcedure": {
       "id": 1,
       "name": "Pasaporte"
     },
     "selectedOption": "Para mí y mis dependientes",
     "dependentsCount": 2,
-    "dependentsInfo": [...],
+    "dependentsInfo": [
+      {
+        "names": "Juan",
+        "lastNames": "Pérez",
+        "document": "12345678",
+        "typeDocument": "CC"
+      }
+    ],
     "officeId": 123,
     "officeName": "Consulado de Colombia en Madrid",
     "officeAddress": "Calle de la Princesa, 1",
-    "countryId": "1",
+    "countryId": 1,
     "countryName": "Colombia",
-    "cityId": "2",
+    "cityId": 2,
     "cityName": "Madrid",
     "userInfo": {
-      "firstName": "Juan",
-      "lastName": "Pérez",
-      "documentNumber": "12345678"
+      "firstName": "Luis",
+      "lastName": "Díaz",
+      "documentNumber": "987654321"
     }
   },
-  "observations": "Usuario confirmó cita para Pasaporte en Consulado de Colombia en Madrid el 15/1/2025"
+  "observations": "Usuario confirmó cita para Pasaporte en Consulado de Colombia en Madrid el 08/08/2025 a las 14:00"
 }
 ```
 
-## Consideraciones de Implementación
+### Reagendamiento Exitoso
+```json
+{
+  "procedure": "agendamiento",
+  "procedureStatus": "reagendamiento_exitoso",
+  "modifiedFields": {
+    "appointmentOldId": 12345,
+    "availabilityBlockId": 67890,
+    "oldDate": "2025-08-08",
+    "oldTime": "14:00",
+    "newDate": "2025-08-09",
+    "newTime": "15:00",
+    "officeId": 123,
+    "officeName": "Consulado de Colombia en Madrid",
+    "procedureId": 1,
+    "procedureName": "Pasaporte",
+    "userInfo": {
+      "firstName": "Luis",
+      "lastName": "Díaz",
+      "documentNumber": "987654321"
+    }
+  },
+  "observations": "Usuario reagendó cita 12345 de 2025-08-08 14:00 a nueva fecha/hora"
+}
+```
 
-1. **No intrusivo:** Los logs no afectan la experiencia del usuario
-2. **Asíncrono:** Las llamadas al API son asíncronas y no bloquean la UI
-3. **Robusto:** Manejo de errores sin interrumpir el flujo
-4. **Extensible:** Fácil agregar nuevos eventos en otros componentes
-5. **Tipado:** Uso completo de TypeScript para seguridad de tipos
-6. **Completo:** Cubre todo el flujo desde la selección inicial hasta la confirmación final
-7. **Optimizado:** Solo registra logs en momentos clave (continuar al siguiente paso)
-8. **Trazabilidad completa:** Incluye cancelaciones y timeouts para auditoría completa
+### Cancelación Exitosa
+```json
+{
+  "procedure": "agendamiento",
+  "procedureStatus": "cancelacion_exitosa",
+  "modifiedFields": {
+    "appointmentId": 12345,
+    "appointmentStatus": "Agendada",
+    "officeId": 123,
+    "officeName": "Consulado de Colombia en Madrid",
+    "procedureId": 1,
+    "procedureName": "Pasaporte",
+    "userInfo": {
+      "firstName": "Luis",
+      "lastName": "Díaz",
+      "documentNumber": "987654321"
+    }
+  },
+  "observations": "Usuario canceló cita 12345 con estado Agendada"
+}
+```
 
-## Flujo Completo de Logs
+### Archivado Exitoso
+```json
+{
+  "procedure": "agendamiento",
+  "procedureStatus": "archivado_exitoso",
+  "modifiedFields": {
+    "appointmentId": 12345,
+    "appointmentStatus": "Cancelada",
+    "officeId": 123,
+    "officeName": "Consulado de Colombia en Madrid",
+    "procedureId": 1,
+    "procedureName": "Pasaporte",
+    "userInfo": {
+      "firstName": "Luis",
+      "lastName": "Díaz",
+      "documentNumber": "987654321"
+    }
+  },
+  "observations": "Usuario archivó cita 12345 con estado Cancelada"
+}
+```
 
-1. **Selección de lugar** → `continuar_seleccion_lugar`
-2. **Selección de tipo y trámite** → `continuar_seleccion_tipo`
-3. **Selección de fecha** → `continuar_seleccion_fecha`
-4. **Datos de dependientes** → (se registra en el paso de confirmación)
-5. **Confirmación final** → `confirmacion_cita`
+## Beneficios del Sistema
 
-## Eventos de Interrupción
+1. **Trazabilidad Completa**: Registro de todas las acciones importantes del usuario
+2. **Auditoría**: Facilita la auditoría de procesos y decisiones
+3. **Debugging**: Ayuda a identificar problemas y errores
+4. **Análisis**: Permite análisis de comportamiento del usuario
+5. **Cumplimiento**: Cumple con requisitos de trazabilidad
+6. **Mantenimiento**: Facilita el mantenimiento y soporte
 
-- **Cancelación manual** → `cancelacion_proceso`
-- **Timeout automático** → `timeout_expirado`
-- **Errores** → `error_cancelacion`, `error_timeout`
+## Consideraciones Técnicas
 
-## Próximos Pasos
-
-Para completar la implementación en todo el módulo de agendamiento, se pueden agregar logs en:
-
-1. **DependentInformationForm.tsx** - Formulario de dependientes
-2. **Otros componentes** - Regreso entre pasos, etc. 
+- Los logs se envían de forma asíncrona sin bloquear la UI
+- Los errores en el logging no afectan la funcionalidad principal
+- Se incluye información contextual relevante en cada log
+- Los logs incluyen timestamps y IP del usuario
+- Se mantiene la privacidad del usuario en los logs 

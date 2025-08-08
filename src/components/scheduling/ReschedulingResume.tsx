@@ -16,6 +16,8 @@ import {
   faCircleCheck,
   faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
+import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
+import { formatAppointmentDate } from "../../configs/formats";
 
 export type ReschedulingProps = {
   scheduled: AppointmentType;
@@ -34,6 +36,10 @@ export const ReschedulingResume = ({
   // const { setLocationVerification } = SessionStore();
   const { setReschedulings, toSavedDate, setRemoveSavedDate } = SchedulingsStore();
   const navigate = useNavigate();
+  const { logTraceabilityEvent } = useTraceabilityLog();
+  
+  // Debug: ver el valor de scheduled.date
+  console.log("scheduled.date en ReschedulingResume:", scheduled.date);
 
   return (
     <AuthForm<Record<string, never>>
@@ -66,6 +72,29 @@ export const ReschedulingResume = ({
             if (response.ok) {
               const responseData = await response.json();
               console.log('Respuesta exitosa:', responseData);
+              
+              // Log cuando se reagenda exitosamente desde el resumen
+              logTraceabilityEvent({
+                procedure: "agendamiento",
+                procedureStatus: "reagendamiento_exitoso_resumen",
+                modifiedFields: {
+                  appointmentOldId: scheduled.appointmentId,
+                  availabilityBlockId: toSavedDate,
+                  oldDate: scheduled.date,
+                  oldTime: scheduled.time,
+                  officeId: scheduled.officeId,
+                  officeName: scheduled.office,
+                  procedureId: scheduled.procedureId,
+                  procedureName: scheduled.procedure,
+                  userInfo: {
+                    firstName: activeUser?.firstName,
+                    lastName: activeUser?.lastName,
+                    documentNumber: activeUser?.documentNumber
+                  }
+                },
+                observations: `Usuario reagendó cita ${scheduled.appointmentId} desde resumen de ${scheduled.date} ${scheduled.time}`
+              });
+              
               toast.success("Cita reagendada correctamente", {
                 icon: (
                   <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
@@ -82,6 +111,24 @@ export const ReschedulingResume = ({
             } else {
               const errorData = await response.json();
               console.error('Error en reagendamiento:', errorData);
+              
+              // Log cuando hay error en el reagendamiento desde el resumen
+              logTraceabilityEvent({
+                procedure: "agendamiento",
+                procedureStatus: "error_reagendamiento_resumen",
+                modifiedFields: {
+                  appointmentOldId: scheduled.appointmentId,
+                  availabilityBlockId: toSavedDate,
+                  error: errorData?.message || "Error desconocido",
+                  userInfo: {
+                    firstName: activeUser?.firstName,
+                    lastName: activeUser?.lastName,
+                    documentNumber: activeUser?.documentNumber
+                  }
+                },
+                observations: `Error al reagendar cita ${scheduled.appointmentId} desde resumen: ${errorData?.message || "Error desconocido"}`
+              });
+              
               toast.error("Error al reagendar la cita", {
                 icon: (
                   <FontAwesomeIcon
@@ -98,6 +145,24 @@ export const ReschedulingResume = ({
             }
           } catch (error) {
             console.error('Error en reagendamiento:', error);
+            
+            // Log cuando hay error en el reagendamiento desde el resumen
+            logTraceabilityEvent({
+              procedure: "agendamiento",
+              procedureStatus: "error_reagendamiento_resumen",
+              modifiedFields: {
+                appointmentOldId: scheduled.appointmentId,
+                availabilityBlockId: toSavedDate,
+                error: error instanceof Error ? error.message : "Error desconocido",
+                userInfo: {
+                  firstName: activeUser?.firstName,
+                  lastName: activeUser?.lastName,
+                  documentNumber: activeUser?.documentNumber
+                }
+              },
+              observations: `Error al reagendar cita ${scheduled.appointmentId} desde resumen: ${error instanceof Error ? error.message : "Error desconocido"}`
+            });
+            
             toast.error("Error al reagendar la cita", {
               icon: (
                 <FontAwesomeIcon
@@ -135,7 +200,7 @@ export const ReschedulingResume = ({
               Fecha:{" "}
               {`${
                 scheduled.date
-                  ? new Date(scheduled.date).toLocaleDateString("es-ES")
+                  ? formatAppointmentDate(scheduled.date)
                   : ""
               }`}{" "}
               {typeof scheduled?.time === 'string' ? scheduled.time : ''}

@@ -4,13 +4,6 @@ import { VerificationCard } from "../components/public/auth/VerificationCard";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRoutesStore } from "../stores/routesStore";
 import { SessionStore } from "../stores/sessionStore";
-import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCircleCheck,
-  faCircleExclamation,
-} from "@fortawesome/free-solid-svg-icons";
-import { SchedulingsStore } from "../stores/schedulingsStore";
 import { useMutation } from "@tanstack/react-query";
 import {
   putPublicRequest
@@ -20,6 +13,15 @@ import { CancelDataAppointmentSchema } from "../schemas/appointments/cancelAppoi
 import { useSendOTP } from "../hooks/Auth/useSendOTP";
 import type { ResponsePreAppointmentType } from "../types/dashboard/preAppointmentTypes";
 import { ReschedulingFormSchema } from "../schemas/appointments/appointments";
+import { SchedulingsStore } from "../stores/schedulingsStore";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircleCheck,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
+import { useTraceabilityLog } from "../hooks/useTraceabilityLog";
+import { useActiveUser } from "../hooks/useActiveUser";
 
 type formType = {
   code: number;
@@ -30,6 +32,25 @@ export const VerificationViews = () => {
     type: "email" | "sms" | "whatsapp";
     value: string;
   }>({ type: "email", value: "" });
+  const { fromAuth, registry, typeUser } = useRoutesStore();
+  const {
+    locationVerification,
+    official,
+    setOtp,
+    otp,
+    externalId,
+    activeUser,
+  } = SessionStore();
+  const [invalidCode, setInvalidCode] = useState(false);
+  const {
+    toRemove,
+    reschedulings,
+    //  removeScheduled
+  } = SchedulingsStore();
+  const { logTraceabilityEvent } = useTraceabilityLog();
+  const { activeUser: currentUser } = useActiveUser();
+  const navigate = useNavigate();
+  const { methodSelected } = useParams();
 
   const maskEmail = (email: string) => {
     const [name, domain] = email.split("@");
@@ -49,23 +70,7 @@ export const VerificationViews = () => {
 
     return `${start}${masked}${end}`;
   };
-  const { fromAuth, registry, typeUser } = useRoutesStore();
-  const {
-    locationVerification,
-    official,
-    setOtp,
-    otp,
-    externalId,
-    activeUser,
-  } = SessionStore();
-  const [invalidCode, setInvalidCode] = useState(false);
-  const {
-    toRemove,
-    reschedulings,
-    //  removeScheduled
-  } = SchedulingsStore();
 
-  const { methodSelected } = useParams();
   useEffect(() => {
     // Verificar que tenemos los datos necesarios
     if (!activeUser) {
@@ -112,6 +117,29 @@ export const VerificationViews = () => {
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
     onSuccess: (data: ResponseCancelAppointmentType) => {
       console.log("Cita cancelada correctamente", data);
+      
+      // Log cuando se cancela exitosamente
+      if (toRemove) {
+        logTraceabilityEvent({
+          procedure: "agendamiento",
+          procedureStatus: "cancelacion_exitosa",
+          modifiedFields: {
+            appointmentId: toRemove.appointmentId,
+            appointmentStatus: toRemove.status,
+            officeId: toRemove.officeId,
+            officeName: toRemove.office,
+            procedureId: toRemove.procedureId,
+            procedureName: toRemove.procedure,
+            userInfo: {
+              firstName: currentUser?.firstName,
+              lastName: currentUser?.lastName,
+              documentNumber: currentUser?.documentNumber
+            }
+          },
+          observations: `Usuario canceló cita ${toRemove.appointmentId} con estado ${toRemove.status}`
+        });
+      }
+      
       toast.success("Cita cancelada correctamente", {
         icon: (
           <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
@@ -125,6 +153,26 @@ export const VerificationViews = () => {
     },
     onError: (error) => {
       console.log(error);
+      
+      // Log cuando hay error al cancelar
+      if (toRemove) {
+        logTraceabilityEvent({
+          procedure: "agendamiento",
+          procedureStatus: "error_cancelacion",
+          modifiedFields: {
+            appointmentId: toRemove.appointmentId,
+            appointmentStatus: toRemove.status,
+            error: error instanceof Error ? error.message : "Error desconocido",
+            userInfo: {
+              firstName: currentUser?.firstName,
+              lastName: currentUser?.lastName,
+              documentNumber: currentUser?.documentNumber
+            }
+          },
+          observations: `Error al cancelar cita ${toRemove.appointmentId}: ${error instanceof Error ? error.message : "Error desconocido"}`
+        });
+      }
+      
       toast.error(
         "Error al cancelar la cita, ten en cuenta que solo se pueden cancelar citas con más de 24 horas de anticipación",
         {
@@ -196,7 +244,6 @@ export const VerificationViews = () => {
     return false; // Si no hay toSavedDate
   };
 
-  const navigate = useNavigate();
   const onSubmit = async (data: formType) => {
     console.log("Form submitted with data:", data);
     console.log("OTP:", otp);

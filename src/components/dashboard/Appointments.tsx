@@ -39,6 +39,7 @@ import { SchedulingsStore } from "../../stores/schedulingsStore";
 
 import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
 import { ReschedulingForm } from "../scheduling/ReschedulingForm";
+import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -49,25 +50,23 @@ export const estadoColor: Record<Estado, string> = {
 
 export const AppointmentCards = () => {
   const navigate = useNavigate();
-  const { setToRemove } = SchedulingsStore();
+  const [searchParams] = useSearchParams();
   const { activeUser, setActiveUser, setTokenExpiration } = useActiveUser();
   const { setTokenExpiration: setExpiration } = useTokenExpiration();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isOpenCancel, setIsOpenCancel] = useState<boolean>(false);
+  const [sche, setSche] = useState<AppointmentsType>();
+  const [loader, setLoader] = useState(true);
+  const [noAppointmentsMsg, setNoAppointmentsMsg] = useState<string>("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenCancel, setIsOpenCancel] = useState(false);
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
-  // const [scheduledData, setScheduledData] = useState<SchedulingStoreType>();
-  const [requestRemove, setRequestRemove] = useState<boolean>(false);
+  const [requestRemove, setRequestRemove] = useState(false);
+  const { setToRemove, toRemove } = SchedulingsStore();
+  const { logTraceabilityEvent } = useTraceabilityLog();
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
   >({});
-  const [loader, setLoader] = useState<boolean>(true);
-  const [sche, setSche] = useState<AppointmentsType>();
-  const [searchParams] = useSearchParams();
   const [hash, setHash] = useState<string | null>();
   const [token, setToken] = useState<ResponseHashType>();
-  const [noAppointmentsMsg, setNoAppointmentsMsg] = useState<string>("");
-
-
 
   useEffect(() => {
     const rawHash = searchParams.get("hash");
@@ -184,24 +183,33 @@ export const AppointmentCards = () => {
     }
   };
 
-
-
-  // const handleExternalLogin = async () => {
-  //   await MutateLoginAsync({
-  //     url: "https://www.iaidentity.com/ApiCancilleria/api/authenticate",
-  //     schema: CreateExternalLoginSchema,
-  //     body: {
-  //       username: "UserCancilleria",
-  //       password: "c4nc1ll3r1a.2024",
-  //     },
-  //     ext: true,
-  //   });
-  // };
-
   const { mutateAsync: removeAsync } = useMutation({
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
     onSuccess: async (data: ResponseCancelAppointmentType) => {
       console.log("Cita cancelada correctamente", data);
+      
+      // Log cuando se archiva exitosamente
+      if (scheduledData) {
+        logTraceabilityEvent({
+          procedure: "agendamiento",
+          procedureStatus: "archivado_exitoso",
+          modifiedFields: {
+            appointmentId: scheduledData.appointmentId,
+            appointmentStatus: scheduledData.status,
+            officeId: scheduledData.officeId,
+            officeName: scheduledData.office,
+            procedureId: scheduledData.procedureId,
+            procedureName: scheduledData.procedure,
+            userInfo: {
+              firstName: activeUser?.firstName,
+              lastName: activeUser?.lastName,
+              documentNumber: activeUser?.documentNumber
+            }
+          },
+          observations: `Usuario archivó cita ${scheduledData.appointmentId} con estado ${scheduledData.status}`
+        });
+      }
+      
       toast.success("Cita archivada correctamente", {
         icon: (
           <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
@@ -216,7 +224,28 @@ export const AppointmentCards = () => {
       // Recargar las citas después de archivar
       await handleAppointment();
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Error al archivar la cita:", error);
+      
+      // Log cuando hay error al archivar
+      if (scheduledData) {
+        logTraceabilityEvent({
+          procedure: "agendamiento",
+          procedureStatus: "error_archivado",
+          modifiedFields: {
+            appointmentId: scheduledData.appointmentId,
+            appointmentStatus: scheduledData.status,
+            error: error instanceof Error ? error.message : "Error desconocido",
+            userInfo: {
+              firstName: activeUser?.firstName,
+              lastName: activeUser?.lastName,
+              documentNumber: activeUser?.documentNumber
+            }
+          },
+          observations: `Error al archivar cita ${scheduledData.appointmentId}: ${error instanceof Error ? error.message : "Error desconocido"}`
+        });
+      }
+      
       toast.error("Error al archivar la cita", {
         icon: (
           <FontAwesomeIcon

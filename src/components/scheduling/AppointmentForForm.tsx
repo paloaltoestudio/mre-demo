@@ -20,6 +20,7 @@ import type { ProceduresResponseType } from "../../types/dashboard/proceduresTyp
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { ProcedureResponseSchema } from "../../schemas/appointments/proceduresInfo.schema";
 import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
+import { useEffect } from "react";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
@@ -83,6 +84,15 @@ export const AppointmentForForm = ({
     url: `/Procedure/by-office/${consulate.id}`,
     schema: ProcedureResponseSchema,
   });
+
+  useEffect(() => {
+    if (selectedOption === "Para mis dependientes" ||
+        selectedOption === "Para mí y mis dependientes") {
+      setValue("dependientesCount", 1);
+    } else {
+      setValue("dependientesCount", 0);
+    }
+  }, [selectedOption, setValue]);
 
   const handleContinue = () => {
     if (procedureWatcher === undefined || !selectedOption) {
@@ -181,7 +191,10 @@ export const AppointmentForForm = ({
             </span>
           </div>
           <div
-            onClick={() => setSelectedOption("Para mis dependientes")}
+            onClick={() => {
+              setSelectedOption("Para mis dependientes");
+              setValue("dependientesCount", 1);
+            }}
             className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
             ${
               selectedOption === "Para mis dependientes"
@@ -198,7 +211,10 @@ export const AppointmentForForm = ({
             </span>
           </div>
           <div
-            onClick={() => setSelectedOption("Para mí y mis dependientes")}
+            onClick={() => {
+              setSelectedOption("Para mí y mis dependientes");
+              setValue("dependientesCount", 1);
+            }}
             className={`flex items-center gap-5 w-[330px] min-h-[80px] pl-6 p-2 rounded-full border-2 md:min-w-[30%] lg:max-h-[80px] hover:bg-gray-200 hover:cursor-pointer 
             ${
               selectedOption === "Para mí y mis dependientes"
@@ -295,8 +311,9 @@ export const AppointmentForForm = ({
                   <div className="flex items-center gap-2">
                     <span
                       onClick={() => {
-                        if (field.value > 0) {
-                          field.onChange(field.value - 1);
+                        const currentValue = field.value || 0;
+                        if (currentValue > 0) {
+                          field.onChange(currentValue - 1);
                         }
                       }}
                       className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
@@ -311,12 +328,14 @@ export const AppointmentForForm = ({
                       {...field}
                       type="text"
                       disabled
+                      value={field.value || 0}
                       className="max-w-[50px] text-center border border-gray-300 rounded px-2 py-2"
                     />
 
                     <span
                       onClick={() => {
-                        field.onChange(field.value + 1);
+                        const currentValue = field.value || 0;
+                        field.onChange(currentValue + 1);
                       }}
                       className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
                     >
