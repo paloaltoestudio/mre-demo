@@ -39,9 +39,8 @@ export const CertificationRequestForm = ({ onNext, onBack }: CertificationReques
               render={({ field }) => (
                 <select {...field} className="input w-full">
                   <option value="">Seleccionar</option>
-                  <option value="presencial">Presencial</option>
-                  <option value="virtual">Virtual</option>
-                  <option value="mixta">Mixta</option>
+                  <option value="desplegable1">Desplegable 1</option>
+                  <option value="desplegable2">Desplegable 2</option>
                 </select>
               )}
             />

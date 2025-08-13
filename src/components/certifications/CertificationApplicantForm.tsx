@@ -38,9 +38,10 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="CERTIFICACION">CERTIFICACIÓN</option>
-                    <option value="CERTIFICADO">CERTIFICADO</option>
-                    <option value="CONSTANCIA">CONSTANCIA</option>
+                    <option value="CERTIFICACIONES">Certificaciones</option>
+                    <option value="CERTIFICADO_EXISTENCIA_LEGAL_SOCIEDADES">Certificados de existencia legal de sociedades</option>
+                    <option value="CERTIFICADO_FE_DE_VIDA">Certificados Fe de Vida</option>
+                    <option value="CERTIFICADO_RESIDENCIA_MENOR">Certificados de residencia para la salida del país de un menor de edad</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -151,12 +152,7 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
               rules={{ required: "El primer nombre es obligatorio" }}
               render={({ field, fieldState }) => (
                 <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="Juan">Juan</option>
-                    <option value="María">María</option>
-                    <option value="Carlos">Carlos</option>
-                  </select>
+                  <input {...field} type="text" className="input w-full" />
                   {fieldState.error && (
                     <span className="text-red-500 text-xs">
                       {fieldState.error.message}
@@ -170,12 +166,11 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
           {/* Segundo nombre */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              Segundo nombre <span className="text-red-500">*</span>
+              Segundo nombre 
             </label>
             <Controller
               name="segundoNombre"
               control={control}
-              rules={{ required: "El segundo nombre es obligatorio" }}
               render={({ field, fieldState }) => (
                 <>
                   <input {...field} type="text" className="input w-full" />
@@ -239,12 +234,7 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
               name="segundoApellido"
               control={control}
               render={({ field }) => (
-                <select {...field} className="input w-full">
-                  <option value="">Seleccionar</option>
-                  <option value="García">García</option>
-                  <option value="López">López</option>
-                  <option value="Rodríguez">Rodríguez</option>
-                </select>
+                <input {...field} type="text" className="input w-full" />
               )}
             />
           </div>
