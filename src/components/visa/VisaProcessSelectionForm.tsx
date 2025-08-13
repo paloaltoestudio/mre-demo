@@ -1,6 +1,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
+import { useVisaStore } from "../../stores/visaStore";
 
 type VisaProcessSelectionFormProps = {
   onNext: () => void;
@@ -10,23 +11,23 @@ type VisaProcessSelectionFormProps = {
 export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectionFormProps) => {
   const { control, handleSubmit } = useForm({
     defaultValues: {
-      tramitadaPor: "TÍTULO PROPIO",
-      primerNombre: "Pedro",
-      segundoNombre: "Andres",
-      primerApellido: "Pérez",
-      segundoApellido: "Casas",
-      numeroPasaporte: "AA12345678",
-      fechaExpedicionPasaporte: "",
-      fechaVencimientoPasaporte: "",
-      paisNacimiento: "",
-      ciudadNacimiento: "",
-      fechaNacimiento: "",
-      genero: "",
-      paisResidencia: "",
-      ciudadResidencia: "",
-      lugarResidencia: "",
-      otraNacionalidad: "",
-      autoridad: ""
+      tramitadaPor: useVisaStore((state) => state.tramitadaPor) || "TÍTULO PROPIO",
+      primerNombre: useVisaStore((state) => state.primerNombre) || "Pedro",
+      segundoNombre: useVisaStore((state) => state.segundoNombre) || "Andres",
+      primerApellido: useVisaStore((state) => state.primerApellido) || "Pérez",
+      segundoApellido: useVisaStore((state) => state.segundoApellido) || "Casas",
+      numeroPasaporte: useVisaStore((state) => state.numeroPasaporte) || "AA12345678",
+      fechaExpedicionPasaporte: useVisaStore((state) => state.fechaExpedicionPasaporte) || "",
+      fechaVencimientoPasaporte: useVisaStore((state) => state.fechaVencimientoPasaporte) || "",
+      paisNacimiento: useVisaStore((state) => state.paisNacimiento) || "",
+      ciudadNacimiento: useVisaStore((state) => state.ciudadNacimiento) || "",
+      fechaNacimiento: useVisaStore((state) => state.fechaNacimiento) || "",
+      genero: useVisaStore((state) => state.genero) || "",
+      paisResidencia: useVisaStore((state) => state.paisResidencia) || "",
+      ciudadResidencia: useVisaStore((state) => state.ciudadResidencia) || "",
+      lugarResidencia: useVisaStore((state) => state.lugarResidencia) || "",
+      otraNacionalidad: useVisaStore((state) => state.otraNacionalidad) || "",
+      autoridad: useVisaStore((state) => state.autoridad) || ""
     }
   });
 
@@ -61,7 +62,13 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
   }, []);
 
   const onSubmit = (data: any) => {
-    console.log(data);
+    useVisaStore.setState({
+      numeroPasaporte: data.numeroPasaporte,
+      paisNacimiento: data.paisNacimiento,
+      fechaExpedicionPasaporte: data.fechaExpedicionPasaporte,
+      fechaVencimientoPasaporte: data.fechaVencimientoPasaporte,
+      autoridad: data.autoridad
+    });
     onNext();
   };
 
@@ -72,6 +79,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
         aria-label="visa-process-selection-form"
         className="w-full"
       >
+        
 
         <h2 className="mb-4 text-md font-normal">Datos documento</h2>
 
@@ -95,7 +103,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
 
           {/* País de nacimiento */}
           <div>
-            <label className="block text-sm font-medium mb-1">País de nacimiento <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
             <Controller
               name="paisNacimiento"
               control={control}
@@ -104,20 +112,19 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Colombia">Colombia</option>
-                    <option value="Venezuela">Venezuela</option>
-                    <option value="Ecuador">Ecuador</option>
-                    <option value="Peru">Perú</option>
-                    <option value="Brasil">Brasil</option>
-                    <option value="Argentina">Argentina</option>
-                    <option value="Chile">Chile</option>
-                    <option value="Mexico">México</option>
-                    <option value="Estados Unidos">Estados Unidos</option>
-                    <option value="España">España</option>
-                    <option value="Francia">Francia</option>
-                    <option value="Alemania">Alemania</option>
-                    <option value="Italia">Italia</option>
-                    <option value="Reino Unido">Reino Unido</option>
+                    <option value="Venezolano">Venezolano</option>
+                    <option value="Ecuatoriano">Ecuatoriano</option>
+                    <option value="Peruano">Peruano</option>
+                    <option value="Brasileño">Brasileño</option>
+                    <option value="Argentino">Argentino</option>
+                    <option value="Chileno">Chileno</option>
+                    <option value="Mexicano">Mexicano</option>
+                    <option value="Estadounidense">Estadounidense</option>
+                    <option value="Español">Español</option>
+                    <option value="Francés">Francés</option>
+                    <option value="Alemán">Alemán</option>
+                    <option value="Italiano">Italiano</option>
+                    <option value="Británico">Británico</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -172,6 +179,39 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
           </div>
         </div>
 
+        {/* Datos Solicitud Section */}
+        <div className="mb-8">
+          {/* Information Box */}
+          <div className="bg-gray-100 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-sm font-bold">i</span>
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Complete este campo solo a efectos de consultar una solicitud previamente registrada con fines de actualización de información o de cumplimiento de algún requerimiento hecho por la Autoridad de Visas
+              </p>
+            </div>
+          </div>
+
+          {/* Application Data Heading */}
+          <h2 className="mb-4 text-md font-normal">Datos Solicitud</h2>
+
+          {/* Application Registration Number */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700">
+                Número de registro de solicitud
+              </label>
+            
+              <input 
+                type="text" 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Ingrese el número de registro de solicitud"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="flex gap-5 justify-end mt-8">
           <button
             type="button"
@@ -188,6 +228,8 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
           </button>
         </div>
       </section>
+
+      
     </form>
   );
 }; 

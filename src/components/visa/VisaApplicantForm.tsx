@@ -1,4 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
+import { useVisaStore } from '../../stores/visaStore';
 
 type VisaApplicantFormProps = {
   onNext: (data: any) => void;
@@ -6,21 +7,27 @@ type VisaApplicantFormProps = {
 };
 
 export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) => {
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, watch } = useForm({
     defaultValues: {
-      numeroRegistroSolicitud: "",
-      numeroPasaporte: "AA12345678",
-      nacionalidad: "ECUATORIANA",
-      solicitudDe: "VISA",
-      categoriaVisa: "TRABAJADOR",
-      claseVisa: "VISITANTE",
-      tipoSolicitud: "INDIVIDUAL",
-      tipoSolicitante: "TITULAR PRINCIPAL",
-      tramitadaPor: "DIRECTAMENTE POR EXTRANJERO"
+      numeroRegistroSolicitud: useVisaStore((state) => state.numeroRegistroSolicitud) || "",
+      numeroPasaporte: useVisaStore((state) => state.numeroPasaporte) || "AA12345678",
+      nacionalidad: useVisaStore((state) => state.nacionalidad) || "ECUATORIANA",
+      solicitudDe: useVisaStore((state) => state.solicitudDe) || "VISA",
+      categoriaVisa: useVisaStore((state) => state.categoriaVisa) || "TRABAJADOR",
+      claseVisa: useVisaStore((state) => state.claseVisa) || "VISITANTE",
+      tipoSolicitud: useVisaStore((state) => state.tipoSolicitud) || "INDIVIDUAL",
+      tipoSolicitante: useVisaStore((state) => state.tipoSolicitante) || "TITULAR PRINCIPAL",
+      tramitadaPor: useVisaStore((state) => state.tramitadaPor) || "DIRECTAMENTE POR EXTRANJERO"
     }
   });
 
+  const setSelectedCategory = useVisaStore((state) => state.setSelectedCategory);
+
+  // Observar el valor del campo tramitadaPor
+  const tramitadaPor = watch("tramitadaPor");
+
   const onSubmit = (data: any) => {
+    setSelectedCategory(data.categoriaVisa);
     console.log(data);
     onNext(data);
   };
@@ -166,27 +173,6 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
             />
           </div>
 
-
-          {/* Tipo de Solicitud */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Tipo de Solicitud <span className="text-red-500">*</span></label>
-            <Controller
-              name="tipoSolicitud"
-              control={control}
-              rules={{ required: "El tipo de solicitud es obligatorio" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccione una opción</option>
-                    <option value="Individual">Individual</option>
-                    <option value="Grupo familiar">Grupo familiar</option>
-                  </select>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
           {/* Tipo de Solicitante */}
           <div>
             <label className="block text-sm font-medium mb-1">Tipo de Solicitante <span className="text-red-500">*</span></label>
@@ -225,6 +211,147 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
             />
           </div>
         </div>
+
+        {/* Sección condicional para Apoderado */}
+        {tramitadaPor === "Apoderado" && (
+          <div className="mt-8 rounded-lg">
+            <h3 className="mb-4 text-md font-semibold text-gray-800">Información Apoderado</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Tipo Documento */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Tipo Documento <span className="text-red-500">*</span></label>
+                <select className="input w-full">
+                  <option value="">Seleccione...</option>
+                  <option value="CC">Cédula de Ciudadanía</option>
+                  <option value="CE">Cédula de Extranjería</option>
+                  <option value="PASSPORT">Pasaporte</option>
+                  <option value="TI">Tarjeta de Identidad</option>
+                  <option value="NIT">NIT</option>
+                </select>
+              </div>
+
+              {/* Número de Documento */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Número de Documento <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Nacionalidad */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
+                <select className="input w-full">
+                  <option value="">Seleccione...</option>
+                  <option value="VENEZOLANA">Venezolana</option>
+                  <option value="ECUATORIANA">Ecuatoriana</option>
+                  <option value="PERUANA">Peruana</option>
+                  <option value="BRASILEÑA">Brasileña</option>
+                  <option value="ARGENTINA">Argentina</option>
+                  <option value="CHILENA">Chilena</option>
+                  <option value="MEXICANA">Mexicana</option>
+                  <option value="ESTADOUNIDENSE">Estadounidense</option>
+                  <option value="ESPAÑOLA">Española</option>
+                  <option value="FRANCESA">Francesa</option>
+                  <option value="ALEMANA">Alemana</option>
+                  <option value="ITALIANA">Italiana</option>
+                  <option value="BRITANICA">Británica</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+
+              {/* Primer Nombre */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Primer Nombre <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Segundo Nombre */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Segundo Nombre</label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Primer Apellido */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Primer Apellido <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Segundo Apellido */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Segundo Apellido</label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+
+              {/* Empresa */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Empresa <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Dirección */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Dirección</label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Teléfono */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Teléfono</label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+              
+                {/* Correo Electrónico */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Correo Electrónico <span className="text-red-500">*</span></label>
+                  <input 
+                    type="email" 
+                    className="input w-full"
+                    placeholder=""
+                  />
+                </div>
+
+              </div>
+            </div>
+
+
+        )}
 
         <div className="flex gap-5 justify-end mt-8">
           <button

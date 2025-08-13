@@ -4,6 +4,7 @@ import { VisaApplicantForm } from "./VisaApplicantForm";
 import { VisaProcessSelectionForm } from "./VisaProcessSelectionForm";
 import { VisaPersonalDataForm } from "./VisaPersonalDataForm";
 import { MinorDataForm } from "../passport/MinorDataForm";
+import LaborInformationForm from './LaborInformationForm';
 
 export const VisaWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -24,6 +25,15 @@ export const VisaWizard = () => {
       setCurrentStep(3); // Regresa al último paso válido
     }
   }, [tipoDocumento, currentStep]);
+
+  const handleNext = (data) => {
+    console.log('Next step data:', data);
+    setCurrentStep(currentStep + 1);
+  };
+
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1);
+  };
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-8">
@@ -59,12 +69,9 @@ export const VisaWizard = () => {
             onBack={() => setCurrentStep(2)}
           />
         )}
-        {/* Mostrar MinorDataForm solo si el tipo de documento NO es CC */}
-        {currentStep === 4 && tipoDocumento !== "CC" && (
-          <MinorDataForm
-            onNext={() => setCurrentStep(steps.length + 1)}
-            onBack={() => setCurrentStep(3)}
-          />
+        
+        {currentStep === 4 && (
+          <LaborInformationForm onNext={handleNext} onBack={handleBack} />
         )}
       </div>
     </div>

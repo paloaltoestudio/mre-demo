@@ -1,5 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
+import { useVisaStore } from "../../stores/visaStore";
 
 type ChildData = {
   id: string;
@@ -31,47 +32,41 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
 
   const { control, handleSubmit, watch } = useForm({
     defaultValues: {
-      primerNombre: "",
-      segundoNombre: "",
-      primerApellido: "",
-      segundoApellido: "",
-      sexo: "",
-      estadoCivil: "",
-      tieneOtraNacionalidad: "",
-      tieneHijos: "",
-      nacionalidad: "",
-      numeroPasaporte: "",
-      // Datos de nacimiento
-      fechaNacimiento: "",
-      paisNacimiento: "",
-      // Formación académica
-      nivelEducativo: "",
-      tituloDiploma: "",
-      areaConocimiento: "",
-      subareaConocimiento: "",
-      // Datos de domicilio en país de nacionalidad
-      paisDomicilio: "",
-      ciudadDomicilio: "",
-      direccionDomicilio: "",
-      telefonoDomicilio: "",
-      // Dirección prevista en Colombia
-      paisColombia: "COLOMBIA",
-      ciudadColombia: "",
-      direccionColombia: "",
-      telefonoColombia: "",
-      telefonoOficina: "",
-      // Gastos
-      gastosCubiertos: "",
-      especificarGastos: "",
-      // Redes Sociales
-      tieneRedesSociales: "",
-      facebookUsuario: "",
-      instagramUsuario: "",
-      xUsuario: "",
-      otroRedSocial: "",
-      // Notificaciones
-      correoElectronico: "",
-      confirmacionCorreo: ""
+      primerNombre: useVisaStore((state: VisaStoreState) => state.primerNombre) || "",
+      segundoNombre: useVisaStore((state: VisaStoreState) => state.segundoNombre) || "",
+      primerApellido: useVisaStore((state: VisaStoreState) => state.primerApellido) || "",
+      segundoApellido: useVisaStore((state: VisaStoreState) => state.segundoApellido) || "",
+      sexo: useVisaStore((state: VisaStoreState) => state.sexo) || "",
+      estadoCivil: useVisaStore((state: VisaStoreState) => state.estadoCivil) || "",
+      tieneOtraNacionalidad: useVisaStore((state: VisaStoreState) => state.tieneOtraNacionalidad) || "",
+      tieneHijos: useVisaStore((state: VisaStoreState) => state.tieneHijos) || "",
+      nacionalidad: useVisaStore((state: VisaStoreState) => state.nacionalidad) || "",
+      numeroPasaporte: useVisaStore((state: VisaStoreState) => state.numeroPasaporte) || "",
+      fechaNacimiento: useVisaStore((state: VisaStoreState) => state.fechaNacimiento) || "",
+      paisNacimiento: useVisaStore((state: VisaStoreState) => state.paisNacimiento) || "",
+      nivelEducativo: useVisaStore((state: VisaStoreState) => state.nivelEducativo) || "",
+      tituloDiploma: useVisaStore((state: VisaStoreState) => state.tituloDiploma) || "",
+      areaConocimiento: useVisaStore((state: VisaStoreState) => state.areaConocimiento) || "",
+      subareaConocimiento: useVisaStore((state: VisaStoreState) => state.subareaConocimiento) || "",
+      paisDomicilio: useVisaStore((state: VisaStoreState) => state.paisDomicilio) || "",
+      ciudadDomicilio: useVisaStore((state: VisaStoreState) => state.ciudadDomicilio) || "",
+      direccionDomicilio: useVisaStore((state: VisaStoreState) => state.direccionDomicilio) || "",
+      telefonoDomicilio: useVisaStore((state: VisaStoreState) => state.telefonoDomicilio) || "",
+      paisColombia: useVisaStore((state: VisaStoreState) => state.paisColombia) || "COLOMBIA",
+      departamentoColombia: useVisaStore((state: VisaStoreState) => state.departamentoColombia) || "",
+      ciudadColombia: useVisaStore((state: VisaStoreState) => state.ciudadColombia) || "",
+      direccionColombia: useVisaStore((state: VisaStoreState) => state.direccionColombia) || "",
+      telefonoColombia: useVisaStore((state: VisaStoreState) => state.telefonoColombia) || "",
+      telefonoOficina: useVisaStore((state: VisaStoreState) => state.telefonoOficina) || "",
+      gastosCubiertos: useVisaStore((state: VisaStoreState) => state.gastosCubiertos) || "",
+      especificarGastos: useVisaStore((state: VisaStoreState) => state.especificarGastos) || "",
+      tieneRedesSociales: useVisaStore((state: VisaStoreState) => state.tieneRedesSociales) || "",
+      facebookUsuario: useVisaStore((state: VisaStoreState) => state.facebookUsuario) || "",
+      instagramUsuario: useVisaStore((state: VisaStoreState) => state.instagramUsuario) || "",
+      xUsuario: useVisaStore((state: VisaStoreState) => state.xUsuario) || "",
+      otroRedSocial: useVisaStore((state: VisaStoreState) => state.otroRedSocial) || "",
+      correoElectronico: useVisaStore((state: VisaStoreState) => state.correoElectronico) || "",
+      confirmacionCorreo: useVisaStore((state: VisaStoreState) => state.confirmacionCorreo) || ""
     }
   });
 
@@ -224,8 +219,100 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
           </div>
         </div>
 
+        {/* Sección condicional para Casado */}
+        {watch("estadoCivil") === "Casado" && (
+          <div className="mt-8 rounded-lg">
+            <h3 className="mb-4 text-md font-semibold text-gray-800">Esposa(o)/Compañera(o) Permanente</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Tipo Documento */}
+          <div>
+                <label className="block text-sm font-medium mb-1">Tipo Documento <span className="text-red-500">*</span></label>
+                <select className="input w-full">
+                  <option value="">Seleccione...</option>
+                  <option value="CC">Cédula de Ciudadanía</option>
+                  <option value="CE">Cédula de Extranjería</option>
+                  <option value="PASSPORT">Pasaporte</option>
+                  <option value="TI">Tarjeta de Identidad</option>
+                  <option value="NIT">NIT</option>
+                </select>
+              </div>
+
+              {/* Número de Documento */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Número de Documento <span className="text-red-500">*</span></label>
+                      <input
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Nacionalidad */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
+                <select className="input w-full">
+                  <option value="">Seleccione...</option>
+                  <option value="VENEZOLANA">Venezolana</option>
+                  <option value="ECUATORIANA">Ecuatoriana</option>
+                  <option value="PERUANA">Peruana</option>
+                  <option value="BRASILEÑA">Brasileña</option>
+                  <option value="ARGENTINA">Argentina</option>
+                  <option value="CHILENA">Chilena</option>
+                  <option value="MEXICANA">Mexicana</option>
+                  <option value="ESTADOUNIDENSE">Estadounidense</option>
+                  <option value="ESPAÑOLA">Española</option>
+                  <option value="FRANCESA">Francesa</option>
+                  <option value="ALEMANA">Alemana</option>
+                  <option value="ITALIANA">Italiana</option>
+                  <option value="BRITANICA">Británica</option>
+                </select>
+              </div>
+
+              {/* Primer Nombre */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Primer Nombre <span className="text-red-500">*</span></label>
+                      <input
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+                  </div>
+
+              {/* Segundo Nombre */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Segundo Nombre</label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+            />
+          </div>
+
+              {/* Primer Apellido */}
+          <div>
+                <label className="block text-sm font-medium mb-1">Primer Apellido <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+
+              {/* Segundo Apellido */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Segundo Apellido</label>
+                <input 
+                  type="text" 
+                  className="input w-full"
+                  placeholder=""
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Checkboxes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 mb-6">
           {/* ¿Tiene Otra Nacionalidad? */}
           <div>
             <label className="block text-sm font-medium mb-1">¿Tiene Otra Nacionalidad? <span className="text-red-500">*</span></label>
@@ -233,41 +320,6 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
               name="tieneOtraNacionalidad"
               control={control}
               rules={{ required: "Debe seleccionar si tiene otra nacionalidad" }}
-              render={({ field, fieldState }) => (
-                <>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        {...field}
-                        type="radio"
-                        value="Si"
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="text-sm">Si</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        {...field}
-                        type="radio"
-                        value="No"
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="text-sm">No</span>
-                    </label>
-                  </div>
-                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
-                </>
-              )}
-            />
-          </div>
-
-          {/* ¿Tiene Hijos? */}
-          <div>
-            <label className="block text-sm font-medium mb-1">¿Tiene Hijos? <span className="text-red-500">*</span></label>
-            <Controller
-              name="tieneHijos"
-              control={control}
-              rules={{ required: "Debe seleccionar si tiene hijos" }}
               render={({ field, fieldState }) => (
                 <>
                   <div className="flex gap-4">
@@ -349,6 +401,40 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
           </>
         )}
 
+        {/* ¿Tiene Hijos? */}
+        <div>
+            <label className="block text-sm font-medium mb-1">¿Tiene Hijos? <span className="text-red-500">*</span></label>
+            <Controller
+              name="tieneHijos"
+              control={control}
+              rules={{ required: "Debe seleccionar si tiene hijos" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        {...field}
+                        type="radio"
+                        value="Si"
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-sm">Si</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        {...field}
+                        type="radio"
+                        value="No"
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-sm">No</span>
+                    </label>
+                  </div>
+                  {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
+                </>
+              )}
+            />
+          </div>
         {/* Sección Otros Menores - Solo se muestra si selecciona "Si" en tiene hijos */}
         {watchTieneHijos === "Si" && (
           <>
@@ -396,7 +482,6 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                   className="input w-full"
                 >
                   <option value="">Seleccionar</option>
-                  <option value="Colombiana">Colombiana</option>
                   <option value="Venezolana">Venezolana</option>
                   <option value="Ecuatoriana">Ecuatoriana</option>
                   <option value="Peruana">Peruana</option>
@@ -549,7 +634,6 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Colombia">Colombia</option>
                     <option value="Venezuela">Venezuela</option>
                     <option value="Ecuador">Ecuador</option>
                     <option value="Peru">Perú</option>
@@ -692,6 +776,67 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
 
         <hr className="border-gray-200 mb-8" />
 
+        {/* Ocupación e Ingresos */}
+        <div className="mb-8">
+          <h3 className="mb-4 text-md">Ocupación e Ingresos</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Ocupación */}
+            <div>
+              <label className="block text-sm font-medium mb-1">¿Durante el mes pasado a que se dedicó principalmente? <span className="text-red-500">*</span></label>
+              <select className="input w-full">
+                <option value="">Seleccione Ocupación</option>
+                <option value="Buscando trabajo">Buscando trabajo</option>
+                <option value="Estudiante">Estudiante</option>
+                <option value="Incapacidad permantente para trabajar">Incapacidad permantente para trabajar</option>
+                <option value="No aplica">No aplica</option>
+                <option value="Oficios del hogar">Oficios del hogar</option>
+                <option value="Otra actividad">Otra actividad</option>
+                <option value="Trabajó en una actividad que le generó algún ingreso">Trabajó en una actividad que le generó algún ingreso</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-4">
+            {/* Profesión */}
+            <div>
+              <label className="block text-sm font-medium mb-1">¿Con qué profesión se relaciona su trabajo? <span className="text-red-500">*</span></label>
+              <select className="input w-full">
+                <option value="">Seleccione Profesión</option>
+                <option value="Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros">Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros</option>
+                <option value="Directores y gerentes">Directores y gerentes</option>
+                <option value="No aplica">No aplica</option>
+                <option value="Ocupaciones elementales">Ocupaciones elementales</option>
+                <option value="Oficiales, operarios, artesanos y oficios relacionados">Oficiales, operarios, artesanos y oficios relacionados</option>
+                <option value="Operadores de instalaciones y máquinas y ensambladores">Operadores de instalaciones y máquinas y ensambladores</option>
+                <option value="Personal de apoyo administrativo">Personal de apoyo administrativo</option>
+                <option value="Profesionales, científicos e intelectuales">Profesionales, científicos e intelectuales</option>
+                <option value="Técnicos y profesionales del nivel medio">Técnicos y profesionales del nivel medio</option>
+                <option value="Trabajadores de los servicios y vendedores y comerciales y mercados">Trabajadores de los servicios y vendedores y comerciales y mercados</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-4">
+            {/* Ingreso Mensual */}
+            <div>
+              <label className="block text-sm font-medium mb-1">¿Cuál fue el ingreso mensual que usted recibió o percibe en pesos colombianos por las actividades desarrolladas actualmente en Colombia? <span className="text-red-500">*</span></label>
+              <select className="input w-full">
+                <option value="">Seleccione Rango de Ingresos</option>
+                <option value="0-435375">$0-$435.375</option>
+                <option value="435375-874999">$435.375-$874.999</option>
+                <option value="875000-1423499">$875.000-$1.423.499</option>
+                <option value="1423500-1623500">$1.423.500-$1.623.500</option>
+                <option value="1623501-2000000">$1.623.501-$2.000.000</option>
+                <option value="2000001-2847000">$2.000.001-$2.847.000</option>
+                <option value="mas-de-2845000">Más de- $2.84.500</option>
+                <option value="no-aplica">No aplica</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <hr className="border-gray-200 mb-8" />
+
         {/* Datos de domicilio en el país de nacionalidad */}
         <h3 className="mb-4 text-md font-normal">Datos de domicilio en el país de nacionalidad o de establecimiento actual</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -706,7 +851,6 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
-                    <option value="Colombia">Colombia</option>
                     <option value="Venezuela">Venezuela</option>
                     <option value="Ecuador">Ecuador</option>
                     <option value="Peru">Perú</option>
@@ -736,24 +880,19 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
               rules={{ required: "La ciudad es obligatoria" }}
               render={({ field, fieldState }) => (
                 <>
-                  <select {...field} className="input w-full">
-                    <option value="">Seleccionar</option>
-                    <option value="Bogota">Bogotá</option>
-                    <option value="Medellin">Medellín</option>
-                    <option value="Cali">Cali</option>
-                    <option value="Barranquilla">Barranquilla</option>
-                    <option value="Cartagena">Cartagena</option>
-                    <option value="Bucaramanga">Bucaramanga</option>
-                    <option value="Pereira">Pereira</option>
-                    <option value="Manizales">Manizales</option>
-                    <option value="Ibague">Ibagué</option>
-                    <option value="Villavicencio">Villavicencio</option>
-                  </select>
+                  <input
+                    {...field}
+                    type="text"
+                    className="input w-full"
+                    placeholder="Ingrese su ciudad o municipio"
+                  />
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
               )}
             />
           </div>
+
+         
 
           {/* Dirección */}
           <div className="flex flex-col justify-between h-full">
@@ -789,17 +928,49 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         {/* Dirección prevista en Colombia */}
         <h3 className="mb-4 text-md font-normal">Dirección prevista en Colombia</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* País */}
+          {/* Departamento */}
           <div className="flex flex-col justify-between h-full">
-            <label className="block text-sm font-medium mb-1">País <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium mb-1">Departamento <span className="text-red-500">*</span></label>
             <Controller
-              name="paisColombia"
+              name="departamentoColombia"
               control={control}
-              rules={{ required: "El país es obligatorio" }}
+              rules={{ required: "El departamento es obligatorio" }}
               render={({ field, fieldState }) => (
                 <>
                   <select {...field} className="input w-full">
-                    <option value="COLOMBIA">COLOMBIA</option>
+                    <option value="">Seleccionar</option>
+                    <option value="Amazonas">Amazonas</option>
+                    <option value="Antioquia">Antioquia</option>
+                    <option value="Arauca">Arauca</option>
+                    <option value="Atlántico">Atlántico</option>
+                    <option value="Bolívar">Bolívar</option>
+                    <option value="Boyacá">Boyacá</option>
+                    <option value="Caldas">Caldas</option>
+                    <option value="Caquetá">Caquetá</option>
+                    <option value="Casanare">Casanare</option>
+                    <option value="Cauca">Cauca</option>
+                    <option value="Cesar">Cesar</option>
+                    <option value="Chocó">Chocó</option>
+                    <option value="Córdoba">Córdoba</option>
+                    <option value="Cundinamarca">Cundinamarca</option>
+                    <option value="Guainía">Guainía</option>
+                    <option value="Guaviare">Guaviare</option>
+                    <option value="Huila">Huila</option>
+                    <option value="La Guajira">La Guajira</option>
+                    <option value="Magdalena">Magdalena</option>
+                    <option value="Meta">Meta</option>
+                    <option value="Nariño">Nariño</option>
+                    <option value="Norte de Santander">Norte de Santander</option>
+                    <option value="Putumayo">Putumayo</option>
+                    <option value="Quindío">Quindío</option>
+                    <option value="Risaralda">Risaralda</option>
+                    <option value="San Andrés y Providencia">San Andrés y Providencia</option>
+                    <option value="Santander">Santander</option>
+                    <option value="Sucre">Sucre</option>
+                    <option value="Tolima">Tolima</option>
+                    <option value="Valle del Cauca">Valle del Cauca</option>
+                    <option value="Vaupés">Vaupés</option>
+                    <option value="Vichada">Vichada</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>
@@ -915,6 +1086,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
           </div>
 
           {/* Especificar */}
+          {watch("gastosCubiertos") === "Otra (especificar)" && (
           <div className="flex flex-col justify-between h-full">
             <label className="block text-sm font-medium mb-1">Especifique <span className="text-red-500">*</span></label>
             <Controller
@@ -929,6 +1101,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
               )}
             />
           </div>
+          )}
         </div>
 
         <hr className="border-gray-200 mb-8" />
