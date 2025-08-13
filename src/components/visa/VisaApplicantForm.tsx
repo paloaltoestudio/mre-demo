@@ -21,13 +21,29 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
     }
   });
 
-  const setSelectedCategory = useVisaStore((state) => state.setSelectedCategory);
+  const setNumeroRegistroSolicitud = useVisaStore((state) => state.setNumeroRegistroSolicitud);
+  const setNumeroPasaporte = useVisaStore((state) => state.setNumeroPasaporte);
+  const setNacionalidad = useVisaStore((state) => state.setNacionalidad);
+  const setSolicitudDe = useVisaStore((state) => state.setSolicitudDe);
+  const setCategoriaVisa = useVisaStore((state) => state.setCategoriaVisa);
+  const setClaseVisa = useVisaStore((state) => state.setClaseVisa);
+  const setTipoSolicitud = useVisaStore((state) => state.setTipoSolicitud);
+  const setTipoSolicitante = useVisaStore((state) => state.setTipoSolicitante);
+  const setTramitadaPor = useVisaStore((state) => state.setTramitadaPor);
 
   // Observar el valor del campo tramitadaPor
   const tramitadaPor = watch("tramitadaPor");
 
   const onSubmit = (data: any) => {
-    setSelectedCategory(data.categoriaVisa);
+    setNumeroRegistroSolicitud(data.numeroRegistroSolicitud);
+    setNumeroPasaporte(data.numeroPasaporte);
+    setNacionalidad(data.nacionalidad);
+    setSolicitudDe(data.solicitudDe);
+    setCategoriaVisa(data.categoriaVisa);
+    setClaseVisa(data.claseVisa);
+    setTipoSolicitud(data.tipoSolicitud);
+    setTipoSolicitante(data.tipoSolicitante);
+    setTramitadaPor(data.tramitadaPor);
     console.log(data);
     onNext(data);
   };

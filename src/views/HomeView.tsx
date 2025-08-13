@@ -7,6 +7,8 @@ import certIcon from "../assets/cert.svg";
 import citizenshipIcon from "../assets/citizenship.svg";
 import passportIcon from "../assets/passport.svg";
 import visaIcon from "../assets/visa.svg";
+import { useVisaStore } from '../stores/visaStore';
+import { useEffect } from "react";
 
 
 // Definir el tipo de ícono
@@ -54,6 +56,11 @@ const services: ServiceItem[] = [
 export const HomeView = () => {
   const navigate = useNavigate();
   const { activeUser } = useActiveUser();
+  const clearVisaStore = useVisaStore((state) => state.clear);
+
+  useEffect(() => {
+    clearVisaStore();
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-4 py-4 mt-1">

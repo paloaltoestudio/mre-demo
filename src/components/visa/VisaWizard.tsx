@@ -3,7 +3,6 @@ import { DinamicNav } from "../scheduling/DinamicNav";
 import { VisaApplicantForm } from "./VisaApplicantForm";
 import { VisaProcessSelectionForm } from "./VisaProcessSelectionForm";
 import { VisaPersonalDataForm } from "./VisaPersonalDataForm";
-import { MinorDataForm } from "../passport/MinorDataForm";
 import LaborInformationForm from './LaborInformationForm';
 
 export const VisaWizard = () => {
@@ -16,7 +15,8 @@ export const VisaWizard = () => {
     "Datos de la solicitud",
     "Datos del solicitante",
     // Solo incluir el paso de menor si el usuario ya seleccionó tipo de documento y no es CC
-    ...(tipoDocumento && tipoDocumento !== "CC" ? ["Datos del Registro Civil (En caso de Menor de Edad)"] : [])
+    ...(tipoDocumento && tipoDocumento !== "CC" ? ["Datos del Registro Civil (En caso de Menor de Edad)"] : []),
+    "Información Laboral"
   ];
 
   // Sincronizar currentStep si el tipo de documento cambia y el paso de menor ya no debe mostrarse

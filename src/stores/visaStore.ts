@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-interface VisaState {
+export interface VisaStoreState {
   selectedCategory: string;
   sector: string;
   subsector: string;
@@ -53,6 +53,36 @@ interface VisaState {
   lugarResidencia: string;
   otraNacionalidad: string;
   autoridad: string;
+  numeroRegistroSolicitud: string;
+  solicitudDe: string;
+  categoriaVisa: string;
+  claseVisa: string;
+  tipoSolicitud: string;
+  tipoSolicitante: string;
+  mediaName: string;
+  specifyActivity: string;
+  visitReason: string;
+  institution: string;
+  entityNameColombia: string;
+  participationEvent: string;
+  agreement: string;
+  businessCategory: string;
+  company: string;
+  businessNit: string;
+  businessPosition: string;
+  businessSector: string;
+  hadColombianVisa: string;
+  previousVisaDenied: string;
+  previousVisaCancelledOrInadmitted: string;
+  previousVisaType: string;
+  previousVisaNumber: string;
+  previousVisaIssueDate: string;
+  previousVisaExpiryDate: string;
+  previousVisaIssuePlace: string;
+  deniedVisaClass: string;
+  deniedVisaDate: string;
+  cancelledOrInadmittedVisaType: string;
+  cancelledOrInadmittedVisaDate: string;
   setSelectedCategory: (category: string) => void;
   setSector: (sector: string) => void;
   setSubsector: (subsector: string) => void;
@@ -95,18 +125,40 @@ interface VisaState {
   setCorreoElectronico: (correoElectronico: string) => void;
   setConfirmacionCorreo: (confirmacionCorreo: string) => void;
   setTramitadaPor: (tramitadaPor: string) => void;
-  setFechaExpedicionPasaporte: (fechaExpedicionPasaporte: string) => void;
-  setFechaVencimientoPasaporte: (fechaVencimientoPasaporte: string) => void;
-  setCiudadNacimiento: (ciudadNacimiento: string) => void;
-  setGenero: (genero: string) => void;
-  setPaisResidencia: (paisResidencia: string) => void;
-  setCiudadResidencia: (ciudadResidencia: string) => void;
-  setLugarResidencia: (lugarResidencia: string) => void;
-  setOtraNacionalidad: (otraNacionalidad: string) => void;
-  setAutoridad: (autoridad: string) => void;
+  setNumeroRegistroSolicitud: (numeroRegistroSolicitud: string) => void;
+  setSolicitudDe: (solicitudDe: string) => void;
+  setCategoriaVisa: (categoriaVisa: string) => void;
+  setClaseVisa: (claseVisa: string) => void;
+  setTipoSolicitud: (tipoSolicitud: string) => void;
+  setTipoSolicitante: (tipoSolicitante: string) => void;
+  setMediaName: (mediaName: string) => void;
+  setSpecifyActivity: (specifyActivity: string) => void;
+  setVisitReason: (visitReason: string) => void;
+  setInstitution: (institution: string) => void;
+  setEntityNameColombia: (entityNameColombia: string) => void;
+  setParticipationEvent: (participationEvent: string) => void;
+  setAgreement: (agreement: string) => void;
+  setBusinessCategory: (businessCategory: string) => void;
+  setCompany: (company: string) => void;
+  setBusinessNit: (businessNit: string) => void;
+  setBusinessPosition: (businessPosition: string) => void;
+  setBusinessSector: (businessSector: string) => void;
+  setHadColombianVisa: (hadColombianVisa: string) => void;
+  setPreviousVisaDenied: (previousVisaDenied: string) => void;
+  setPreviousVisaCancelledOrInadmitted: (previousVisaCancelledOrInadmitted: string) => void;
+  setPreviousVisaType: (previousVisaType: string) => void;
+  setPreviousVisaNumber: (previousVisaNumber: string) => void;
+  setPreviousVisaIssueDate: (previousVisaIssueDate: string) => void;
+  setPreviousVisaExpiryDate: (previousVisaExpiryDate: string) => void;
+  setPreviousVisaIssuePlace: (previousVisaIssuePlace: string) => void;
+  setDeniedVisaClass: (deniedVisaClass: string) => void;
+  setDeniedVisaDate: (deniedVisaDate: string) => void;
+  setCancelledOrInadmittedVisaType: (cancelledOrInadmittedVisaType: string) => void;
+  setCancelledOrInadmittedVisaDate: (cancelledOrInadmittedVisaDate: string) => void;
+  clear: () => void;
 }
 
-export const useVisaStore = create<VisaState>()(
+export const useVisaStore = create<VisaStoreState>()(
   devtools(
     persist(
       (set) => ({
@@ -161,6 +213,36 @@ export const useVisaStore = create<VisaState>()(
         lugarResidencia: '',
         otraNacionalidad: '',
         autoridad: '',
+        numeroRegistroSolicitud: '',
+        solicitudDe: '',
+        categoriaVisa: '',
+        claseVisa: '',
+        tipoSolicitud: '',
+        tipoSolicitante: '',
+        mediaName: '',
+        specifyActivity: '',
+        visitReason: '',
+        institution: '',
+        entityNameColombia: '',
+        participationEvent: '',
+        agreement: '',
+        businessCategory: '',
+        company: '',
+        businessNit: '',
+        businessPosition: '',
+        businessSector: '',
+        hadColombianVisa: '',
+        previousVisaDenied: '',
+        previousVisaCancelledOrInadmitted: '',
+        previousVisaType: '',
+        previousVisaNumber: '',
+        previousVisaIssueDate: '',
+        previousVisaExpiryDate: '',
+        previousVisaIssuePlace: '',
+        deniedVisaClass: '',
+        deniedVisaDate: '',
+        cancelledOrInadmittedVisaType: '',
+        cancelledOrInadmittedVisaDate: '',
         setSelectedCategory: (category) => set({ selectedCategory: category }),
         setSector: (sector) => set({ sector }),
         setSubsector: (subsector) => set({ subsector }),
@@ -203,15 +285,119 @@ export const useVisaStore = create<VisaState>()(
         setCorreoElectronico: (correoElectronico) => set({ correoElectronico }),
         setConfirmacionCorreo: (confirmacionCorreo) => set({ confirmacionCorreo }),
         setTramitadaPor: (tramitadaPor) => set({ tramitadaPor }),
-        setFechaExpedicionPasaporte: (fechaExpedicionPasaporte) => set({ fechaExpedicionPasaporte }),
-        setFechaVencimientoPasaporte: (fechaVencimientoPasaporte) => set({ fechaVencimientoPasaporte }),
-        setCiudadNacimiento: (ciudadNacimiento) => set({ ciudadNacimiento }),
-        setGenero: (genero) => set({ genero }),
-        setPaisResidencia: (paisResidencia) => set({ paisResidencia }),
-        setCiudadResidencia: (ciudadResidencia) => set({ ciudadResidencia }),
-        setLugarResidencia: (lugarResidencia) => set({ lugarResidencia }),
-        setOtraNacionalidad: (otraNacionalidad) => set({ otraNacionalidad }),
-        setAutoridad: (autoridad) => set({ autoridad }),
+        setNumeroRegistroSolicitud: (numeroRegistroSolicitud) => set({ numeroRegistroSolicitud }),
+        setSolicitudDe: (solicitudDe) => set({ solicitudDe }),
+        setCategoriaVisa: (categoriaVisa) => set({ categoriaVisa }),
+        setClaseVisa: (claseVisa) => set({ claseVisa }),
+        setTipoSolicitud: (tipoSolicitud) => set({ tipoSolicitud }),
+        setTipoSolicitante: (tipoSolicitante) => set({ tipoSolicitante }),
+        setMediaName: (mediaName) => set({ mediaName }),
+        setSpecifyActivity: (specifyActivity) => set({ specifyActivity }),
+        setVisitReason: (visitReason) => set({ visitReason }),
+        setInstitution: (institution) => set({ institution }),
+        setEntityNameColombia: (entityNameColombia) => set({ entityNameColombia }),
+        setParticipationEvent: (participationEvent) => set({ participationEvent }),
+        setAgreement: (agreement) => set({ agreement }),
+        setBusinessCategory: (businessCategory) => set({ businessCategory }),
+        setCompany: (company) => set({ company }),
+        setBusinessNit: (businessNit) => set({ businessNit }),
+        setBusinessPosition: (businessPosition) => set({ businessPosition }),
+        setBusinessSector: (businessSector) => set({ businessSector }),
+        setHadColombianVisa: (hadColombianVisa) => set({ hadColombianVisa }),
+        setPreviousVisaDenied: (previousVisaDenied) => set({ previousVisaDenied }),
+        setPreviousVisaCancelledOrInadmitted: (previousVisaCancelledOrInadmitted) => set({ previousVisaCancelledOrInadmitted }),
+        setPreviousVisaType: (previousVisaType) => set({ previousVisaType }),
+        setPreviousVisaNumber: (previousVisaNumber) => set({ previousVisaNumber }),
+        setPreviousVisaIssueDate: (previousVisaIssueDate) => set({ previousVisaIssueDate }),
+        setPreviousVisaExpiryDate: (previousVisaExpiryDate) => set({ previousVisaExpiryDate }),
+        setPreviousVisaIssuePlace: (previousVisaIssuePlace) => set({ previousVisaIssuePlace }),
+        setDeniedVisaClass: (deniedVisaClass) => set({ deniedVisaClass }),
+        setDeniedVisaDate: (deniedVisaDate) => set({ deniedVisaDate }),
+        setCancelledOrInadmittedVisaType: (cancelledOrInadmittedVisaType) => set({ cancelledOrInadmittedVisaType }),
+        setCancelledOrInadmittedVisaDate: (cancelledOrInadmittedVisaDate) => set({ cancelledOrInadmittedVisaDate }),
+        clear: () => set({
+          selectedCategory: '',
+          sector: '',
+          subsector: '',
+          activityInColombia: '',
+          position: '',
+          nit: '',
+          primerNombre: '',
+          segundoNombre: '',
+          primerApellido: '',
+          segundoApellido: '',
+          sexo: '',
+          estadoCivil: '',
+          tieneOtraNacionalidad: '',
+          tieneHijos: '',
+          nacionalidad: '',
+          numeroPasaporte: '',
+          fechaNacimiento: '',
+          paisNacimiento: '',
+          nivelEducativo: '',
+          tituloDiploma: '',
+          areaConocimiento: '',
+          subareaConocimiento: '',
+          paisDomicilio: '',
+          ciudadDomicilio: '',
+          direccionDomicilio: '',
+          telefonoDomicilio: '',
+          paisColombia: 'COLOMBIA',
+          departamentoColombia: '',
+          ciudadColombia: '',
+          direccionColombia: '',
+          telefonoColombia: '',
+          telefonoOficina: '',
+          gastosCubiertos: '',
+          especificarGastos: '',
+          tieneRedesSociales: '',
+          facebookUsuario: '',
+          instagramUsuario: '',
+          xUsuario: '',
+          otroRedSocial: '',
+          correoElectronico: '',
+          confirmacionCorreo: '',
+          tramitadaPor: '',
+          fechaExpedicionPasaporte: '',
+          fechaVencimientoPasaporte: '',
+          ciudadNacimiento: '',
+          genero: '',
+          paisResidencia: '',
+          ciudadResidencia: '',
+          lugarResidencia: '',
+          otraNacionalidad: '',
+          autoridad: '',
+          numeroRegistroSolicitud: '',
+          solicitudDe: '',
+          categoriaVisa: '',
+          claseVisa: '',
+          tipoSolicitud: '',
+          tipoSolicitante: '',
+          mediaName: '',
+          specifyActivity: '',
+          visitReason: '',
+          institution: '',
+          entityNameColombia: '',
+          participationEvent: '',
+          agreement: '',
+          businessCategory: '',
+          company: '',
+          businessNit: '',
+          businessPosition: '',
+          businessSector: '',
+          hadColombianVisa: '',
+          previousVisaDenied: '',
+          previousVisaCancelledOrInadmitted: '',
+          previousVisaType: '',
+          previousVisaNumber: '',
+          previousVisaIssueDate: '',
+          previousVisaExpiryDate: '',
+          previousVisaIssuePlace: '',
+          deniedVisaClass: '',
+          deniedVisaDate: '',
+          cancelledOrInadmittedVisaType: '',
+          cancelledOrInadmittedVisaDate: ''
+        }),
       }),
       {
         name: 'visaStore',

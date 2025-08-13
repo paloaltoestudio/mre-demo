@@ -1,6 +1,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
-import { useVisaStore } from "../../stores/visaStore";
+import { useVisaStore } from '../../stores/visaStore';
+import type { VisaStoreState } from '../../stores/visaStore';
 
 type ChildData = {
   id: string;
@@ -70,6 +71,42 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
     }
   });
 
+  const setPrimerNombre = useVisaStore((state) => state.setPrimerNombre);
+  const setSegundoNombre = useVisaStore((state) => state.setSegundoNombre);
+  const setPrimerApellido = useVisaStore((state) => state.setPrimerApellido);
+  const setSegundoApellido = useVisaStore((state) => state.setSegundoApellido);
+  const setSexo = useVisaStore((state) => state.setSexo);
+  const setEstadoCivil = useVisaStore((state) => state.setEstadoCivil);
+  const setTieneOtraNacionalidad = useVisaStore((state) => state.setTieneOtraNacionalidad);
+  const setTieneHijos = useVisaStore((state) => state.setTieneHijos);
+  const setNacionalidad = useVisaStore((state) => state.setNacionalidad);
+  const setNumeroPasaporte = useVisaStore((state) => state.setNumeroPasaporte);
+  const setFechaNacimiento = useVisaStore((state) => state.setFechaNacimiento);
+  const setPaisNacimiento = useVisaStore((state) => state.setPaisNacimiento);
+  const setNivelEducativo = useVisaStore((state) => state.setNivelEducativo);
+  const setTituloDiploma = useVisaStore((state) => state.setTituloDiploma);
+  const setAreaConocimiento = useVisaStore((state) => state.setAreaConocimiento);
+  const setSubareaConocimiento = useVisaStore((state) => state.setSubareaConocimiento);
+  const setPaisDomicilio = useVisaStore((state) => state.setPaisDomicilio);
+  const setCiudadDomicilio = useVisaStore((state) => state.setCiudadDomicilio);
+  const setDireccionDomicilio = useVisaStore((state) => state.setDireccionDomicilio);
+  const setTelefonoDomicilio = useVisaStore((state) => state.setTelefonoDomicilio);
+  const setPaisColombia = useVisaStore((state) => state.setPaisColombia);
+  const setDepartamentoColombia = useVisaStore((state) => state.setDepartamentoColombia);
+  const setCiudadColombia = useVisaStore((state) => state.setCiudadColombia);
+  const setDireccionColombia = useVisaStore((state) => state.setDireccionColombia);
+  const setTelefonoColombia = useVisaStore((state) => state.setTelefonoColombia);
+  const setTelefonoOficina = useVisaStore((state) => state.setTelefonoOficina);
+  const setGastosCubiertos = useVisaStore((state) => state.setGastosCubiertos);
+  const setEspecificarGastos = useVisaStore((state) => state.setEspecificarGastos);
+  const setTieneRedesSociales = useVisaStore((state) => state.setTieneRedesSociales);
+  const setFacebookUsuario = useVisaStore((state) => state.setFacebookUsuario);
+  const setInstagramUsuario = useVisaStore((state) => state.setInstagramUsuario);
+  const setXUsuario = useVisaStore((state) => state.setXUsuario);
+  const setOtroRedSocial = useVisaStore((state) => state.setOtroRedSocial);
+  const setCorreoElectronico = useVisaStore((state) => state.setCorreoElectronico);
+  const setConfirmacionCorreo = useVisaStore((state) => state.setConfirmacionCorreo);
+
   // Observar cambios en los checkboxes para mostrar/ocultar secciones
   const watchTieneOtraNacionalidad = watch("tieneOtraNacionalidad");
   const watchTieneHijos = watch("tieneHijos");
@@ -102,6 +139,41 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
 
   const onSubmit = (data: any) => {
     console.log(data);
+    setPrimerNombre(data.primerNombre);
+    setSegundoNombre(data.segundoNombre);
+    setPrimerApellido(data.primerApellido);
+    setSegundoApellido(data.segundoApellido);
+    setSexo(data.sexo);
+    setEstadoCivil(data.estadoCivil);
+    setTieneOtraNacionalidad(data.tieneOtraNacionalidad);
+    setTieneHijos(data.tieneHijos);
+    setNacionalidad(data.nacionalidad);
+    setNumeroPasaporte(data.numeroPasaporte);
+    setFechaNacimiento(data.fechaNacimiento);
+    setPaisNacimiento(data.paisNacimiento);
+    setNivelEducativo(data.nivelEducativo);
+    setTituloDiploma(data.tituloDiploma);
+    setAreaConocimiento(data.areaConocimiento);
+    setSubareaConocimiento(data.subareaConocimiento);
+    setPaisDomicilio(data.paisDomicilio);
+    setCiudadDomicilio(data.ciudadDomicilio);
+    setDireccionDomicilio(data.direccionDomicilio);
+    setTelefonoDomicilio(data.telefonoDomicilio);
+    setPaisColombia(data.paisColombia);
+    setDepartamentoColombia(data.departamentoColombia);
+    setCiudadColombia(data.ciudadColombia);
+    setDireccionColombia(data.direccionColombia);
+    setTelefonoColombia(data.telefonoColombia);
+    setTelefonoOficina(data.telefonoOficina);
+    setGastosCubiertos(data.gastosCubiertos);
+    setEspecificarGastos(data.especificarGastos);
+    setTieneRedesSociales(data.tieneRedesSociales);
+    setFacebookUsuario(data.facebookUsuario);
+    setInstagramUsuario(data.instagramUsuario);
+    setXUsuario(data.xUsuario);
+    setOtroRedSocial(data.otroRedSocial);
+    setCorreoElectronico(data.correoElectronico);
+    setConfirmacionCorreo(data.confirmacionCorreo);
     onNext({ ...data, children });
   };
 
