@@ -1,6 +1,4 @@
 import { useForm, Controller } from "react-hook-form";
-import Select from "react-select";
-import { customStyles } from "../common/reactSelectStyles";
 import { useEffect, useState } from "react";
 import type { ResponseDocumentTypesType } from "../../types/auth/documentTypes";
 import { useQueryClient } from "@tanstack/react-query";
@@ -18,6 +16,8 @@ export const ApplicantsDataForm = ({
     control,
     handleSubmit,
     formState: {},
+    setValue,
+    watch,
   } = useForm();
 
   const onSubmit = (data: any) => {
@@ -30,6 +30,51 @@ export const ApplicantsDataForm = ({
   >([]);
   console.log(documentTypes);
   const queryClient = useQueryClient();
+
+  // Watch core applicant fields to trigger simulated prefill
+  const watchTipoDocumento = watch("tipoDocumento");
+  const watchNumeroDocumento = watch("numeroDocumento");
+  const watchFechaExpedicion = watch("fechaExpedicionDocumento");
+  const watchCorreo = watch("correoElectronico");
+  const watchDepartamentoExp = watch("departamentoExpedicionDocumento");
+  const watchCiudadExp = watch("lugarExpedicionDocumento");
+
+  const [hasPrefilled, setHasPrefilled] = useState(false);
+
+  useEffect(() => {
+    const coreComplete = Boolean(
+      watchTipoDocumento &&
+      watchNumeroDocumento &&
+      watchFechaExpedicion &&
+      watchCorreo &&
+      watchDepartamentoExp &&
+      watchCiudadExp
+    );
+    if (coreComplete && !hasPrefilled) {
+      // Simulate fetch and prefill with fake data
+      setValue("primerNombre", "Juan", { shouldDirty: true });
+      setValue("segundoNombre", "Carlos", { shouldDirty: true });
+      setValue("primerApellido", "Pérez", { shouldDirty: true });
+      setValue("segundoApellido", "Gómez", { shouldDirty: true });
+      setValue("genero", "Masculino", { shouldDirty: true });
+      setValue("tipoSanguineo", "O+", { shouldDirty: true });
+      setValue("estatura", "1.78", { shouldDirty: true });
+      setValue("fechaNacimiento", "1990-05-15", { shouldDirty: true });
+      setValue("paisNacimiento", "Colombia", { shouldDirty: true });
+      setValue("ciudadNacimiento", "Bogotá", { shouldDirty: true });
+      setValue("departamentoNacimiento", "Cundinamarca", { shouldDirty: true });
+      setHasPrefilled(true);
+    }
+  }, [
+    watchTipoDocumento,
+    watchNumeroDocumento,
+    watchFechaExpedicion,
+    watchCorreo,
+    watchDepartamentoExp,
+    watchCiudadExp,
+    hasPrefilled,
+    setValue,
+  ]);
 
   useEffect(() => {
     const documents = queryClient.getQueryData<ResponseDocumentTypesType>([
@@ -155,23 +200,75 @@ export const ApplicantsDataForm = ({
             />
           </div>
 
+          {/* Departamento de expedición del documento */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Departamento de expedición del documento <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="departamentoExpedicionDocumento"
+              control={control}
+              rules={{ required: "El departamento de expedición es obligatorio" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <select {...field} className="input w-full">
+                    <option value="">Seleccionar</option>
+                    <option value="Amazonas">Amazonas</option>
+                    <option value="Antioquia">Antioquia</option>
+                    <option value="Arauca">Arauca</option>
+                    <option value="Atlántico">Atlántico</option>
+                    <option value="Bolívar">Bolívar</option>
+                    <option value="Boyacá">Boyacá</option>
+                    <option value="Caldas">Caldas</option>
+                    <option value="Caquetá">Caquetá</option>
+                    <option value="Casanare">Casanare</option>
+                    <option value="Cauca">Cauca</option>
+                    <option value="Cesar">Cesar</option>
+                    <option value="Chocó">Chocó</option>
+                    <option value="Córdoba">Córdoba</option>
+                    <option value="Cundinamarca">Cundinamarca</option>
+                    <option value="Guainía">Guainía</option>
+                    <option value="Guaviare">Guaviare</option>
+                    <option value="Huila">Huila</option>
+                    <option value="La Guajira">La Guajira</option>
+                    <option value="Magdalena">Magdalena</option>
+                    <option value="Meta">Meta</option>
+                    <option value="Nariño">Nariño</option>
+                    <option value="Norte de Santander">Norte de Santander</option>
+                    <option value="Putumayo">Putumayo</option>
+                    <option value="Quindío">Quindío</option>
+                    <option value="Risaralda">Risaralda</option>
+                    <option value="San Andrés y Providencia">San Andrés y Providencia</option>
+                    <option value="Santander">Santander</option>
+                    <option value="Sucre">Sucre</option>
+                    <option value="Tolima">Tolima</option>
+                    <option value="Valle del Cauca">Valle del Cauca</option>
+                    <option value="Vaupés">Vaupés</option>
+                    <option value="Vichada">Vichada</option>
+                  </select>
+                  {fieldState.error && (
+                    <span className="text-red-500 text-xs">{fieldState.error.message}</span>
+                  )}
+                </>
+              )}
+            />
+          </div>
+
           {/* Lugar de expedición del documento */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              Lugar de expedición del documento{" "}
+              Ciudad de expedición del documento{" "}
               <span className="text-red-500">*</span>
             </label>
             <Controller
               name="lugarExpedicionDocumento"
               control={control}
-              rules={{ required: "El lugar de expedición es obligatorio" }}
+              rules={{ required: "La ciudad de expedición es obligatoria" }}
               render={({ field, fieldState }) => (
                 <>
                   <select {...field} className="input w-full">
                     <option value="">Seleccionar</option>
                     <option value="Bogota">Bogotá</option>
-                    <option value="Medellin">Medellín</option>
-                    <option value="Cali">Cali</option>
                   </select>
                   {fieldState.error && (
                     <span className="text-red-500 text-xs">
@@ -184,7 +281,7 @@ export const ApplicantsDataForm = ({
           </div>
 
           {/* Nacionalidad */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-1">
               Nacionalidad <span className="text-red-500">*</span>
             </label>
@@ -208,9 +305,11 @@ export const ApplicantsDataForm = ({
                 </>
               )}
             />
-          </div>
+          </div> */}
         </div>
 
+        {hasPrefilled && (
+        <>
         <h2 className="mb-4 text-md font-normal mt-8">Datos Personales</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           {/* Primer Nombre */}
@@ -387,7 +486,7 @@ export const ApplicantsDataForm = ({
         </div>
 
         <h2 className="mb-4 text-md font-normal mt-8">Datos de Nacimiento</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           {/* Fecha de Nacimiento */}
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -426,17 +525,11 @@ export const ApplicantsDataForm = ({
               rules={{ required: "El país de nacimiento es obligatorio" }}
               render={({ field, fieldState }) => (
                 <>
-                  <Select
-                    {...field}
-                    options={[
-                      { value: "Colombia", label: "Colombia" },
-                      { value: "Venezuela", label: "Venezuela" },
-                      { value: "Ecuador", label: "Ecuador" },
-                    ]}
-                    styles={customStyles}
-                    className="select_react"
-                    placeholder="Seleccionar"
-                    isClearable
+                  <input
+                      {...field}
+                    type="text"
+                    className="input w-full"
+                    placeholder="País de nacimiento"
                   />
                   {fieldState.error && (
                     <span className="text-red-500 text-xs">
@@ -459,17 +552,38 @@ export const ApplicantsDataForm = ({
               rules={{ required: "La ciudad de nacimiento es obligatoria" }}
               render={({ field, fieldState }) => (
                 <>
-                  <Select
+                  <input
                     {...field}
-                    options={[
-                      { value: "Bogota", label: "Bogotá" },
-                      { value: "Medellin", label: "Medellín" },
-                      { value: "Cali", label: "Cali" },
-                    ]}
-                    styles={customStyles}
-                    className="select_react"
-                    placeholder="Seleccionar"
-                    isClearable
+                    type="text"
+                    className="input w-full"
+                    placeholder="Ciudad de nacimiento"
+                  />
+                  {fieldState.error && (
+                    <span className="text-red-500 text-xs">
+                      {fieldState.error.message}
+                    </span>
+                  )}
+                </>
+              )}
+            />
+          </div>
+
+          {/* Departamento */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Departamento <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="departamentoNacimiento"
+              control={control}
+              rules={{ required: "El departamento de nacimiento es obligatorio" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <input
+                    {...field}
+                    type="text"
+                    className="input w-full"
+                    placeholder="Departamento de nacimiento"
                   />
                   {fieldState.error && (
                     <span className="text-red-500 text-xs">
@@ -497,6 +611,8 @@ export const ApplicantsDataForm = ({
             Siguiente
           </button>
         </div>
+        </>
+        )}
       </section>
     </form>
   );
