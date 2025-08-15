@@ -18,6 +18,7 @@ export const AppointmentSchema = object({
   requirements: string(),
   status: string(),
   dependent: array(DependentSchema),
+  appointmentFor: number(),
 });
 
 export const AppointmentsSchema = object({

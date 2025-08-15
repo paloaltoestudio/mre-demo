@@ -22,7 +22,7 @@ import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { useNavigate } from "react-router-dom";
 import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
 import { format } from "date-fns";
-import { formatAppointmentDate } from "../../configs/formats";
+import { toDate } from "../../configs/formats";
 
 type formType = {
   date: Date;
@@ -270,37 +270,24 @@ export const ReschedulingForm = ({
               {/* {console.log("scheduled.date en ReschedulingForm:", scheduled.date)} */}
               <p className="text-sm text-gray-800 mt-2">
                 <span className="font-medium">Fecha:</span>{" "}
-                {`${
-                  scheduled.date
-                    ? formatAppointmentDate(scheduled.date)
-                    : ""
-                }`}{" "}
+                {scheduled.date} {" "} <span className="font-medium">Hora:</span> {typeof scheduled?.time === 'string' ? format(toDate(scheduled.time), "hh:mm a") : ""} (horario local de la oficina)
               </p>
               <p className="text-sm text-gray-800">
                 <span className="font-medium">Oficina:</span> {scheduled.office}
               </p>
               <div className="text-sm">
-                <span className="font-medium">Nombre:</span>
+                <span className="font-medium">Nombres y Documentos de los solicitantes:</span>
                 <ul className="list-none pl-2 mt-2">
                   {scheduled.dependent?.map((s, idx) => (
                     <li key={idx}>
-                      {s.firstNames} {s.lastNames}
+                      {s.firstNames} {s.lastNames} - No. Documento: {s.documentNumber}
                     </li>
                   ))}
+                  {scheduled.appointmentFor != 2 && (
                   <li>
-                    {activeUser?.firstName} {activeUser?.lastName}
+                    {activeUser?.firstName} {activeUser?.lastName} - No. Documento: {activeUser?.documentNumber}
                   </li>
-                  {/* {scheduled.selectedOption !== "Para mis dependientes" && (
-                  )} */}
-                </ul>
-              </div>
-              <div className="text-sm">
-                <span className="font-medium">TD + Doc:</span>
-                <ul className="list-none pl-2 mt-2">
-                  {scheduled.dependent?.map((s, idx) => (
-                    <li key={idx}>{s.documentNumber}</li>
-                  ))}
-                  <li>{activeUser?.documentNumber}</li>
+                  )}
                   {/* {scheduled.selectedOption !== "Para mis dependientes" && (
                   )} */}
                 </ul>

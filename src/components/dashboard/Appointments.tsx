@@ -473,9 +473,11 @@ export const AppointmentCards = () => {
                 <div className="text-sm mt-3">
                   <span className="font-semibold">Solicitantes:</span>
                   <ul className="list-none mt-1">
+                    {appt.appointmentFor != 2 && (
                     <li>
                       {sche.applicant?.firstName} {sche.applicant?.lastName}{" "} - No. Documento: {sche.applicant?.documentNumber}
                     </li>
+                    )}
                     {appt.dependent?.map((s, idx) => (
                       <li key={idx}>
                         {s?.firstNames} {s?.lastNames} - No. Documento: {s?.documentNumber}

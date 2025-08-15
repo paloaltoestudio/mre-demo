@@ -14,6 +14,7 @@ export type Appointment = {
   lugar: string;
   direccion: string;
   codigo: string;
+  appointmentFor: number;
   solicitantes: string[];
 };
 

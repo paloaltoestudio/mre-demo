@@ -13,6 +13,7 @@ export const CreatePreAppointmentSchema = object({
     })
   ),
   tramiteId: number(),
+  appointmentFor: number(),
 });
 
 export const ResponsePreAppointmentSchema = object({

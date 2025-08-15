@@ -84,12 +84,27 @@ export const SelectDateForm = ({
 
   const handleContinue = async () => {
     try {
+      // Mapear la opción seleccionada al valor numérico para appointmentFor
+      const getAppointmentForValue = (option: string | undefined): number => {
+        switch (option) {
+          case "Para mí":
+            return 1;
+          case "Para mí y mis dependientes":
+            return 3;
+          case "Para mis dependientes":
+            return 2;
+          default:
+            return 1; // Valor por defecto
+        }
+      };
+
       // Crear la pre-cita antes de iniciar el timer
       const preAppointmentData: CreatePreAppointmentType = {
         userId: userId || 0,
         availabilityBlockId: toSavedDate,
         dependents: [], // Array vacío - los dependientes se agregarán después
         tramiteId: watch("tramites")?.id || 0,
+        appointmentFor: getAppointmentForValue(selectedOption),
       };
 
       const result = await createPreAppointment(preAppointmentData);
