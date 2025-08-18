@@ -522,6 +522,14 @@ export const AppointmentCards = () => {
                           ? "Ocultar requisitos"
                           : "Ver requisitos"}
                       </button>
+                      
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/dashboard/appointments/${appt.appointmentId}`)}
+                        className="text-blue-600 text-sm py-[3px] px-3 border border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-lg min-w-[100px] duration-150 transition-colors"
+                      >
+                        Ver Detalle
+                      </button>
                       {appt.status === "Agendada" && (
                         <>
                           <button

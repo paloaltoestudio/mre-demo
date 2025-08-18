@@ -7,6 +7,7 @@ import { VerificationMethodsViews } from "../views/VerificationMethodsViews";
 import { VerificationFileView } from "../views/VerificationFileView";
 import { RegistryView } from "../views/RegistryView";
 import { AppointmentsView } from "../views/AppointmentsView";
+import { AppointmentDetailView } from "../views/AppointmentDetailView";
 import { VerificationIDView } from "../views/VerificationIDView";
 import { AccessLayout } from "../layouts/AccessLayout";
 import { SelectAppointmentsView } from "../views/SelectAppointmentsView";
@@ -69,6 +70,10 @@ export const MainRouter = () => {
           <Route
             path="/dashboard/appointments/"
             element={<AppointmentsView />}
+          />
+          <Route
+            path="/dashboard/appointments/:id"
+            element={<AppointmentDetailView />}
           />
           <Route path="/visas/" element={<VisaView />} />
           <Route path="/passport/" element={<PassportView />} />
