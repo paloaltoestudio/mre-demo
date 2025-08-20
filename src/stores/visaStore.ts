@@ -83,6 +83,11 @@ export interface VisaStoreState {
   deniedVisaDate: string;
   cancelledOrInadmittedVisaType: string;
   cancelledOrInadmittedVisaDate: string;
+  // Información Complementaria
+  tienePEP: string;
+  tienePPT: string;
+  tieneTMF: string;
+  tieneSC2: string;
   setSelectedCategory: (category: string) => void;
   setSector: (sector: string) => void;
   setSubsector: (subsector: string) => void;
@@ -155,6 +160,11 @@ export interface VisaStoreState {
   setDeniedVisaDate: (deniedVisaDate: string) => void;
   setCancelledOrInadmittedVisaType: (cancelledOrInadmittedVisaType: string) => void;
   setCancelledOrInadmittedVisaDate: (cancelledOrInadmittedVisaDate: string) => void;
+  // Información Complementaria
+  setTienePEP: (tienePEP: string) => void;
+  setTienePPT: (tienePPT: string) => void;
+  setTieneTMF: (tieneTMF: string) => void;
+  setTieneSC2: (tieneSC2: string) => void;
   clear: () => void;
 }
 
@@ -243,6 +253,11 @@ export const useVisaStore = create<VisaStoreState>()(
         deniedVisaDate: '',
         cancelledOrInadmittedVisaType: '',
         cancelledOrInadmittedVisaDate: '',
+        // Información Complementaria
+        tienePEP: '',
+        tienePPT: '',
+        tieneTMF: '',
+        tieneSC2: '',
         setSelectedCategory: (category) => set({ selectedCategory: category }),
         setSector: (sector) => set({ sector }),
         setSubsector: (subsector) => set({ subsector }),
@@ -315,6 +330,11 @@ export const useVisaStore = create<VisaStoreState>()(
         setDeniedVisaDate: (deniedVisaDate) => set({ deniedVisaDate }),
         setCancelledOrInadmittedVisaType: (cancelledOrInadmittedVisaType) => set({ cancelledOrInadmittedVisaType }),
         setCancelledOrInadmittedVisaDate: (cancelledOrInadmittedVisaDate) => set({ cancelledOrInadmittedVisaDate }),
+        // Información Complementaria
+        setTienePEP: (tienePEP) => set({ tienePEP }),
+        setTienePPT: (tienePPT) => set({ tienePPT }),
+        setTieneTMF: (tieneTMF) => set({ tieneTMF }),
+        setTieneSC2: (tieneSC2) => set({ tieneSC2 }),
         clear: () => set({
           selectedCategory: '',
           sector: '',
@@ -396,7 +416,12 @@ export const useVisaStore = create<VisaStoreState>()(
           deniedVisaClass: '',
           deniedVisaDate: '',
           cancelledOrInadmittedVisaType: '',
-          cancelledOrInadmittedVisaDate: ''
+          cancelledOrInadmittedVisaDate: '',
+          // Información Complementaria
+          tienePEP: '',
+          tienePPT: '',
+          tieneTMF: '',
+          tieneSC2: ''
         }),
       }),
       {

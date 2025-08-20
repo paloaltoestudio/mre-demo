@@ -4,11 +4,15 @@ import Swal from "sweetalert2";
 import { useVisaStore } from "../../stores/visaStore";
 
 type VisaProcessSelectionFormProps = {
-  onNext: () => void;
+  onNext: (data: any) => void;
   onBack: () => void;
 };
 
 export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectionFormProps) => {
+  // Mover todos los hooks al nivel superior del componente
+  const setNumeroPasaporte = useVisaStore((state) => state.setNumeroPasaporte);
+  const setNacionalidad = useVisaStore((state) => state.setNacionalidad);
+  
   const { control, handleSubmit } = useForm({
     defaultValues: {
       tramitadaPor: useVisaStore((state) => state.tramitadaPor) || "TÍTULO PROPIO",
@@ -19,7 +23,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
       numeroPasaporte: useVisaStore((state) => state.numeroPasaporte) || "AA12345678",
       fechaExpedicionPasaporte: useVisaStore((state) => state.fechaExpedicionPasaporte) || "",
       fechaVencimientoPasaporte: useVisaStore((state) => state.fechaVencimientoPasaporte) || "",
-      paisNacimiento: useVisaStore((state) => state.paisNacimiento) || "",
+      nacionalidad: useVisaStore((state) => state.nacionalidad) || "",
       ciudadNacimiento: useVisaStore((state) => state.ciudadNacimiento) || "",
       fechaNacimiento: useVisaStore((state) => state.fechaNacimiento) || "",
       genero: useVisaStore((state) => state.genero) || "",
@@ -62,14 +66,27 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
   }, []);
 
   const onSubmit = (data: any) => {
+    console.log('Datos del formulario:', data);
+    
+    // Guardar en el store usando los setters disponibles
+    setNumeroPasaporte(data.numeroPasaporte);
+    setNacionalidad(data.nacionalidad);
+    
+    // Para los campos que no tienen setters específicos, usar setState
     useVisaStore.setState({
-      numeroPasaporte: data.numeroPasaporte,
-      paisNacimiento: data.paisNacimiento,
       fechaExpedicionPasaporte: data.fechaExpedicionPasaporte,
       fechaVencimientoPasaporte: data.fechaVencimientoPasaporte,
       autoridad: data.autoridad
     });
-    onNext();
+    
+    console.log('Nacionalidad guardada en store:', data.nacionalidad);
+    
+    // Verificar que se guardó correctamente
+    const storeState = useVisaStore.getState();
+    console.log('Estado del store después de guardar:', storeState);
+    console.log('Nacionalidad en store después de guardar:', storeState.nacionalidad);
+    
+    onNext(data);
   };
 
   return (
@@ -105,9 +122,9 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
           <div>
             <label className="block text-sm font-medium mb-1">Nacionalidad <span className="text-red-500">*</span></label>
             <Controller
-              name="paisNacimiento"
+              name="nacionalidad"
               control={control}
-              rules={{ required: "El país de nacimiento es obligatorio" }}
+              rules={{ required: "La nacionalidad es obligatoria" }}
               render={({ field, fieldState }) => (
                 <>
                   <select {...field} className="input w-full">
@@ -179,38 +196,6 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
           </div>
         </div>
 
-        {/* Datos Solicitud Section */}
-        <div className="mb-8">
-          {/* Information Box */}
-          <div className="bg-gray-100 rounded-lg p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <div className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-sm font-bold">i</span>
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                Complete este campo solo a efectos de consultar una solicitud previamente registrada con fines de actualización de información o de cumplimiento de algún requerimiento hecho por la Autoridad de Visas
-              </p>
-            </div>
-          </div>
-
-          {/* Application Data Heading */}
-          <h2 className="mb-4 text-md font-normal">Datos Solicitud</h2>
-
-          {/* Application Registration Number */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">
-                Número de registro de solicitud
-              </label>
-            
-              <input 
-                type="text" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Ingrese el número de registro de solicitud"
-              />
-            </div>
-          </div>
-        </div>
 
         <div className="flex gap-5 justify-end mt-8">
           <button

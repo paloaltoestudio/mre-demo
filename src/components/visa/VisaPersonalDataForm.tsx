@@ -138,7 +138,9 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
   };
 
   const onSubmit = (data: any) => {
-    console.log(data);
+    console.log('VisaPersonalDataForm - Datos recibidos:', data);
+    console.log('VisaPersonalDataForm - Nacionalidad en datos:', data.nacionalidad);
+    
     setPrimerNombre(data.primerNombre);
     setSegundoNombre(data.segundoNombre);
     setPrimerApellido(data.primerApellido);
@@ -174,6 +176,13 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
     setOtroRedSocial(data.otroRedSocial);
     setCorreoElectronico(data.correoElectronico);
     setConfirmacionCorreo(data.confirmacionCorreo);
+    
+    // Verificar el estado del store después de guardar
+    console.log('VisaPersonalDataForm - Nacionalidad guardada en store');
+    const storeState = useVisaStore.getState();
+    console.log('VisaPersonalDataForm - Estado del store después de guardar:', storeState);
+    console.log('VisaPersonalDataForm - Nacionalidad en store:', storeState.nacionalidad);
+    
     onNext({ ...data, children });
   };
 

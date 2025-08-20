@@ -3,11 +3,17 @@ import { DinamicNav } from "../scheduling/DinamicNav";
 import { VisaApplicantForm } from "./VisaApplicantForm";
 import { VisaProcessSelectionForm } from "./VisaProcessSelectionForm";
 import { VisaPersonalDataForm } from "./VisaPersonalDataForm";
+import { VisaAdditionalInformationForm } from "./VisaAdditionalInformationForm";
 import LaborInformationForm from './LaborInformationForm';
+import type { AdditionalInformationData } from '../../types/visa/additionalInformationTypes';
+import { useVisaStore } from '../../stores/visaStore';
 
 export const VisaWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [tipoDocumento, setTipoDocumento] = useState<string>("");
+  
+  // Obtener el estado del store para debugging
+  const storeState = useVisaStore((state) => state);
 
   // Definir los pasos dinámicamente según el tipo de documento
   const steps = [
@@ -16,6 +22,7 @@ export const VisaWizard = () => {
     "Datos del solicitante",
     // Solo incluir el paso de menor si el usuario ya seleccionó tipo de documento y no es CC
     ...(tipoDocumento && tipoDocumento !== "CC" ? ["Datos del Registro Civil (En caso de Menor de Edad)"] : []),
+    "Información Adicional",
     "Información Laboral"
   ];
 
@@ -26,7 +33,13 @@ export const VisaWizard = () => {
     }
   }, [tipoDocumento, currentStep]);
 
-  const handleNext = (data) => {
+  // Monitorear cambios en el store para debugging
+  useEffect(() => {
+    console.log('Store actualizado en wizard:', storeState);
+    console.log('Nacionalidad en wizard:', storeState.nacionalidad);
+  }, [storeState]);
+
+  const handleNext = (data: AdditionalInformationData | any) => {
     console.log('Next step data:', data);
     setCurrentStep(currentStep + 1);
   };
@@ -42,7 +55,11 @@ export const VisaWizard = () => {
       <div className="mt-8">
         {currentStep === 1 && (
           <VisaProcessSelectionForm
-            onNext={() => setCurrentStep(2)}
+            onNext={(data: any) => {
+              console.log('Datos recibidos del paso 1:', data);
+              console.log('Nacionalidad recibida:', data?.nacionalidad);
+              setCurrentStep(2);
+            }}
             onBack={() => setCurrentStep(1)}
           />
         )}
@@ -59,9 +76,9 @@ export const VisaWizard = () => {
           <VisaPersonalDataForm
             onNext={(data: any) => {
               console.log(data);
-              // Si el tipo de documento es CC, finalizar, sino ir al paso de menor
+              // Si el tipo de documento es CC, ir al paso de información adicional, sino ir al paso de menor
               if (tipoDocumento === "CC") {
-                setCurrentStep(steps.length + 1); // Finalizar o avanzar fuera del flujo
+                setCurrentStep(4);
               } else {
                 setCurrentStep(4);
               }
@@ -71,6 +88,18 @@ export const VisaWizard = () => {
         )}
         
         {currentStep === 4 && (
+          <>
+            {console.log('Renderizando paso 4 - Información Adicional')}
+            {console.log('Estado actual del store:', storeState)}
+            {console.log('Nacionalidad en store del wizard:', storeState.nacionalidad)}
+            <VisaAdditionalInformationForm 
+              onNext={handleNext} 
+              onBack={() => setCurrentStep(3)} 
+            />
+          </>
+        )}
+        
+        {currentStep === 5 && (
           <LaborInformationForm onNext={handleNext} onBack={handleBack} />
         )}
       </div>

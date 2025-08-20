@@ -7,11 +7,15 @@ type VisaApplicantFormProps = {
 };
 
 export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) => {
+  // Log para ver qué valor tiene la nacionalidad al renderizar
+  const nacionalidadDelStore = useVisaStore((state) => state.nacionalidad);
+  console.log('VisaApplicantForm - Nacionalidad del store al renderizar:', nacionalidadDelStore);
+  
   const { control, handleSubmit, watch } = useForm({
     defaultValues: {
       numeroRegistroSolicitud: useVisaStore((state) => state.numeroRegistroSolicitud) || "",
       numeroPasaporte: useVisaStore((state) => state.numeroPasaporte) || "AA12345678",
-      nacionalidad: useVisaStore((state) => state.nacionalidad) || "ECUATORIANA",
+      nacionalidad: nacionalidadDelStore || "",
       solicitudDe: useVisaStore((state) => state.solicitudDe) || "VISA",
       categoriaVisa: useVisaStore((state) => state.categoriaVisa) || "TRABAJADOR",
       claseVisa: useVisaStore((state) => state.claseVisa) || "VISITANTE",
@@ -35,16 +39,25 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
   const tramitadaPor = watch("tramitadaPor");
 
   const onSubmit = (data: any) => {
+    console.log('VisaApplicantForm - Datos recibidos:', data);
+    console.log('VisaApplicantForm - Nacionalidad recibida:', data.nacionalidad);
+    
+    // NO guardar nacionalidad en el store, solo leerla
     setNumeroRegistroSolicitud(data.numeroRegistroSolicitud);
     setNumeroPasaporte(data.numeroPasaporte);
-    setNacionalidad(data.nacionalidad);
+    // setNacionalidad(data.nacionalidad); // ❌ NO guardar aquí
     setSolicitudDe(data.solicitudDe);
     setCategoriaVisa(data.categoriaVisa);
     setClaseVisa(data.claseVisa);
     setTipoSolicitud(data.tipoSolicitud);
     setTipoSolicitante(data.tipoSolicitante);
     setTramitadaPor(data.tramitadaPor);
-    console.log(data);
+    
+    console.log('VisaApplicantForm - Nacionalidad NO se guarda en store (se mantiene del paso anterior)');
+    const storeState = useVisaStore.getState();
+    console.log('VisaApplicantForm - Estado del store después de guardar:', storeState);
+    console.log('VisaApplicantForm - Nacionalidad en store (debería ser la del paso anterior):', storeState.nacionalidad);
+    
     onNext(data);
   };
 
