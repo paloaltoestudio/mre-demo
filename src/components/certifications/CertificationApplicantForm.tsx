@@ -1,5 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
+import { useCertificationStore } from "../../stores/certificationStore";
 
 type CertificationApplicantFormProps = {
   onNext: (data: any) => void;
@@ -7,16 +8,137 @@ type CertificationApplicantFormProps = {
 };
 
 export const CertificationApplicantForm = ({ onNext, onBack }: CertificationApplicantFormProps) => {
-  const { control, handleSubmit, watch } = useForm();
+  const {
+    certificateType,
+    tipoDocumento,
+    numeroDocumento,
+    nacionalidad,
+    lugarExpedicionDocumento,
+    primerNombre,
+    segundoNombre,
+    primerApellido,
+    segundoApellido,
+    fechaNacimiento,
+    genero,
+    estadoCivil,
+    direccion,
+    ciudad,
+    departamento,
+    pais,
+    telefono,
+    email,
+    particula,
+    autorizacionTercero,
+    hasPassport,
+    numeroPasaporte,
+    fechaExpedicionPasaporte,
+    fechaVencimientoPasaporte,
+    autoridadPasaporte,
+    pasaporte,
+    fechaExpedicion,
+    setCertificateType,
+    setTipoDocumento,
+    setNumeroDocumento,
+    setNacionalidad,
+    setLugarExpedicionDocumento,
+    setPrimerNombre,
+    setSegundoNombre,
+    setPrimerApellido,
+    setSegundoApellido,
+    setFechaNacimiento,
+    setGenero,
+    setEstadoCivil,
+    setDireccion,
+    setCiudad,
+    setDepartamento,
+    setPais,
+    setTelefono,
+    setEmail,
+    setParticula,
+    setAutorizacionTercero,
+    setHasPassport,
+    setNumeroPasaporte,
+    setFechaExpedicionPasaporte,
+    setFechaVencimientoPasaporte,
+    setAutoridadPasaporte,
+    setPasaporte,
+    setFechaExpedicion,
+  } = useCertificationStore();
+
+  const { control, handleSubmit, watch } = useForm({
+    defaultValues: {
+      certificateType,
+      tipoDocumento,
+      numeroDocumento,
+      nacionalidad,
+      lugarExpedicionDocumento,
+      primerNombre,
+      segundoNombre,
+      primerApellido,
+      segundoApellido,
+      fechaNacimiento,
+      genero,
+      estadoCivil,
+      direccion,
+      ciudad,
+      departamento,
+      pais,
+      telefono,
+      email,
+      hasPassport,
+      numeroPasaporte,
+      fechaExpedicionPasaporte,
+      fechaVencimientoPasaporte,
+      autoridadPasaporte,
+      particula,
+      autorizacionTercero,
+      pasaporte,
+      fechaExpedicion,
+    }
+  });
   const [showPassportVisualization, setShowPassportVisualization] = useState(false);
 
   const onSubmit = (data: any) => {
-    console.log(data);
+    console.log('Datos del formulario:', data);
+    
+    // Guardar todos los datos en el store
+    setCertificateType(data.certificateType);
+    setTipoDocumento(data.tipoDocumento);
+    setNumeroDocumento(data.numeroDocumento);
+    setNacionalidad(data.nacionalidad);
+    setLugarExpedicionDocumento(data.lugarExpedicionDocumento);
+    setPrimerNombre(data.primerNombre);
+    setSegundoNombre(data.segundoNombre);
+    setPrimerApellido(data.primerApellido);
+    setSegundoApellido(data.segundoApellido);
+    setFechaNacimiento(data.fechaNacimiento);
+    setGenero(data.genero);
+    setEstadoCivil(data.estadoCivil);
+    setDireccion(data.direccion);
+    setCiudad(data.ciudad);
+    setDepartamento(data.departamento);
+    setPais(data.pais);
+    setTelefono(data.telefono);
+    setEmail(data.email);
+    setHasPassport(data.hasPassport);
+    setNumeroPasaporte(data.numeroPasaporte);
+    setFechaExpedicionPasaporte(data.fechaExpedicionPasaporte);
+    setFechaVencimientoPasaporte(data.fechaVencimientoPasaporte);
+    setAutoridadPasaporte(data.autoridadPasaporte);
+    setParticula(data.particula);
+    setAutorizacionTercero(data.autorizacionTercero);
+    setPasaporte(data.pasaporte);
+    setFechaExpedicion(data.fechaExpedicion);
+    
+    // Verificar que los datos se guardaron en el store
+    console.log('Datos guardados en el store - certificateType:', data.certificateType);
+    console.log('Datos guardados en el store - nacionalidad:', data.nacionalidad);
+    
     onNext(data);
   };
 
   // Watch passport status to conditionally show fields
-  const hasPassport = watch("hasPassport");
+  const hasPassportValue = watch("hasPassport");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -316,7 +438,7 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
         </div>
 
         {/* Campos condicionales si tiene pasaporte */}
-        {hasPassport === "si" && (
+        {hasPassportValue === "si" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {/* Pasaporte */}
             <div>
@@ -345,7 +467,7 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
         )}
 
         {/* Botón Visualizar pasaporte */}
-        {hasPassport === "si" && (
+        {hasPassportValue === "si" && (
           <div className="mb-6">
             <button
               type="button"
@@ -358,7 +480,7 @@ export const CertificationApplicantForm = ({ onNext, onBack }: CertificationAppl
         )}
 
         {/* Visualización pasaporte */}
-        {showPassportVisualization && hasPassport === "si" && (
+        {showPassportVisualization && hasPassportValue === "si" && (
           <div className="mb-8">
             <h3 className="text-md font-normal mb-4">Visualización pasaporte</h3>
             <div className="bg-white border border-gray-200 rounded-lg p-6">
