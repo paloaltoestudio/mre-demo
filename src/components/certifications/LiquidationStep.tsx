@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useCertificationStore } from '../../stores/certificationStore';
-import { createCertification } from '../../services/CertificationService';
+import { useCertification } from '../../hooks/useCertification';
 import { SessionStore } from '../../stores/sessionStore';
 import Swal from 'sweetalert2';
 
@@ -17,11 +17,16 @@ const LiquidationStep = ({ onNext, onBack }: LiquidationStepProps) => {
     setNumeroConsecutivo,
     getAllData,
   } = useCertificationStore();
+
+  
   
   const { userId } = SessionStore();
+  const { createCertification, isLoading: isCreating, error: creationError } = useCertification();
+  // Log unused variables to avoid warnings
+  console.log("Certification creation status:", { isCreating, creationError });
 
-  const [monto, setMonto] = useState(montoLiquidado || 0);
-  const [consecutivo, setConsecutivo] = useState(numeroConsecutivo || '');
+  const [monto] = useState(montoLiquidado || 0);
+  const [consecutivo] = useState(numeroConsecutivo || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,19 +59,22 @@ const LiquidationStep = ({ onNext, onBack }: LiquidationStepProps) => {
       
       // Preparar el payload para la API
       const payload = {
-        certificationType: allData.certificateType || 'CERTIFICACIONES',
-        destinationEntity: allData.entidadDestino || 'FONDO DE PENSIÓN',
-        settledAmount: 0,
-        consecutiveNumber: 'CERT-2024-001',
-        userId: userId, // Obtener del store de sesión
-        nationality: allData.nacionalidad || 'Colombia',
+        certificationType: String(allData.certificateType || 'CERTIFICACIONES'),
+        destinationEntity: String(allData.entidadDestino || 'FONDO DE PENSIÓN'),
+        settledAmount: Number(monto || 0),
+        consecutiveNumber: String(consecutivo || 'CERT-2024-001'),
+        userId: Number(userId), // Obtener del store de sesión
+        nationality: String(allData.nacionalidad || 'Colombia'),
       };
       
       console.log('Payload para la API:', payload);
       
-      // Enviar datos a la API
-      const response = await createCertification(payload);
-      console.log('Respuesta de la API:', response);
+      // Log function type to debug
+      console.log('createCertification function type:', typeof createCertification);
+      
+      // Enviar datos a la API usando el hook
+      await createCertification(payload as any);
+      console.log('Certificación enviada exitosamente');
       
       // Mostrar modal de éxito
       await Swal.fire({
@@ -89,7 +97,7 @@ const LiquidationStep = ({ onNext, onBack }: LiquidationStepProps) => {
       
     } catch (error) {
       console.error('Error al enviar la certificación:', error);
-      // setError('Error al enviar la certificación. Por favor, inténtelo de nuevo.');
+      setError('Error al enviar la certificación. Por favor, inténtelo de nuevo.');
     } finally {
       setIsLoading(false);
     }

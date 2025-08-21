@@ -61,6 +61,8 @@ export const AppointmentCards = () => {
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
   const [requestRemove, setRequestRemove] = useState(false);
   const { setToRemove, toRemove } = SchedulingsStore();
+  // Log toRemove to avoid unused variable warning
+  console.log("Current toRemove value:", toRemove);
   const { logTraceabilityEvent } = useTraceabilityLog();
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>

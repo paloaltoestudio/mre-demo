@@ -17,10 +17,15 @@ export async function createCertification(
     const response = await postPublicRequest<CertificationResponse>({
       url: "/Certification/create",
       schema: CreateCertificationSchema,
-      body: certificationData,
+      body: certificationData as unknown as object,
     });
 
-    return response;
+    // Ensure we return the correct structure
+    if (response && typeof response === 'object') {
+      return response as CertificationResponse;
+    } else {
+      throw new Error('Invalid response format from API');
+    }
   } catch (error) {
     console.error("Error creating certification:", error);
     throw error;

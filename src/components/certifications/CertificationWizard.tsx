@@ -4,16 +4,13 @@ import { CertificationApplicantForm } from "./CertificationApplicantForm";
 import { CertificationRequestForm } from "./CertificationRequestForm";
 import { MinorDataForm } from "../passport/MinorDataForm";
 import LiquidationStep from './LiquidationStep';
-import { useCertificationStore } from "../../stores/certificationStore";
-import { SessionStore } from "../../stores/sessionStore";
 import { useNavigate } from "react-router-dom";
 
 export const CertificationWizard = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [tipoDocumento, setTipoDocumento] = useState<string>("");
-  const { getAllData } = useCertificationStore();
-  const { userId } = SessionStore();
+  
 
   // Definir los pasos dinámicamente según el tipo de documento
   const steps = [

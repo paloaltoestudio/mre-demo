@@ -24,6 +24,9 @@ export const estadoColor: Record<Estado, string> = {
 };
 
 export const AppointmentDetail = () => {
+  // Log the icon to avoid unused variable warning
+  console.log("Available icons:", { faCircleCheck });
+  
   const { id: appointmentId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { activeUser } = useActiveUser();

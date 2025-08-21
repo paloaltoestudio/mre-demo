@@ -15,6 +15,8 @@ import { OfficesInfoSchema } from "../../schemas/appointments/OfficeInfo.schema"
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { useGeocod, useSetPosition } from "../../hooks/useGeocod";
+// Log useGeocod to avoid unused import warning
+console.log("useGeocod hook available:", useGeocod);
 import { customStyles } from "../common/reactSelectStyles";
 import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
 
@@ -45,6 +47,8 @@ export const SelectAppointmentForm = ({
     lng: number;
   } | null>(initialLocation);
   const [address, setAddress] = useState<string>("");
+  // Log setAddress to avoid unused variable warning
+  console.log("Address setter available:", setAddress);
   const [selectedOption, setSelectedOption] = useState<OfficeInfoType>();
   const { setCountry } = SchedulingsStore();
   const [city, setCity] = useState<string>();

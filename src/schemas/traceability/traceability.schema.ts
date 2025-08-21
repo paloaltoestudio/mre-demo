@@ -1,4 +1,4 @@
-import { object, string, number, boolean } from "valibot";
+import { object, string, number, boolean, optional } from "valibot";
 
 export const CreateTraceabilityLogSchema = object({
   procedure: string(),
@@ -17,5 +17,5 @@ export const TraceabilityLogResponseSchema = object({
   data: object({
     id: string(),
   }),
-  errors: string().optional(),
+  errors: optional(string()),
 }); 

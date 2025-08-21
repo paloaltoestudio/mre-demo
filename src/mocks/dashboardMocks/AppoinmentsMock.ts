@@ -8,6 +8,7 @@ export const appointments: Appointment[] = [
     lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
+    appointmentFor: 1,
     solicitantes: [
       "María Fernanda Sánchez Ruiz - C.C. 1055979220",
       "Martina Gutiérrez Sánchez - T.I. 100598243",
@@ -21,6 +22,7 @@ export const appointments: Appointment[] = [
     lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
+    appointmentFor: 1,
     solicitantes: [
       "María Fernanda Sánchez Ruiz - C.C. 1055979220",
       "Martina Gutiérrez Sánchez - T.I. 100598243",
@@ -34,6 +36,7 @@ export const appointments: Appointment[] = [
     lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
+    appointmentFor: 1,
     solicitantes: ["María Fernanda Sánchez Ruiz - C.C. 1055979220"],
   },
   {
@@ -43,6 +46,7 @@ export const appointments: Appointment[] = [
     lugar: "Oficina General Central de Colombia en Madrid",
     direccion: "Av. la coronación n.º 78 - 17, Madrid, España",
     codigo: "024984476",
+    appointmentFor: 1,
     solicitantes: ["María Fernanda Sánchez Ruiz - C.C. 1055979220"],
   },
 ];

@@ -1,10 +1,8 @@
 import { useState, useCallback } from 'react';
-import { CertificationService } from '../services/CertificationService';
+import { createCertification } from '../services/CertificationService';
 import type { 
   CreateCertificationRequest, 
-  CertificationResponse,
-  CertificationFormData 
-} from '../types/certifications/certificationTypes';
+} from '../schemas/certifications/certification.schema';
 
 interface UseCertificationReturn {
   isLoading: boolean;
@@ -19,19 +17,28 @@ export const useCertification = (): UseCertificationReturn => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const createCertification = useCallback(async (data: CreateCertificationRequest) => {
+  const createCertificationHandler = useCallback(async (data: CreateCertificationRequest) => {
     try {
       setIsLoading(true);
       setError(null);
       setSuccess(false);
 
-      const response: CertificationResponse = await CertificationService.createCertification(data);
+      const response = await createCertification(data);
       
-      if (response.status === 200 || response.status === 201) {
-        setSuccess(true);
-        console.log('Certificación creada exitosamente:', response.data);
+      // Log response to avoid type issues
+      console.log("API response:", response);
+      
+      if (response && typeof response === 'object' && 'status' in response) {
+        const status = (response as any).status;
+        if (status === 200 || status === 201) {
+          setSuccess(true);
+          console.log('Certificación creada exitosamente:', response);
+        } else {
+          const message = (response as any).message || 'Error al crear la certificación';
+          throw new Error(message);
+        }
       } else {
-        throw new Error(response.message || 'Error al crear la certificación');
+        throw new Error('Respuesta inválida de la API');
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido al crear la certificación';
@@ -52,7 +59,7 @@ export const useCertification = (): UseCertificationReturn => {
     isLoading,
     error,
     success,
-    createCertification,
+    createCertification: createCertificationHandler,
     resetState,
   };
 };

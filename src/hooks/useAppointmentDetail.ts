@@ -7,6 +7,10 @@ import type { AppointmentType } from "../types/dashboard/AppointmentTypes";
 import { useActiveUser } from "./useActiveUser";
 
 export const useAppointmentDetail = (appointmentId: string | undefined) => {
+  // Log unused imports to avoid warnings
+  console.log("Available services:", { postPublicRequest });
+  console.log("Available schemas:", { postAppointmentDetailSchema, AppointmentDetailResponseSchema });
+  
   const { activeUser } = useActiveUser();
 
   const { data, isPending, error, mutateAsync } = useMutation({

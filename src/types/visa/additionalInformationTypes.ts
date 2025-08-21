@@ -21,6 +21,8 @@ export interface AdditionalInformationData {
   procesosPenales: string;
   permanenciaSinVisa: string;
   cedulaExtranjeria: string;
+  familiaresColombia: string;
+  ubicacionActual: string;
 }
 
 export interface VisaAdditionalInformationFormProps {

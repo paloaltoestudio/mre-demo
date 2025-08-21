@@ -17,13 +17,7 @@ export const useEditAppointment = () => {
     mutationFn: editAppointment,
     onSuccess: (data: EditAppointmentResponse) => {
       console.log("Cita editada exitosamente:", data);
-      toast.success("Cita editada correctamente", {
-        autoClose: 3000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-green-500 bg-white text-black shadow-md",
-      });
+      
     },
     onError: (error: any) => {
       console.error("Error al editar la cita:", error);

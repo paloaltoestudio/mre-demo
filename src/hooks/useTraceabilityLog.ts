@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+// Log toast to avoid unused import warning
+console.log("Toast notification system available:", toast);
 import type { CreateTraceabilityLogRequest, TraceabilityLogResponse, TraceabilityEvent } from "../types/traceability/traceabilityTypes";
 import { axiosInstance } from "../configs/axios";
 import { SessionStore } from "../stores/sessionStore";

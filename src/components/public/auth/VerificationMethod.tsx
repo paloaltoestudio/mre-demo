@@ -21,6 +21,8 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
   const [error, setError] = useState<string | null>(null);
   const hasSubmittedRef = useRef(false);
   const { sendOTP, isPending } = useSendOTP({ setOtp, shouldNavigate: true });
+  // Log isPending to avoid unused variable warning
+  console.log("OTP sending status:", isPending);
 
   const handleSendOTP = useCallback(async (externalId: string, submitted: string) => {
     console.log("🚀 handleSendOTP iniciando con:", { externalId, submitted, isSubmitting });

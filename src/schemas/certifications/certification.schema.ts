@@ -28,5 +28,5 @@ export const CertificationResponseSchema = object({
 });
 
 // Tipos derivados de los esquemas
-export type CreateCertificationRequest = typeof CreateCertificationSchema._type;
-export type CertificationResponse = typeof CertificationResponseSchema._type;
+export type CreateCertificationRequest = typeof CreateCertificationSchema.type;
+export type CertificationResponse = typeof CertificationResponseSchema.type;

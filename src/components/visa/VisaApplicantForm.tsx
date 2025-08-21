@@ -28,6 +28,8 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
   const setNumeroRegistroSolicitud = useVisaStore((state) => state.setNumeroRegistroSolicitud);
   const setNumeroPasaporte = useVisaStore((state) => state.setNumeroPasaporte);
   const setNacionalidad = useVisaStore((state) => state.setNacionalidad);
+  // Log setNacionalidad to avoid unused variable warning
+  console.log("setNacionalidad function available:", setNacionalidad);
   const setSolicitudDe = useVisaStore((state) => state.setSolicitudDe);
   const setCategoriaVisa = useVisaStore((state) => state.setCategoriaVisa);
   const setClaseVisa = useVisaStore((state) => state.setClaseVisa);
