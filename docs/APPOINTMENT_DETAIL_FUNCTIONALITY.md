@@ -23,7 +23,7 @@ Componente principal que renderiza el detalle de la cita. Incluye:
 Vista que envuelve el componente de detalle.
 
 ### 3. useAppointmentDetail.ts
-Hook personalizado que sigue el patrón estándar del proyecto usando `usePublicQuery` con validación de schema y manejo de errores consistente.
+Hook personalizado que sigue el patrón estándar del proyecto usando `useMutation` con POST request al endpoint `/Appointment/by-user`, enviando el `appointmentId` en el body.
 
 ## Rutas
 
@@ -70,7 +70,8 @@ La página de detalle incluye un botón "Volver a citas" que regresa a la lista 
 ## Características Técnicas
 
 ### Gestión de Estado
-- Uso del hook estándar `usePublicQuery` del proyecto
+- Uso del hook estándar `useMutation` del proyecto
+- POST request al endpoint `/Appointment/by-user`
 - Validación de datos con schemas de Valibot
 - Axios configurado con la baseURL del proyecto
 - Manejo de estados de carga y error consistente
@@ -96,16 +97,26 @@ La página de detalle incluye un botón "Volver a citas" que regresa a la lista 
 ## Consideraciones de Implementación
 
 ### API Endpoint
-El hook `useAppointmentDetail` usa el patrón estándar del proyecto y espera un endpoint en:
+El hook `useAppointmentDetail` usa el patrón estándar del proyecto y hace POST al endpoint:
 ```
-GET /appointments/:id
+POST /Appointment/by-user
+```
+
+**Body del Request:**
+```json
+{
+  "firstName": "string",
+  "lastName": "string", 
+  "appointmentId": 0,
+  "documentNumber": "string"
+}
 ```
 
 **Configuración:**
 - Base URL: `import.meta.env.VITE_API_URL` (configurada en axios.ts)
 - Cliente: `axiosInstance` del proyecto
-- Validación: `AppointmentSchema` de Valibot
-- Manejo de errores: Integrado con `usePublicQuery`
+- Validación: `postAppointmentDetailSchema` de Valibot
+- Manejo de errores: Integrado con `useMutation`
 
 ### Manejo de Errores
 - Errores de red se muestran como toast notifications
@@ -114,9 +125,9 @@ GET /appointments/:id
 
 ### Performance
 - React Query maneja el caching automáticamente
+- POST request optimizado para obtener datos específicos
 - Validación de datos con schemas optimizados
 - Axios con configuración estándar del proyecto
-- Tiempo de vida de datos configurado a 5 minutos
 - Reintentos automáticos en caso de fallo
 
 ## Próximos Pasos

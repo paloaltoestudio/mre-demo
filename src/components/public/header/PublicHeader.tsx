@@ -13,7 +13,7 @@ export const PublicHeader = ({
 }: PublicHeaderProps) => {
   return (
     <header
-      className={`w-full h-[150px] md:h-[120px] shadow-lg`}
+      className={`w-full h-[150px] md:h-[120px] shadow-lg relative mb-4`}
       aria-label="Encabezado público principal"
     >
       <div

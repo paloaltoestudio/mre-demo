@@ -97,6 +97,7 @@ import { CreateOTPSchema } from "../../schemas/Auth/OTPSchemas";
 
 type UseSendOTPParams = {
   setOtp: (otp: string | null) => void;
+  shouldNavigate?: boolean;
 };
 
 type SendOTPParams = {
@@ -108,7 +109,7 @@ type SendOTPParams = {
   };
 };
 
-export const useSendOTP = ({ setOtp }: UseSendOTPParams) => {
+export const useSendOTP = ({ setOtp, shouldNavigate = true }: UseSendOTPParams) => {
   const navigate = useNavigate();
 
   const { mutateAsync, isPending } = useMutation<
@@ -120,6 +121,7 @@ export const useSendOTP = ({ setOtp }: UseSendOTPParams) => {
     onSuccess: (response, variables) => {
       console.log("OTP sent successfully:", response);
       setOtp(response?.otp);
+      
       toast.success("Código enviado", {
         icon: (
           <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
@@ -130,11 +132,17 @@ export const useSendOTP = ({ setOtp }: UseSendOTPParams) => {
         className: "border-l-5 border-green-500 bg-white text-black shadow-md",
       });
 
-      const type = variables?.body?.type;
-      if (type) {
-        setTimeout(() => {
-          navigate("/auth/verification-code/" + type);
-        }, 1000);
+      // Solo navegar si shouldNavigate es true
+      if (shouldNavigate) {
+        const type = variables?.body?.type;
+        if (type) {
+          console.log("🧭 Navegando a:", "/auth/verification-code/" + type);
+          setTimeout(() => {
+            navigate("/auth/verification-code/" + type);
+          }, 1000);
+        }
+      } else {
+        console.log("🚫 Navegación automática deshabilitada");
       }
     },
     onError: () => {

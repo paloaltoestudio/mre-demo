@@ -196,15 +196,12 @@ export const Summary = ({
         {
           <div className="mt-2">
             <h3 className="font-medium text-md">{selectedProcedure.name}</h3>
-            <ul className="list-disc pl-5 mb-1 p-2">
-              {selectedProcedure.requirements
-                .split(",")
-                .map((req: string, reqIndex: number) => (
-                  <li key={reqIndex} className="text-sm text-gray-600 ml-2">
-                    {req}
-                  </li>
-                ))}
-            </ul>
+            <div 
+              className="text-sm text-gray-600 ml-2 p-2 requirements-html"
+              dangerouslySetInnerHTML={{ 
+                __html: selectedProcedure.requirements || "" 
+              }}
+            />
           </div>
         }
       </div>

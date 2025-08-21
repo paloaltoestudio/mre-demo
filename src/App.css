@@ -97,3 +97,33 @@ input:focus, select:focus {
 select {
   text-transform: uppercase;
 }
+
+/* Estilos para requisitos con HTML */
+.requirements-html {
+  line-height: 1.6;
+}
+
+.requirements-html br {
+  margin-bottom: 0.5rem;
+}
+
+.requirements-html strong, 
+.requirements-html b {
+  font-weight: 600;
+  color: #374151;
+}
+
+.requirements-html ul, 
+.requirements-html ol {
+  margin-left: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.requirements-html li {
+  margin-bottom: 0.25rem;
+}
+
+.requirements-html p {
+  margin-bottom: 0.5rem;
+}

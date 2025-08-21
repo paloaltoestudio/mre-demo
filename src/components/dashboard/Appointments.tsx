@@ -489,18 +489,12 @@ export const AppointmentCards = () => {
                 {showRequirementsMap[appt.date.toString() + index] && (
                   <div className="text-sm mt-3">
                     <span className="font-semibold">Requisitos:</span>
-                    <ul className="list-none mt-1">
-                                          {appt.requirements
-                      ?.split(",")
-                      ?.map((req: string, reqIndex: number) => (
-                          <li
-                            key={reqIndex}
-                            className="text-sm text-gray-600 ml-2 capitalize"
-                          >
-                            {req}
-                          </li>
-                        ))}
-                    </ul>
+                    <div 
+                      className="text-sm text-gray-600 ml-2 mt-1 requirements-html"
+                      dangerouslySetInnerHTML={{ 
+                        __html: appt.requirements || "" 
+                      }}
+                    />
                   </div>
                 )}
 
@@ -523,13 +517,13 @@ export const AppointmentCards = () => {
                           : "Ver requisitos"}
                       </button>
                       
-                      <button
+                      {/* <button
                         type="button"
                         onClick={() => navigate(`/dashboard/appointments/${appt.appointmentId}`)}
                         className="text-blue-600 text-sm py-[3px] px-3 border border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-lg min-w-[100px] duration-150 transition-colors"
                       >
                         Ver Detalle
-                      </button>
+                      </button> */}
                       {appt.status === "Agendada" && (
                         <>
                           <button

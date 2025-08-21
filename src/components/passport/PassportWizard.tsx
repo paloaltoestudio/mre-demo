@@ -55,8 +55,8 @@ const steps = [
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-8">
-      <h2 className="mb-4 text-lg font-semibold mt-8">Pasaporte en Línea</h2>
+    <div className="w-full max-w-5xl mx-auto py-4">
+      <h2 className="mb-4 text-lg font-semibold">Pasaporte en Línea</h2>
       <DinamicNav currentStep={currentStep} steps={steps} />
       <div className="mt-8">
         {currentStep === 1 && (

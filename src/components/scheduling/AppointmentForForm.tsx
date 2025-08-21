@@ -292,7 +292,7 @@ export const AppointmentForForm = ({
           <div className="relative w-full mt-4">
             <label
               htmlFor="dependientesCount"
-              className="absolute left-3 -top-2.5 bg-white px-1 text-sm text-gray-600 z-10"
+              className="absolute left-8 -top-3.5 bg-gray-50 px-1 py-0.5 text-sm text-gray-600 z-10"
             >
               Cantidad <span className="text-red-500">*</span>
             </label>

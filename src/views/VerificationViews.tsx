@@ -42,6 +42,7 @@ export const VerificationViews = () => {
     activeUser,
   } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const {
     toRemove,
     reschedulings,
@@ -287,15 +288,43 @@ export const VerificationViews = () => {
     }
   };
 
-  const { sendOTP } = useSendOTP({ setOtp });
+  const { sendOTP } = useSendOTP({ setOtp, shouldNavigate: false });
 
-  const resendCode = () => {
-    useEffect(() => {
-      if (methodSelected && externalId) {
-        const submitted = methodSelected;
-        sendOTP(externalId, submitted);
+  const resendCode = async () => {
+    console.log("🔄 resendCode llamado con:", { methodSelected, externalId, isResending });
+    
+    if (methodSelected && externalId && !isResending) {
+      setIsResending(true);
+      try {
+        console.log("🔄 Reenviando código OTP...", { methodSelected, externalId });
+        await sendOTP(externalId, methodSelected);
+        console.log("✅ Código reenviado exitosamente");
+        toast.success("Código reenviado exitosamente", {
+          icon: (
+            <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" />
+          ),
+          autoClose: 2000,
+          draggable: true,
+          hideProgressBar: true,
+          className: "border-l-5 border-green-500 bg-white text-black shadow-md",
+        });
+      } catch (error) {
+        console.error("❌ Error al reenviar código:", error);
+        toast.error("Error al reenviar el código. Por favor intenta nuevamente.", {
+          icon: (
+            <FontAwesomeIcon icon={faCircleExclamation} className="text-red-500" />
+          ),
+          autoClose: 3000,
+          draggable: true,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
+      } finally {
+        setIsResending(false);
       }
-    }, [methodSelected]);
+    } else {
+      console.warn("⚠️ No se puede reenviar código:", { methodSelected, externalId, isResending });
+    }
   };
 
   return (
@@ -311,6 +340,7 @@ export const VerificationViews = () => {
             methodType={method.type}
             resendCode={resendCode}
             invalidCode={invalidCode}
+            isResending={isResending}
           />
         ) : method.type === "sms" ? (
           <VerificationCard
@@ -319,6 +349,7 @@ export const VerificationViews = () => {
             methodType={method.type}
             resendCode={resendCode}
             invalidCode={invalidCode}
+            isResending={isResending}
           />
         ) : (
           <VerificationCard
@@ -327,6 +358,7 @@ export const VerificationViews = () => {
             methodType={method.type}
             resendCode={resendCode}
             invalidCode={invalidCode}
+            isResending={isResending}
           />
         )}
       </AuthForm>

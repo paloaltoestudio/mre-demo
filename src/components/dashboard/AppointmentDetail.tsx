@@ -1,10 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendar,
   faCircleCheck,
-  faCircleExclamation,
   faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -13,23 +12,8 @@ import { ReschedulingForm } from "../scheduling/ReschedulingForm";
 import { format } from "date-fns";
 import { toDate } from "../../configs/formats";
 import { useActiveUser } from "../../hooks/useActiveUser";
-import { useTokenExpiration } from "../../hooks/useTokenExpiration";
-import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
-import { SchedulingsStore } from "../../stores/schedulingsStore";
 import { useAppointmentDetail } from "../../hooks/useAppointmentDetail";
-import { useMutation } from "@tanstack/react-query";
-import { postPublicRequest, putPublicRequest } from "../../services/fetchingService";
-import { postAppointmentSchema } from "../../schemas/appointments/appointments";
-import type {
-  ResponseHashType,
-  ResponsesTokenType,
-} from "../../types/auth/hashSchemas";
-import {
-  CreateHashSchema,
-  CreateTokenSchema,
-} from "../../schemas/Auth/hashSchemas";
 import type { AppointmentType, Estado } from "../../types/dashboard/AppointmentTypes";
-import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
 import { toast } from "react-toastify";
 
 export const estadoColor: Record<Estado, string> = {
@@ -48,7 +32,21 @@ export const AppointmentDetail = () => {
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
   const [showRequirements, setShowRequirements] = useState(false);
 
-  const { data: appointment, isLoading, error } = useAppointmentDetail(appointmentId);
+  const { data: appointmentData, isLoading, error, loadAppointmentDetail } = useAppointmentDetail(appointmentId);
+  
+  // Extraer la cita específica del array de appointments
+  const appointment = appointmentData?.appointments?.[0];
+
+  // Función estable para cargar los datos
+  const handleLoadAppointment = useCallback(() => {
+    if (appointmentId && activeUser) {
+      loadAppointmentDetail();
+    }
+  }, [appointmentId, activeUser, loadAppointmentDetail]);
+
+  useEffect(() => {
+    handleLoadAppointment();
+  }, [handleLoadAppointment]);
 
   useEffect(() => {
     if (error) {
@@ -68,27 +66,50 @@ export const AppointmentDetail = () => {
     );
   }
 
-  if (error || !appointment) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center text-lg text-gray-600 font-semibold py-12">
-            {error ? "Error al cargar la cita" : "Cita no encontrada"}
-          </div>
-          <button
-            onClick={() => navigate("/dashboard/appointments")}
-            className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Volver a citas
-          </button>
+      <div className="p-6 max-w-6xl mx-auto">
+        <div className="text-center text-lg text-gray-600 font-semibold py-12">
+          Cargando datos de la cita...
         </div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto">
+        <div className="text-center text-lg text-gray-600 font-semibold py-12">
+          Error al cargar la cita: {error.message}
+        </div>
+        <button
+          onClick={() => navigate("/dashboard/appointments")}
+          className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
+        >
+          Volver a citas
+        </button>
+      </div>
+    );
+  }
+
+  if (!appointmentData || !appointment) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto">
+        <div className="text-center text-lg text-gray-600 font-semibold py-12">
+          Cita no encontrada
+        </div>
+        <button
+          onClick={() => navigate("/dashboard/appointments")}
+          className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
+        >
+          Volver a citas
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto">
         {/* Header con botón de regreso */}
         <div className="mb-6">
           <button
@@ -98,9 +119,7 @@ export const AppointmentDetail = () => {
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
             Volver a citas
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Detalle de la Cita
-          </h1>
+          
         </div>
 
         {/* Información del usuario */}
@@ -109,15 +128,15 @@ export const AppointmentDetail = () => {
             Información del Usuario
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <p className="text-sm">
-              <span className="font-semibold">Nombres y apellidos:</span>{" "}
-              {activeUser?.firstName &&
-                `${activeUser.firstName} ${activeUser.lastName}`}
-            </p>
-            <p className="text-sm">
-              <span className="font-semibold">Documento:</span>{" "}
-              {activeUser?.documentNumber && `${activeUser.documentNumber}`}
-            </p>
+                            <p className="text-sm">
+                  <span className="font-semibold">Nombres y apellidos:</span>{" "}
+                  {appointmentData.applicant?.firstName &&
+                    `${appointmentData.applicant.firstName} ${appointmentData.applicant.lastName}`}
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold">Documento:</span>{" "}
+                  {appointmentData.applicant?.documentNumber && `${appointmentData.applicant.documentNumber}`}
+                </p>
           </div>
         </div>
 
@@ -142,10 +161,10 @@ export const AppointmentDetail = () => {
                 Detalles Generales
               </h3>
               <div className="space-y-3">
-                <p className="text-sm">
-                  <span className="font-semibold">Fecha:</span>{" "}
-                  {typeof appointment.date === 'string' ? appointment.date : ""}
-                </p>
+                                  <p className="text-sm">
+                    <span className="font-semibold">Fecha:</span>{" "}
+                    {typeof appointment?.date === 'string' ? appointment.date : ""}
+                  </p>
                 <p className="text-sm">
                   <span className="font-semibold">Hora:</span>{" "}
                   {typeof appointment?.time === 'string' ? format(toDate(appointment.time), "hh:mm a") : ""}
@@ -173,9 +192,9 @@ export const AppointmentDetail = () => {
                 {appointment.appointmentFor != 2 && (
                   <div className="text-sm p-3 bg-gray-50 rounded-lg">
                     <span className="font-semibold">Principal:</span><br />
-                    {activeUser?.firstName} {activeUser?.lastName}<br />
+                    {appointmentData.applicant?.firstName} {appointmentData.applicant?.lastName}<br />
                     <span className="text-gray-600">
-                      No. Documento: {activeUser?.documentNumber}
+                      No. Documento: {appointmentData.applicant?.documentNumber}
                     </span>
                   </div>
                 )}
@@ -208,26 +227,16 @@ export const AppointmentDetail = () => {
                 </button>
               </div>
               
-              {showRequirements && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <ul className="list-none space-y-2">
-                    {appointment.requirements
-                      ?.split(",")
-                      ?.map((req: string, reqIndex: number) => (
-                        <li
-                          key={reqIndex}
-                          className="text-sm text-gray-700 flex items-center"
-                        >
-                          <FontAwesomeIcon
-                            icon={faCircleCheck}
-                            className="text-green-500 mr-2 text-xs"
-                          />
-                          {req.trim()}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
+                             {showRequirements && (
+                 <div className="bg-gray-50 rounded-lg p-4">
+                   <div 
+                     className="text-sm text-gray-700 requirements-html"
+                     dangerouslySetInnerHTML={{ 
+                       __html: appointment.requirements || "" 
+                     }}
+                   />
+                 </div>
+               )}
             </div>
           )}
         </div>
@@ -341,6 +350,5 @@ export const AppointmentDetail = () => {
           />
         )}
       </div>
-    </div>
   );
 };

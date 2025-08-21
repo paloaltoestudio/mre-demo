@@ -11,7 +11,7 @@ export const AuthLayout = () => {
     <ProtectedRoute>
       <main
         id="auth-layout"
-        className=""
+        className="bg-gray-50"
         aria-label="Contenido de vista de autenticación"
       >
         <TokenExpirationChecker />
@@ -19,7 +19,7 @@ export const AuthLayout = () => {
         <TimerBanner />
         <BookingTimerExpirationHandler />
         <LoadScript googleMapsApiKey={import.meta.env.VITE_MAPS_API_KEY!}>
-          <section id="auth-content" className="h-auto w-full">
+          <section id="auth-content" className="h-auto w-full bg-gray-50">
             <Outlet />
           </section>
         </LoadScript>

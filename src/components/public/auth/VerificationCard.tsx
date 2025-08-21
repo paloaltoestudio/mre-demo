@@ -7,6 +7,7 @@ type VerificationCodeProps = {
   resendCode?: () => void;
   invalidCode: boolean;
   methodType: "email" | "sms" | "whatsapp";
+  isResending?: boolean;
 };
 
 export const VerificationCard = ({
@@ -15,6 +16,7 @@ export const VerificationCard = ({
   resendCode,
   invalidCode,
   methodType = "email",
+  isResending = false,
 }: VerificationCodeProps) => {
   const {
     register,
@@ -197,10 +199,21 @@ export const VerificationCard = ({
       </button>
 
       <p
-        onClick={resendCode}
-        className="mt-[15px] text-[#3466cc] hover:text-[#3734cc] hover:cursor-pointer text-center underline"
+        onClick={isResending ? undefined : resendCode}
+        className={`mt-[15px] text-center underline ${
+          isResending
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-[#3466cc] hover:text-[#3734cc] hover:cursor-pointer"
+        }`}
       >
-        Reenviar código &#x21bb;
+        {isResending ? (
+          <span className="flex items-center justify-center gap-2">
+            <div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+            Reenviando código...
+          </span>
+        ) : (
+          "Reenviar código"
+        )}
       </p>
 
       <p className="mt-[15px] text-center">

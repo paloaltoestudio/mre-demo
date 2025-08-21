@@ -63,7 +63,7 @@ export const HomeView = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white px-4 py-4 mt-1">
+    <div className="flex flex-col items-center justify-center px-4 py-4">
       <h1 className="text-2xl font-semibold text-[#334acc] capitalize mb-2">
         Hola {activeUser?.firstName || "Usuario"}
       </h1>

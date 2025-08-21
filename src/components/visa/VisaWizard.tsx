@@ -49,8 +49,8 @@ export const VisaWizard = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-8">
-      <h2 className="mb-4 text-lg font-semibold mt-8">Visa en Línea</h2>
+    <div className="w-full max-w-5xl mx-auto">
+      <h2 className="mb-4 text-lg font-medium">Visa en Línea</h2>
       <DinamicNav currentStep={currentStep} steps={steps} />
       <div className="mt-8">
         {currentStep === 1 && (

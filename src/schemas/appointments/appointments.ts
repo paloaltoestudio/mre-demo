@@ -1,4 +1,4 @@
-import { array, number, object, string } from "valibot";
+import { array, number, object, string, optional } from "valibot";
 
 export const DependentSchema = object({
   documentNumber: string(),
@@ -34,6 +34,23 @@ export const postAppointmentSchema = object({
   documentNumber: string(),
   firstName: string(),
   lastName: string(),
+});
+
+export const postAppointmentDetailSchema = object({
+  documentNumber: string(),
+  firstName: string(),
+  lastName: string(),
+  appointmentId: number(),
+});
+
+export const AppointmentDetailResponseSchema = object({
+  applicant: object({
+    appointmentId: optional(string()),
+    documentNumber: string(),
+    firstName: string(),
+    lastName: string(),
+  }),
+  appointments: array(AppointmentSchema),
 });
 
 // Integration with the API;
