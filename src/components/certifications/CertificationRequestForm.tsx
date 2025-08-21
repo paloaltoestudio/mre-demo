@@ -1,4 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
+import { useCertificationStore } from "../../stores/certificationStore";
 
 type CertificationRequestFormProps = {
   onNext: () => void;
@@ -6,18 +7,42 @@ type CertificationRequestFormProps = {
 };
 
 export const CertificationRequestForm = ({ onNext, onBack }: CertificationRequestFormProps) => {
+  const {
+    modalidad,
+    idioma,
+    entidadDestino,
+    funcionario,
+    oficina,
+    setModalidad,
+    setIdioma,
+    setEntidadDestino,
+    setFuncionario,
+    setOficina,
+  } = useCertificationStore();
+
   const { control, handleSubmit } = useForm({
     defaultValues: {
-      modalidad: "",
-      idioma: "",
-      entidadDestino: "FONDO DE PENSIÓN",
-      funcionario: "PEDRO PÉREZ",
-      oficina: "CONSULADO GENERAL BOG"
+      modalidad,
+      idioma,
+      entidadDestino,
+      funcionario,
+      oficina,
     }
   });
 
   const onSubmit = (data: any) => {
-    console.log(data);
+    console.log('Datos de la solicitud:', data);
+    
+    // Guardar datos en el store
+    setModalidad(data.modalidad);
+    setIdioma(data.idioma);
+    setEntidadDestino(data.entidadDestino);
+    setFuncionario(data.funcionario);
+    setOficina(data.oficina);
+    
+    // Verificar que los datos se guardaron en el store
+    console.log('Datos guardados en el store - entidadDestino:', data.entidadDestino);
+    
     onNext();
   };
 
@@ -60,9 +85,6 @@ export const CertificationRequestForm = ({ onNext, onBack }: CertificationReques
                     <option value="español">Español</option>
                     <option value="ingles">Inglés</option>
                     <option value="frances">Francés</option>
-                    <option value="aleman">Alemán</option>
-                    <option value="italiano">Italiano</option>
-                    <option value="portugues">Portugués</option>
                   </select>
                   {fieldState.error && <span className="text-red-500 text-xs">{fieldState.error.message}</span>}
                 </>

@@ -4,67 +4,16 @@ import { CertificationApplicantForm } from "./CertificationApplicantForm";
 import { CertificationRequestForm } from "./CertificationRequestForm";
 import { MinorDataForm } from "../passport/MinorDataForm";
 import LiquidationStep from './LiquidationStep';
-
-const Liquidacion = () => (
-  <div>
-    <h2>Liquidar trámite</h2>
-    <div>
-      <h3>Información de solicitud</h3>
-      <p>Num.solicitud: 67535467</p>
-      <p>Trámite: Certificaciones/Certificación</p>
-      <p>Oficina: C. México</p>
-      <p>Estado del trámite: En liquidación</p>
-    </div>
-    <div>
-      <h3>Liquidación de pago</h3>
-      <p>Nombres y apellidos: Mariano Ramirez López</p>
-      <p>Nacionalidad: Colombia</p>
-      <p>Tipo de documento: Cédula de ciudadanía</p>
-      <p>Fecha de liquidación: dd/mm/yyyy hh:mm AM/PM</p>
-      <p>Número de documento: 093638293</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Concepto de Recaudo</th>
-            <th>Moneda Reporte (USD)</th>
-            <th>Moneda Local (USD)</th>
-            <th>Seleccionar concepto</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Tipo concepto</td>
-            <td>$0</td>
-            <td>$0</td>
-            <td><input type="text" /></td>
-          </tr>
-          <tr>
-            <td>Otros conceptos agregados</td>
-            <td>$0</td>
-            <td>$0</td>
-            <td><input type="text" /></td>
-          </tr>
-        </tbody>
-      </table>
-      <p>Total a pagar: $0000.00</p>
-    </div>
-    <div>
-      <h3>Descuento</h3>
-      <p>¿Desea aplicar descuento?</p>
-      <label><input type="radio" name="descuento" value="si" /> Sí</label>
-      <label><input type="radio" name="descuento" value="no" /> No</label>
-      <p>Para aplicar debe tener la documentación requerida según la normativa.</p>
-    </div>
-    <div>
-      <button>Regresar</button>
-      <button>Siguiente</button>
-    </div>
-  </div>
-);
+import { useCertificationStore } from "../../stores/certificationStore";
+import { SessionStore } from "../../stores/sessionStore";
+import { useNavigate } from "react-router-dom";
 
 export const CertificationWizard = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [tipoDocumento, setTipoDocumento] = useState<string>("");
+  const { getAllData } = useCertificationStore();
+  const { userId } = SessionStore();
 
   // Definir los pasos dinámicamente según el tipo de documento
   const steps = [
@@ -86,6 +35,8 @@ export const CertificationWizard = () => {
     <div className="w-full max-w-5xl mx-auto mt-8">
       <h2 className="mb-4 text-lg font-semibold mt-8">Certificaciones en Línea</h2>
       <DinamicNav currentStep={currentStep} steps={steps} />
+
+      
       <div className="mt-8">
         {currentStep === 1 && (
           <CertificationApplicantForm
@@ -99,12 +50,12 @@ export const CertificationWizard = () => {
         {currentStep === 2 && (
           <CertificationRequestForm
             onNext={() => {
-              // Si el tipo de documento es CC, saltar el paso de menor
+              // Si el tipo de documento es CC, ir directamente a liquidación (paso 3)
+              // Si no es CC, ir al paso de menor (paso 3), y luego liquidación será paso 4
               if (tipoDocumento === "CC") {
-                // setCurrentStep(steps.length + 1); // Finalizar o avanzar fuera del flujo
-                setCurrentStep(3);
+                setCurrentStep(3); // Liquidación
               } else {
-                setCurrentStep(2);
+                setCurrentStep(3); // Datos del menor
               }
             }}
             onBack={() => setCurrentStep(1)}
@@ -113,14 +64,19 @@ export const CertificationWizard = () => {
         {/* Mostrar MinorDataForm solo si el tipo de documento NO es CC */}
         {currentStep === 3 && tipoDocumento !== "CC" && (
           <MinorDataForm
-            onNext={() => setCurrentStep(steps.length + 1)}
+            onNext={() => setCurrentStep(4)}
             onBack={() => setCurrentStep(2)}
           />
         )}
-        {currentStep === steps.length && (
+        {/* Paso de liquidación - el último paso */}
+        {currentStep === (tipoDocumento === "CC" ? 3 : 4) && (
           <LiquidationStep
-            onNext={() => setCurrentStep(steps.length + 1)}
-            onBack={() => setCurrentStep(steps.length - 1)}
+            onNext={() => {
+              console.log('Certificación completada exitosamente');
+            // Redirigir al home (/home) 
+            navigate("/home");
+            }}
+            onBack={() => setCurrentStep(tipoDocumento === "CC" ? 2 : 3)}
           />
         )}
       </div>

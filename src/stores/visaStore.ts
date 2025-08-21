@@ -83,6 +83,23 @@ export interface VisaStoreState {
   deniedVisaDate: string;
   cancelledOrInadmittedVisaType: string;
   cancelledOrInadmittedVisaDate: string;
+  // Información Complementaria
+  tienePEP: string;
+  tienePPT: string;
+  tieneTMF: string;
+  tieneSC2: string;
+  numeroPEP: string;
+  fechaExpedicionPEP: string;
+  fechaVencimientoPEP: string;
+  numeroPPT: string;
+  fechaExpedicionPPT: string;
+  fechaVencimientoPPT: string;
+  numeroTMF: string;
+  fechaExpedicionTMF: string;
+  fechaVencimientoTMF: string;
+  numeroSC2: string;
+  fechaExpedicionSC2: string;
+  fechaVencimientoSC2: string;
   setSelectedCategory: (category: string) => void;
   setSector: (sector: string) => void;
   setSubsector: (subsector: string) => void;
@@ -155,6 +172,23 @@ export interface VisaStoreState {
   setDeniedVisaDate: (deniedVisaDate: string) => void;
   setCancelledOrInadmittedVisaType: (cancelledOrInadmittedVisaType: string) => void;
   setCancelledOrInadmittedVisaDate: (cancelledOrInadmittedVisaDate: string) => void;
+  // Información Complementaria
+  setTienePEP: (tienePEP: string) => void;
+  setTienePPT: (tienePPT: string) => void;
+  setTieneTMF: (tieneTMF: string) => void;
+  setTieneSC2: (tieneSC2: string) => void;
+  setNumeroPEP: (numeroPEP: string) => void;
+  setFechaExpedicionPEP: (fechaExpedicionPEP: string) => void;
+  setFechaVencimientoPEP: (fechaVencimientoPEP: string) => void;
+  setNumeroPPT: (numeroPPT: string) => void;
+  setFechaExpedicionPPT: (fechaExpedicionPPT: string) => void;
+  setFechaVencimientoPPT: (fechaVencimientoPPT: string) => void;
+  setNumeroTMF: (numeroTMF: string) => void;
+  setFechaExpedicionTMF: (fechaExpedicionTMF: string) => void;
+  setFechaVencimientoTMF: (fechaVencimientoTMF: string) => void;
+  setNumeroSC2: (numeroSC2: string) => void;
+  setFechaExpedicionSC2: (fechaExpedicionSC2: string) => void;
+  setFechaVencimientoSC2: (fechaVencimientoSC2: string) => void;
   clear: () => void;
 }
 
@@ -243,6 +277,23 @@ export const useVisaStore = create<VisaStoreState>()(
         deniedVisaDate: '',
         cancelledOrInadmittedVisaType: '',
         cancelledOrInadmittedVisaDate: '',
+        // Información Complementaria
+        tienePEP: '',
+        tienePPT: '',
+        tieneTMF: '',
+        tieneSC2: '',
+        numeroPEP: '',
+        fechaExpedicionPEP: '',
+        fechaVencimientoPEP: '',
+        numeroPPT: '',
+        fechaExpedicionPPT: '',
+        fechaVencimientoPPT: '',
+        numeroTMF: '',
+        fechaExpedicionTMF: '',
+        fechaVencimientoTMF: '',
+        numeroSC2: '',
+        fechaExpedicionSC2: '',
+        fechaVencimientoSC2: '',
         setSelectedCategory: (category) => set({ selectedCategory: category }),
         setSector: (sector) => set({ sector }),
         setSubsector: (subsector) => set({ subsector }),
@@ -315,6 +366,23 @@ export const useVisaStore = create<VisaStoreState>()(
         setDeniedVisaDate: (deniedVisaDate) => set({ deniedVisaDate }),
         setCancelledOrInadmittedVisaType: (cancelledOrInadmittedVisaType) => set({ cancelledOrInadmittedVisaType }),
         setCancelledOrInadmittedVisaDate: (cancelledOrInadmittedVisaDate) => set({ cancelledOrInadmittedVisaDate }),
+        // Información Complementaria
+        setTienePEP: (tienePEP) => set({ tienePEP }),
+        setTienePPT: (tienePPT) => set({ tienePPT }),
+        setTieneTMF: (tieneTMF) => set({ tieneTMF }),
+        setTieneSC2: (tieneSC2) => set({ tieneSC2 }),
+        setNumeroPEP: (numeroPEP) => set({ numeroPEP }),
+        setFechaExpedicionPEP: (fechaExpedicionPEP) => set({ fechaExpedicionPEP }),
+        setFechaVencimientoPEP: (fechaVencimientoPEP) => set({ fechaVencimientoPEP }),
+        setNumeroPPT: (numeroPPT) => set({ numeroPPT }),
+        setFechaExpedicionPPT: (fechaExpedicionPPT) => set({ fechaExpedicionPPT }),
+        setFechaVencimientoPPT: (fechaVencimientoPPT) => set({ fechaVencimientoPPT }),
+        setNumeroTMF: (numeroTMF) => set({ numeroTMF }),
+        setFechaExpedicionTMF: (fechaExpedicionTMF) => set({ fechaExpedicionTMF }),
+        setFechaVencimientoTMF: (fechaVencimientoTMF) => set({ fechaVencimientoTMF }),
+        setNumeroSC2: (numeroSC2) => set({ numeroSC2 }),
+        setFechaExpedicionSC2: (fechaExpedicionSC2) => set({ fechaExpedicionSC2 }),
+        setFechaVencimientoSC2: (fechaVencimientoSC2) => set({ fechaVencimientoSC2 }),
         clear: () => set({
           selectedCategory: '',
           sector: '',
@@ -396,7 +464,24 @@ export const useVisaStore = create<VisaStoreState>()(
           deniedVisaClass: '',
           deniedVisaDate: '',
           cancelledOrInadmittedVisaType: '',
-          cancelledOrInadmittedVisaDate: ''
+          cancelledOrInadmittedVisaDate: '',
+          // Información Complementaria
+          tienePEP: '',
+          tienePPT: '',
+          tieneTMF: '',
+          tieneSC2: '',
+          numeroPEP: '',
+          fechaExpedicionPEP: '',
+          fechaVencimientoPEP: '',
+          numeroPPT: '',
+          fechaExpedicionPPT: '',
+          fechaVencimientoPPT: '',
+          numeroTMF: '',
+          fechaExpedicionTMF: '',
+          fechaVencimientoTMF: '',
+          numeroSC2: '',
+          fechaExpedicionSC2: '',
+          fechaVencimientoSC2: ''
         }),
       }),
       {
