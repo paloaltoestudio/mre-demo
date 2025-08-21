@@ -195,7 +195,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
       >
 
         {/* Datos Personales */}
-        <h3 className="mb-4 text-md font-normal">Datos Personales</h3>
+        <h3 className="mb-4 text-md font-bold">Datos Personales</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Primer Nombre */}
           <div>
@@ -433,7 +433,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         {/* Sección Otras Nacionalidades - Solo se muestra si selecciona "Si" */}
         {watchTieneOtraNacionalidad === "Si" && (
           <>
-            <h3 className="mb-4 text-md font-normal">Otras Nacionalidades</h3>
+            <h3 className="mb-4 text-md font-bold">Otras Nacionalidades</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               {/* Nacionalidad */}
               <div>
@@ -519,7 +519,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         {/* Sección Otros Menores - Solo se muestra si selecciona "Si" en tiene hijos */}
         {watchTieneHijos === "Si" && (
           <>
-            <h3 className="mb-4 text-md font-normal">Otros menores</h3>
+            <h3 className="mb-4 text-md font-bold">Otros menores</h3>
             
             {/* Formulario para agregar hijo */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -686,7 +686,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         <hr className="border-gray-200 mb-8" />
 
         {/* Datos de Nacimiento */}
-        <h3 className="mb-4 text-md font-normal">Datos de Nacimiento</h3>
+        <h3 className="mb-4 text-md font-bold">Datos de Nacimiento</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Fecha de Nacimiento */}
           <div>
@@ -739,7 +739,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         <hr className="border-gray-200 mb-8" />
 
         {/* Formación Académica */}
-        <h3 className="mb-4 text-md font-normal">Formación Académica</h3>
+        <h3 className="mb-4 text-md font-bold">Formación Académica</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Nivel educativo más alto */}
           <div className="flex flex-col justify-between h-full">
@@ -859,7 +859,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
 
         {/* Ocupación e Ingresos */}
         <div className="mb-8">
-          <h3 className="mb-4 text-md">Ocupación e Ingresos</h3>
+          <h3 className="mb-4 text-md font-bold">Ocupación e Ingresos</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Ocupación */}
             <div>
@@ -919,7 +919,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         <hr className="border-gray-200 mb-8" />
 
         {/* Datos de domicilio en el país de nacionalidad */}
-        <h3 className="mb-4 text-md font-normal">Datos de domicilio en el país de nacionalidad o de establecimiento actual</h3>
+        <h3 className="mb-4 text-md font-bold">Datos de domicilio en el país de nacionalidad o de establecimiento actual</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* País */}
           <div className="flex flex-col justify-between h-full">
@@ -1007,7 +1007,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         <hr className="border-gray-200 mb-8" />
 
         {/* Dirección prevista en Colombia */}
-        <h3 className="mb-4 text-md font-normal">Dirección prevista en Colombia</h3>
+        <h3 className="mb-4 text-md font-bold">Dirección prevista en Colombia</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Departamento */}
           <div className="flex flex-col justify-between h-full">
@@ -1143,7 +1143,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         <hr className="border-gray-200 mb-8" />
 
         {/* Gastos */}
-        <h3 className="mb-4 text-md font-normal">Gastos</h3>
+        <h3 className="mb-4 text-md font-bold">Gastos</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Gastos cubiertos */}
           <div>
@@ -1188,7 +1188,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         <hr className="border-gray-200 mb-8" />
 
         {/* Redes Sociales */}
-        <h3 className="mb-4 text-md font-normal">Redes Sociales</h3>
+        <h3 className="mb-4 text-md font-bold">Redes Sociales</h3>
         <div className="mb-4">
           {/* ¿Tiene Redes Sociales? */}
           <div className="mb-4">

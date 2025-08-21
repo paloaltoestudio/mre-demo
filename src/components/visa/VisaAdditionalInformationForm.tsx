@@ -21,7 +21,14 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
       fechaVencimientoTMF: useVisaStore((state: VisaStoreState) => state.fechaVencimientoTMF) || "",
       numeroSC2: useVisaStore((state: VisaStoreState) => state.numeroSC2) || "",
       fechaExpedicionSC2: useVisaStore((state: VisaStoreState) => state.fechaExpedicionSC2) || "",
-      fechaVencimientoSC2: useVisaStore((state: VisaStoreState) => state.fechaVencimientoSC2) || ""
+      fechaVencimientoSC2: useVisaStore((state: VisaStoreState) => state.fechaVencimientoSC2) || "",
+      expulsadoColombia: useVisaStore((state: VisaStoreState) => state.expulsadoColombia) || "",
+      deportadoColombia: useVisaStore((state: VisaStoreState) => state.deportadoColombia) || "",
+      procesosPenales: useVisaStore((state: VisaStoreState) => state.procesosPenales) || "",
+      permanenciaSinVisa: useVisaStore((state: VisaStoreState) => state.permanenciaSinVisa) || "",
+      cedulaExtranjeria: useVisaStore((state: VisaStoreState) => state.cedulaExtranjeria) || "",
+      familiaresColombia: useVisaStore((state: VisaStoreState) => state.familiaresColombia) || "",
+      ubicacionActual: useVisaStore((state: VisaStoreState) => state.ubicacionActual) || ""
     }
   });
 
@@ -41,7 +48,13 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
   const setNumeroSC2 = useVisaStore((state) => state.setNumeroSC2);
   const setFechaExpedicionSC2 = useVisaStore((state) => state.setFechaExpedicionSC2);
   const setFechaVencimientoSC2 = useVisaStore((state) => state.setFechaVencimientoSC2);
-  
+  const setExpulsadoColombia = useVisaStore((state) => state.setExpulsadoColombia);
+  const setDeportadoColombia = useVisaStore((state) => state.setDeportadoColombia);
+  const setProcesosPenales = useVisaStore((state) => state.setProcesosPenales);
+  const setPermanenciaSinVisa = useVisaStore((state) => state.setPermanenciaSinVisa);
+  const setCedulaExtranjeria = useVisaStore((state) => state.setCedulaExtranjeria);
+  const setFamiliaresColombia = useVisaStore((state) => state.setFamiliaresColombia);
+  const setUbicacionActual = useVisaStore((state) => state.setUbicacionActual);
   // Obtener la nacionalidad del store para mostrar condicionalmente la sección
   const nacionalidad = useVisaStore((state) => state.nacionalidad);
 
@@ -69,7 +82,13 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
     setNumeroSC2(data.numeroSC2);
     setFechaExpedicionSC2(data.fechaExpedicionSC2);
     setFechaVencimientoSC2(data.fechaVencimientoSC2);
-    
+    setExpulsadoColombia(data.expulsadoColombia);
+    setDeportadoColombia(data.deportadoColombia);
+    setProcesosPenales(data.procesosPenales);
+    setPermanenciaSinVisa(data.permanenciaSinVisa);
+    setCedulaExtranjeria(data.cedulaExtranjeria);
+    setFamiliaresColombia(data.familiaresColombia);
+    setUbicacionActual(data.ubicacionActual);
     onNext(data);
   };
 
@@ -88,14 +107,16 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
             aria-label="visa-personal-data-form"
             className="w-full"
           >
-        <h3 className="mb-6 text-lg font-medium text-gray-900">Información Adicional</h3>
+        
 
         {/* Sección: Información Complementaria - Solo para venezolanos */}
         {isVenezuelan && (
-            <div className="flex flex-col space-y-8">
+            <div className="flex flex-col space-y-8 mb-4">
+              <h2 className="mb-4 text-md font-bold">Información Complementaria</h2>
+              
               {/* PEP */}
-              <div className="w-full">
-                <p className="text-base text-gray-900 mb-4">
+              <div className="w-full mb-3">
+                <p className="block text-sm font-medium mb-1">
                   ¿Usted tiene o ha tenido Permiso Especial de Permanencia (PEP)?*
                 </p>
                 <div className="flex space-x-6 ml-4">
@@ -193,8 +214,8 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
               </div>
 
               {/* PPT */}
-              <div className="w-full">
-                <p className="text-base text-gray-900 mb-4">
+              <div className="w-full mb-3">
+                <p className="block text-sm font-medium mb-1">
                   ¿Usted tiene o ha tenido Permiso por Protección Temporal (PPT)?*
                 </p>
                 <div className="flex space-x-6 ml-4">
@@ -292,8 +313,8 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
               </div>
 
               {/* TMF */}
-              <div className="w-full">
-                <p className="text-base text-gray-900 mb-4">
+              <div className="w-full mb-3">
+                <p className="block text-sm font-medium mb-1">
                   ¿Usted tiene o ha tenido Tarjeta de Movilidad Fronteriza (TMF)?*
                 </p>
                 <div className="flex space-x-6 ml-4">
@@ -391,8 +412,8 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
               </div>
 
               {/* SC-2 */}
-              <div className="w-full">
-                <p className="text-base text-gray-900 mb-4">
+              <div className="w-full mb-3">
+                <p className="block text-sm font-medium mb-1">
                   ¿Usted tiene o ha tenido Salvoconducto de Permanencia (SC-2)?*
                 </p>
                 <div className="flex space-x-6 ml-4">
@@ -488,11 +509,291 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                   </div>
                 )}
               </div>
+              <hr className="border-gray-300" />
             </div>
         )}
+
         
-        
-        
+        {/* Sección: Información Adicional - Para todos los usuarios */}
+        <h2 className="mb-4 mt-8 text-md font-bold">Información Adicional</h2>
+        <div className="flex flex-col space-y-8">
+          {/* Pregunta 1: Expulsión de Colombia */}
+          <div className="w-full mb-3">
+            <p className="block text-sm font-medium mb-1">
+              ¿Ha sido expulsado de Colombia alguna vez?*
+            </p>
+            <div className="flex space-x-6 ml-4">
+              <Controller
+                name="expulsadoColombia"
+                control={control}
+                rules={{ required: "Este campo es requerido" }}
+                render={({ field }) => (
+                  <>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="Si"
+                        checked={field.value === "Si"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">Si</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="No"
+                        checked={field.value === "No"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">No</span>
+                    </label>
+                  </>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Pregunta 2: Deportación de Colombia */}
+          <div className="w-full mb-3">
+            <p className="block text-sm font-medium mb-1">
+              ¿Ha sido deportado de Colombia alguna vez?*
+            </p>
+            <div className="flex space-x-6 ml-4">
+              <Controller
+                name="deportadoColombia"
+                control={control}
+                rules={{ required: "Este campo es requerido" }}
+                render={({ field }) => (
+                  <>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="Si"
+                        checked={field.value === "Si"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">Si</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="No"
+                        checked={field.value === "No"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">No</span>
+                    </label>
+                  </>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Pregunta 3: Procesos penales */}
+          <div className="w-full mb-3">
+            <p className="block text-sm font-medium mb-1s">
+              ¿Ha tenido o tiene procesos penales en su contra?*
+            </p>
+            <div className="flex space-x-6 ml-4">
+              <Controller
+                name="procesosPenales"
+                control={control}
+                rules={{ required: "Este campo es requerido" }}
+                render={({ field }) => (
+                  <>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="Si"
+                        checked={field.value === "Si"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">Si</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="No"
+                        checked={field.value === "No"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">No</span>
+                    </label>
+                  </>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Pregunta 4: Permanencia sin visa */}
+          <div className="w-full mb-3">
+            <p className="block text-sm font-medium mb-1">
+              ¿Alguna vez ha permanecido en Colombia sin visa que lo autorice?*
+            </p>
+            <div className="flex space-x-6 ml-4">
+              <Controller
+                name="permanenciaSinVisa"
+                control={control}
+                rules={{ required: "Este campo es requerido" }}
+                render={({ field }) => (
+                  <>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="Si"
+                        checked={field.value === "Si"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">Si</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="No"
+                        checked={field.value === "No"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">No</span>
+                    </label>
+                  </>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Pregunta 5: Cédula de extranjería */}
+          <div className="w-full mb-3">
+            <p className="block text-sm font-medium mb-1">
+              ¿Usted tiene o ha tenido cédula de extranjería en Colombia?*
+            </p>
+            <div className="flex space-x-6 ml-4">
+              <Controller
+                name="cedulaExtranjeria"
+                control={control}
+                rules={{ required: "Este campo es requerido" }}
+                render={({ field }) => (
+                  <>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="Si"
+                        checked={field.value === "Si"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">Si</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="No"
+                        checked={field.value === "No"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">No</span>
+                    </label>
+                  </>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        <hr className="border-gray-300" />
+
+        {/* Sección: Familiares en Colombia - Para todos los usuarios */}
+        <h2 className="mb-4 mt-8 text-md font-bold">Familiares en Colombia</h2>
+        <div className="flex flex-col space-y-8">
+          <div className="w-full mb-3">
+            <p className="block text-sm font-medium mb-1">
+              ¿Algún familiar suyo reside en Colombia?*
+            </p>
+            <div className="flex space-x-6 ml-4">
+              <Controller
+                name="familiaresColombia"
+                control={control}
+                rules={{ required: "Este campo es requerido" }}
+                render={({ field }) => (
+                  <>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="Si"
+                        checked={field.value === "Si"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">Si</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="No"
+                        checked={field.value === "No"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">No</span>
+                    </label>
+                  </>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        <hr className="border-gray-300" />
+
+        {/* Sección: Informacion de ubicacion - Para todos los usuarios */}
+        <h2 className="mb-4 mt-8 text-md font-bold">Información de ubicación</h2>
+        <div className="flex flex-col space-y-8">
+          <div className="w-full mb-3">
+            <p className="block text-sm font-medium mb-1">
+              ¿Al momento de realizar esta solicitud, se encuentra fuera de Colombia?*
+            </p>
+            <div className="flex space-x-6 ml-4">
+              <Controller
+                name="ubicacionActual"
+                control={control}
+                rules={{ required: "Este campo es requerido" }}
+                render={({ field }) => (
+                  <>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="Si"
+                        checked={field.value === "Si"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">Si</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        value="No"
+                        checked={field.value === "No"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="text-base text-gray-900">No</span>
+                    </label>
+                  </>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Botones de navegación */}
         <div className="flex gap-5 justify-end mt-8">
           <button

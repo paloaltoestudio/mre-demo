@@ -100,6 +100,16 @@ export interface VisaStoreState {
   numeroSC2: string;
   fechaExpedicionSC2: string;
   fechaVencimientoSC2: string;
+  // Información Adicional
+  expulsadoColombia: string;
+  deportadoColombia: string;
+  procesosPenales: string;
+  permanenciaSinVisa: string;
+  cedulaExtranjeria: string;
+  // Familiares en Colombia
+  familiaresColombia: string;
+  // Ubicacion Actual
+  ubicacionActual: string;
   setSelectedCategory: (category: string) => void;
   setSector: (sector: string) => void;
   setSubsector: (subsector: string) => void;
@@ -189,6 +199,16 @@ export interface VisaStoreState {
   setNumeroSC2: (numeroSC2: string) => void;
   setFechaExpedicionSC2: (fechaExpedicionSC2: string) => void;
   setFechaVencimientoSC2: (fechaVencimientoSC2: string) => void;
+  // Información Adicional
+  setExpulsadoColombia: (expulsadoColombia: string) => void;
+  setDeportadoColombia: (deportadoColombia: string) => void;
+  setProcesosPenales: (procesosPenales: string) => void;
+  setPermanenciaSinVisa: (permanenciaSinVisa: string) => void;
+  setCedulaExtranjeria: (cedulaExtranjeria: string) => void;
+  // Familiares en Colombia
+  setFamiliaresColombia: (familiaresColombia: string) => void;
+  // Ubicacion Actual
+  setUbicacionActual: (ubicacionActual: string) => void;
   clear: () => void;
 }
 
@@ -294,6 +314,16 @@ export const useVisaStore = create<VisaStoreState>()(
         numeroSC2: '',
         fechaExpedicionSC2: '',
         fechaVencimientoSC2: '',
+        // Información Adicional
+        expulsadoColombia: '',
+        deportadoColombia: '',
+        procesosPenales: '',
+        permanenciaSinVisa: '',
+        cedulaExtranjeria: '',
+        // Familiares en Colombia
+        familiaresColombia: '',
+        // Ubicacion Actual
+        ubicacionActual: '',
         setSelectedCategory: (category) => set({ selectedCategory: category }),
         setSector: (sector) => set({ sector }),
         setSubsector: (subsector) => set({ subsector }),
@@ -383,6 +413,16 @@ export const useVisaStore = create<VisaStoreState>()(
         setNumeroSC2: (numeroSC2) => set({ numeroSC2 }),
         setFechaExpedicionSC2: (fechaExpedicionSC2) => set({ fechaExpedicionSC2 }),
         setFechaVencimientoSC2: (fechaVencimientoSC2) => set({ fechaVencimientoSC2 }),
+        // Información Adicional
+        setExpulsadoColombia: (expulsadoColombia) => set({ expulsadoColombia }),
+        setDeportadoColombia: (deportadoColombia) => set({ deportadoColombia }),
+        setProcesosPenales: (procesosPenales) => set({ procesosPenales }),
+        setPermanenciaSinVisa: (permanenciaSinVisa) => set({ permanenciaSinVisa }),
+        setCedulaExtranjeria: (cedulaExtranjeria) => set({ cedulaExtranjeria }),
+        // Familiares en Colombia
+        setFamiliaresColombia: (familiaresColombia) => set({ familiaresColombia }),
+        // Ubicacion Actual
+        setUbicacionActual: (ubicacionActual) => set({ ubicacionActual }),
         clear: () => set({
           selectedCategory: '',
           sector: '',
@@ -481,7 +521,15 @@ export const useVisaStore = create<VisaStoreState>()(
           fechaVencimientoTMF: '',
           numeroSC2: '',
           fechaExpedicionSC2: '',
-          fechaVencimientoSC2: ''
+          fechaVencimientoSC2: '',
+          // Información Adicional
+          expulsadoColombia: '',
+          deportadoColombia: '',
+          procesosPenales: '',
+          permanenciaSinVisa: '',
+          cedulaExtranjeria: '',
+          familiaresColombia: '',
+          ubicacionActual: ''
         }),
       }),
       {

@@ -98,7 +98,7 @@ export const VisaWizard = () => {
             {console.log('Nacionalidad en store del wizard:', storeState.nacionalidad)}
             <VisaAdditionalInformationForm 
               onNext={handleNext} 
-              onBack={() => setCurrentStep(3)} 
+              onBack={() => setCurrentStep(4)} 
             />
           </>
         )}

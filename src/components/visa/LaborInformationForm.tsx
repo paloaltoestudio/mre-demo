@@ -156,7 +156,7 @@ const LaborInformationForm = ({ onNext, onBack }: LaborInformationFormProps) => 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-      <h3 className="mb-4 text-md font-normal">Información Laboral</h3>
+      <h3 className="mb-4 text-md font-bold">Información Laboral</h3>
       {categoriaVisa === 'Asistencia tecnica' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Sector de Actividad */}
@@ -437,7 +437,7 @@ const LaborInformationForm = ({ onNext, onBack }: LaborInformationFormProps) => 
 
       {/* Solicitudes Anteriores */}
       <div className="mt-10">
-        <h3 className="mb-4 text-md font-normal">Solicitudes Anteriores</h3>
+        <h3 className="mb-4 text-md font-bold">Solicitudes Anteriores</h3>
 
         {/* ¿Ha tenido visa colombiana? */}
         <div className="mb-3">

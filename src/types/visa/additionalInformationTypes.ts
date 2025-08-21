@@ -15,6 +15,12 @@ export interface AdditionalInformationData {
   numeroSC2: string;
   fechaExpedicionSC2: string;
   fechaVencimientoSC2: string;
+  // Información Adicional
+  expulsadoColombia: string;
+  deportadoColombia: string;
+  procesosPenales: string;
+  permanenciaSinVisa: string;
+  cedulaExtranjeria: string;
 }
 
 export interface VisaAdditionalInformationFormProps {

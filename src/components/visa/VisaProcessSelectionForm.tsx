@@ -98,7 +98,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
       >
         
 
-        <h2 className="mb-4 text-md font-normal">Datos documento</h2>
+        <h2 className="mb-4 text-md font-bold">Datos documento</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
