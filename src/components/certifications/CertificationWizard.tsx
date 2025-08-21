@@ -32,8 +32,8 @@ export const CertificationWizard = () => {
   }, [tipoDocumento, currentStep]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-8">
-      <h2 className="mb-4 text-lg font-semibold mt-8">Certificaciones en Línea</h2>
+    <div className="w-full max-w-5xl mx-auto">
+      <h2 className="mb-4 text-lg font-semibold">Certificaciones en Línea</h2>
       <DinamicNav currentStep={currentStep} steps={steps} />
 
       

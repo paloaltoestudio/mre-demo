@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCertificationStore } from '../../stores/certificationStore';
 import { createCertification } from '../../services/CertificationService';
 import { SessionStore } from '../../stores/sessionStore';
-import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 type LiquidationStepProps = {
   onNext: () => void;
@@ -68,14 +68,20 @@ const LiquidationStep = ({ onNext, onBack }: LiquidationStepProps) => {
       const response = await createCertification(payload);
       console.log('Respuesta de la API:', response);
       
-      // Mostrar toast de éxito
-      toast.success("Solicitud enviada", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
+      // Mostrar modal de éxito
+      await Swal.fire({
+        title: 'Solicitud Creada',
+        icon: 'success',
+        iconColor: '#3466cc',
+        confirmButtonText: 'Continuar',
+        confirmButtonColor: '#3466cc',
+        customClass: {
+          popup: 'swal2-border-radius',
+          confirmButton: 'swal2-confirm-custom',
+        },
+        showCancelButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
       });
       
       // Si todo sale bien, continuar al siguiente paso
