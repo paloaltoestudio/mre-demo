@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useCertificationStore } from '../../stores/certificationStore';
-import { CertificationService } from '../../services/CertificationService';
+import { createCertification } from '../../services/CertificationService';
 import { SessionStore } from '../../stores/sessionStore';
+import { toast } from 'react-toastify';
 
 type LiquidationStepProps = {
   onNext: () => void;
@@ -64,8 +65,18 @@ const LiquidationStep = ({ onNext, onBack }: LiquidationStepProps) => {
       console.log('Payload para la API:', payload);
       
       // Enviar datos a la API
-      const response = await CertificationService.createCertification(payload);
+      const response = await createCertification(payload);
       console.log('Respuesta de la API:', response);
+      
+      // Mostrar toast de éxito
+      toast.success("Solicitud enviada", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       
       // Si todo sale bien, continuar al siguiente paso
       onNext();
