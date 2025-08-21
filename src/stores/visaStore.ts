@@ -88,6 +88,18 @@ export interface VisaStoreState {
   tienePPT: string;
   tieneTMF: string;
   tieneSC2: string;
+  numeroPEP: string;
+  fechaExpedicionPEP: string;
+  fechaVencimientoPEP: string;
+  numeroPPT: string;
+  fechaExpedicionPPT: string;
+  fechaVencimientoPPT: string;
+  numeroTMF: string;
+  fechaExpedicionTMF: string;
+  fechaVencimientoTMF: string;
+  numeroSC2: string;
+  fechaExpedicionSC2: string;
+  fechaVencimientoSC2: string;
   setSelectedCategory: (category: string) => void;
   setSector: (sector: string) => void;
   setSubsector: (subsector: string) => void;
@@ -165,6 +177,18 @@ export interface VisaStoreState {
   setTienePPT: (tienePPT: string) => void;
   setTieneTMF: (tieneTMF: string) => void;
   setTieneSC2: (tieneSC2: string) => void;
+  setNumeroPEP: (numeroPEP: string) => void;
+  setFechaExpedicionPEP: (fechaExpedicionPEP: string) => void;
+  setFechaVencimientoPEP: (fechaVencimientoPEP: string) => void;
+  setNumeroPPT: (numeroPPT: string) => void;
+  setFechaExpedicionPPT: (fechaExpedicionPPT: string) => void;
+  setFechaVencimientoPPT: (fechaVencimientoPPT: string) => void;
+  setNumeroTMF: (numeroTMF: string) => void;
+  setFechaExpedicionTMF: (fechaExpedicionTMF: string) => void;
+  setFechaVencimientoTMF: (fechaVencimientoTMF: string) => void;
+  setNumeroSC2: (numeroSC2: string) => void;
+  setFechaExpedicionSC2: (fechaExpedicionSC2: string) => void;
+  setFechaVencimientoSC2: (fechaVencimientoSC2: string) => void;
   clear: () => void;
 }
 
@@ -258,6 +282,18 @@ export const useVisaStore = create<VisaStoreState>()(
         tienePPT: '',
         tieneTMF: '',
         tieneSC2: '',
+        numeroPEP: '',
+        fechaExpedicionPEP: '',
+        fechaVencimientoPEP: '',
+        numeroPPT: '',
+        fechaExpedicionPPT: '',
+        fechaVencimientoPPT: '',
+        numeroTMF: '',
+        fechaExpedicionTMF: '',
+        fechaVencimientoTMF: '',
+        numeroSC2: '',
+        fechaExpedicionSC2: '',
+        fechaVencimientoSC2: '',
         setSelectedCategory: (category) => set({ selectedCategory: category }),
         setSector: (sector) => set({ sector }),
         setSubsector: (subsector) => set({ subsector }),
@@ -335,6 +371,18 @@ export const useVisaStore = create<VisaStoreState>()(
         setTienePPT: (tienePPT) => set({ tienePPT }),
         setTieneTMF: (tieneTMF) => set({ tieneTMF }),
         setTieneSC2: (tieneSC2) => set({ tieneSC2 }),
+        setNumeroPEP: (numeroPEP) => set({ numeroPEP }),
+        setFechaExpedicionPEP: (fechaExpedicionPEP) => set({ fechaExpedicionPEP }),
+        setFechaVencimientoPEP: (fechaVencimientoPEP) => set({ fechaVencimientoPEP }),
+        setNumeroPPT: (numeroPPT) => set({ numeroPPT }),
+        setFechaExpedicionPPT: (fechaExpedicionPPT) => set({ fechaExpedicionPPT }),
+        setFechaVencimientoPPT: (fechaVencimientoPPT) => set({ fechaVencimientoPPT }),
+        setNumeroTMF: (numeroTMF) => set({ numeroTMF }),
+        setFechaExpedicionTMF: (fechaExpedicionTMF) => set({ fechaExpedicionTMF }),
+        setFechaVencimientoTMF: (fechaVencimientoTMF) => set({ fechaVencimientoTMF }),
+        setNumeroSC2: (numeroSC2) => set({ numeroSC2 }),
+        setFechaExpedicionSC2: (fechaExpedicionSC2) => set({ fechaExpedicionSC2 }),
+        setFechaVencimientoSC2: (fechaVencimientoSC2) => set({ fechaVencimientoSC2 }),
         clear: () => set({
           selectedCategory: '',
           sector: '',
@@ -421,7 +469,19 @@ export const useVisaStore = create<VisaStoreState>()(
           tienePEP: '',
           tienePPT: '',
           tieneTMF: '',
-          tieneSC2: ''
+          tieneSC2: '',
+          numeroPEP: '',
+          fechaExpedicionPEP: '',
+          fechaVencimientoPEP: '',
+          numeroPPT: '',
+          fechaExpedicionPPT: '',
+          fechaVencimientoPPT: '',
+          numeroTMF: '',
+          fechaExpedicionTMF: '',
+          fechaVencimientoTMF: '',
+          numeroSC2: '',
+          fechaExpedicionSC2: '',
+          fechaVencimientoSC2: ''
         }),
       }),
       {

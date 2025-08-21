@@ -22,8 +22,8 @@ export const VisaWizard = () => {
     "Datos del solicitante",
     // Solo incluir el paso de menor si el usuario ya seleccionó tipo de documento y no es CC
     ...(tipoDocumento && tipoDocumento !== "CC" ? ["Datos del Registro Civil (En caso de Menor de Edad)"] : []),
+    "Información Laboral",
     "Información Adicional",
-    "Información Laboral"
   ];
 
   // Sincronizar currentStep si el tipo de documento cambia y el paso de menor ya no debe mostrarse
@@ -88,6 +88,10 @@ export const VisaWizard = () => {
         )}
         
         {currentStep === 4 && (
+          <LaborInformationForm onNext={handleNext} onBack={handleBack} />
+        )}
+        
+        {currentStep === 5 && (
           <>
             {console.log('Renderizando paso 4 - Información Adicional')}
             {console.log('Estado actual del store:', storeState)}
@@ -99,9 +103,6 @@ export const VisaWizard = () => {
           </>
         )}
         
-        {currentStep === 5 && (
-          <LaborInformationForm onNext={handleNext} onBack={handleBack} />
-        )}
       </div>
     </div>
   );
