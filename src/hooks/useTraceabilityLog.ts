@@ -55,9 +55,12 @@ export const useTraceabilityLog = () => {
 // Función para obtener la IP del usuario
 const getUserIP = async (): Promise<string> => {
   try {
-    const response = await fetch("https://api.ipify.org?format=json");
-    const data = await response.json();
-    return data.ip;
+    const response = await axiosInstance.get("/Traceability/get-ip-client", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data.ip || "unknown";
   } catch (error) {
     console.error("Error al obtener IP:", error);
     return "unknown";
