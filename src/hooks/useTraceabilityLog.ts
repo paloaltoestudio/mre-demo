@@ -7,9 +7,13 @@ import { axiosInstance } from "../configs/axios";
 import { SessionStore } from "../stores/sessionStore";
 
 const createTraceabilityLog = async (data: CreateTraceabilityLogRequest): Promise<TraceabilityLogResponse> => {
+  // Obtener el token de la API del store
+  const globalToken = SessionStore.getState().globalToken;
+  
   const response = await axiosInstance.post("/Traceability/CreateTraceabilityLog", data, {
     headers: {
       "Content-Type": "application/json",
+      ...(globalToken && { Authorization: `Bearer ${globalToken}` }),
     },
   });
   return response.data;

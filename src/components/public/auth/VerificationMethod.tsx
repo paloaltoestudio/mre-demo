@@ -46,7 +46,28 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
   }, [sendOTP]);
 
   useEffect(() => {
-    console.log("🔍 useEffect ejecutándose:", { submitted, externalId, isSubmitting, hasSubmitted: hasSubmittedRef.current });
+    console.log("🔍 useEffect ejecutándose:", { 
+      submitted, 
+      externalId, 
+      isSubmitting, 
+      hasSubmitted: hasSubmittedRef.current,
+      activeUser: !!activeUser,
+      sessionUser: !!sessionUser
+    });
+    
+    // Log del estado completo del store
+    const storeState = SessionStore.getState();
+    console.log("🔧 Estado completo del store:", {
+      externalId: storeState.externalId,
+      activeUser: storeState.activeUser ? {
+        id: storeState.activeUser.id,
+        documentNumber: storeState.activeUser.documentNumber,
+        email: storeState.activeUser.email
+      } : null,
+      userType: storeState.userType,
+      official: storeState.official
+    });
+    
     if (submitted?.trim() && externalId && !isSubmitting && !hasSubmittedRef.current) {
       console.log("✅ Ejecutando handleSendOTP");
       hasSubmittedRef.current = true;
@@ -58,8 +79,20 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
         isNotSubmitting: !isSubmitting,
         alreadySubmitted: hasSubmittedRef.current
       });
+      
+      // Debug adicional para entender por qué no se ejecuta
+      if (!externalId) {
+        console.error("❌ externalId es null/undefined. Store state:", {
+          externalId,
+          activeUser: activeUser ? {
+            id: activeUser.id,
+            documentNumber: activeUser.documentNumber,
+            email: activeUser.email
+          } : null
+        });
+      }
     }
-  }, [submitted, externalId, isSubmitting, handleSendOTP]);
+  }, [submitted, externalId, isSubmitting, handleSendOTP, activeUser, sessionUser]);
 
   useEffect(() => {
     const methods: string[] = [];

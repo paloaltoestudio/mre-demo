@@ -66,6 +66,7 @@ export const SessionStore = create(
         activeUser: null,
         tokenExpiration: null,
         globalToken: "",
+        userType: null, // 'ciudadano' o 'funcionario'
         otp: null,
         setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
         setUser: (user) =>
@@ -86,7 +87,10 @@ export const SessionStore = create(
         setLocationVerification: (message) =>
           set({ locationVerification: message }),
         setOfficial: (official) => set({ official }),
-        setExternalId: (externalId) => set({ externalId }),
+        setExternalId: (externalId) => {
+          console.log("🔧 Store: setExternalId llamado con:", externalId);
+          set({ externalId });
+        },
         setUserId: (userId) => set({ userId }),
         setActiveUser: (activeUser) => set({ activeUser }),
         clearActiveUser: () => set({ activeUser: null }),
@@ -94,6 +98,7 @@ export const SessionStore = create(
           set({ tokenExpiration: expiration }),
         clearTokenExpiration: () => set({ tokenExpiration: null }),
         setGlobalToken: (token) => set({ globalToken: token }),
+        setUserType: (userType) => set({ userType }),
         setOtp: (otp) => set({ otp }),
       }),
       {

@@ -14,9 +14,17 @@ type formType = {
 export const VerificationMethodsViews = () => {
   const [submitted, setSubmitted] = useState<methodType["type"]>();
 
-  const onSubmit = (data: formType) => {
-    const validMethod = JSON.parse(data.method.toString()) as methodType;
-    setSubmitted(validMethod.type);
+  const onSubmit = async (data: formType) => {
+    try {
+      const validMethod = JSON.parse(data.method.toString()) as methodType;
+      console.log("Método seleccionado:", validMethod);
+      setSubmitted(validMethod.type);
+      
+      // Aquí podríamos agregar lógica adicional si es necesario
+      // Por ejemplo, navegar a la siguiente pantalla o hacer alguna validación
+    } catch (error) {
+      console.error("Error procesando método seleccionado:", error);
+    }
   };
 
   return (

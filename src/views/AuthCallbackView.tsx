@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { postPublicRequest } from "../services/fetchingService";
-import { CreateHashSchema, CreateTokenSchema } from "../schemas/Auth/hashSchemas";
+import { CreateHashSchema, CreateTokenSchema, ResponseCreateHashSchemaDebug } from "../schemas/Auth/hashSchemas";
 import type {
   ResponseHashType,
   ResponsesTokenType,
@@ -40,9 +40,53 @@ export const AuthCallbackView = () => {
     mutationFn: postPublicRequest<ResponseHashType>,
     onSuccess: (data: ResponseHashType) => {
       console.log("token hash", data);
+      console.log("Data structure (AuthCallback):", {
+        isPayload: data.isPayload,
+        hasPayload: !!data.payload,
+        hasJsonData: !!data.jsonData,
+        tokenApi: !!data.token_api
+      });
       setToken(data);
+
+      // Guardar el token de la API para futuras peticiones
+      if (data.token_api) {
+        SessionStore.getState().setGlobalToken(data.token_api.access_token);
+      }
+
+      // Determinar y guardar el tipo de usuario
+      let userType = null;
+      console.log("🔍 Procesando tipo de usuario (AuthCallback)...");
+      console.log("🔍 Estructura completa de data recibida (AuthCallback):", data);
+      
+      if (data.isPayload && data.payload) {
+        userType = data.payload.userType;
+        console.log("🔍 Ciudadano detectado (AuthCallback) - guardando externalId:", data.payload.externalId);
+        // Para ciudadanos, guardar el externalId inmediatamente
+        SessionStore.getState().setExternalId(data.payload.externalId);
+      } else if (data.jsonData) {
+        userType = data.jsonData.Data.USER_TYPE.toLowerCase();
+        console.log("🔍 Funcionario detectado (AuthCallback) - guardando USER_ID como externalId:", data.jsonData.Data.USER_ID);
+        // Para funcionarios, guardar el USER_ID como externalId
+        SessionStore.getState().setExternalId(data.jsonData.Data.USER_ID);
+      } else {
+        console.log("❌ No se pudo determinar el tipo de usuario (AuthCallback) - estructura de data:", data);
+        console.log("❌ Propiedades disponibles (AuthCallback):", Object.keys(data));
+      }
+      
+      if (userType) {
+        console.log("✅ Tipo de usuario determinado (AuthCallback):", userType);
+        SessionStore.getState().setUserType(userType);
+        // También actualizar el flag official
+        SessionStore.getState().setOfficial(userType === 'funcionario');
+      } else {
+        console.log("❌ No se pudo determinar el tipo de usuario (AuthCallback)");
+      }
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Error completo en MutateHash (AuthCallback):", error);
+      console.error("Error response:", error.response);
+      console.error("Error data:", error.response?.data);
+      
       toast.error("Ocurrió un error en la generación del token", {
         icon: (
           <FontAwesomeIcon
@@ -72,7 +116,11 @@ export const AuthCallbackView = () => {
       // Redirigir al dashboard después de procesar exitosamente
       navigate("/dashboard/appointments/");
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Error completo en MutateToken (AuthCallback):", error);
+      console.error("Error response:", error.response);
+      console.error("Error data:", error.response?.data);
+      
       toast.error("Ocurrió un error en la generación del token", {
         icon: (
           <FontAwesomeIcon
@@ -117,11 +165,82 @@ export const AuthCallbackView = () => {
 
   const handleToken = async () => {
     if (token) {
-      await MutateToken({
-        url: "/User/external",
-        schema: CreateTokenSchema,
-        body: { externalId: token?.externalId! },
+      console.log("handleToken ejecutándose con token (AuthCallback):", token);
+      console.log("Token structure en handleToken (AuthCallback):", {
+        isPayload: token.isPayload,
+        hasPayload: !!token.payload,
+        hasJsonData: !!token.jsonData,
+        payloadContent: token.payload,
+        jsonDataContent: token.jsonData
       });
+      
+      if (token.isPayload && token.payload) {
+        // Para ciudadanos: necesitamos hacer la segunda petición para obtener datos del usuario
+        const externalId = token.payload.externalId;
+        console.log("Ciudadano - ExternalId para handleToken (AuthCallback):", externalId);
+        
+        if (externalId) {
+          await MutateToken({
+            url: "/User/external",
+            schema: CreateTokenSchema,
+            body: { externalId },
+          });
+        } else {
+          console.error("No se pudo obtener el externalId del token de ciudadano en AuthCallback");
+          toast.error("Error: No se pudo obtener el ID del usuario", {
+            autoClose: 3000,
+            draggable: true,
+            progress: undefined,
+            hideProgressBar: true,
+            className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+          });
+        }
+      } else if (token.jsonData) {
+        // Para funcionarios: los datos ya están en la respuesta, crear usuario directamente
+        console.log("Funcionario - Creando usuario desde jsonData (AuthCallback)");
+        const funcionarioData = token.jsonData.Data;
+        
+        // Crear objeto de usuario con el formato esperado
+        const funcionarioUser = {
+          id: parseInt(funcionarioData.USER_ID),
+          documentNumber: funcionarioData.documentNumber,
+          firstName: funcionarioData.names,
+          lastName: funcionarioData.lastName,
+          secondLastName: "",
+          email: funcionarioData.email,
+          phone: "",
+          whatsapp: "",
+          officeId: 0,
+          acceptsDataProcessing: true,
+          acceptsTermsAndConditions: true,
+          acceptanceDate: new Date(),
+        };
+        
+        console.log("Usuario funcionario creado (AuthCallback):", funcionarioUser);
+        
+        // Establecer el usuario activo directamente
+        setActiveUser(funcionarioUser);
+        setUserId(funcionarioUser.id);
+        
+        // Redirigir al dashboard después de procesar exitosamente
+        setIsProcessing(false);
+        navigate("/dashboard/appointments/");
+      } else {
+        console.error("No se pudo determinar el tipo de usuario del token en AuthCallback");
+        console.error("Token completo en error (AuthCallback):", token);
+        console.error("Condiciones fallidas (AuthCallback):", {
+          isPayloadCondition: token.isPayload && token.payload,
+          jsonDataCondition: token.jsonData,
+          dataExists: true
+        });
+        toast.error("Error: No se pudo determinar el tipo de usuario", {
+          autoClose: 3000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
+      }
     }
   };
 
