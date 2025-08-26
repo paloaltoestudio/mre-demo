@@ -1,11 +1,12 @@
 import { DependentsCard } from "./DependentsCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { useFormContext } from "react-hook-form";
 import { CancelBtn } from "./CancelBtn";
 import { useEditAppointment } from "../../hooks/useEditAppointment";
 import { useBookingTimerStore } from "../../stores/bookingTimerStore";
 import type { DependentData } from "../../types/dashboard/editAppointmentTypes";
+import { toast } from "react-toastify";
 
 type DependentInformationFormProps = {
   setView: (step: number) => void;
@@ -28,6 +29,7 @@ export const DependentInformationForm = ({
     try {
       // Recopilar datos de dependientes del formulario
       const dependentsData: DependentData[] = [];
+      const missingFields: string[] = [];
       
       for (let i = 0; i < countDependents; i++) {
         const relationshipType = watch(`parent-${i}`);
@@ -36,7 +38,19 @@ export const DependentInformationForm = ({
         const firstNames = watch(`names-${i}`);
         const lastNames = watch(`last-names-${i}`);
 
-        if (relationshipType && documentType && documentNumber && firstNames && lastNames) {
+        // Validar cada dependiente individualmente
+        const dependentNumber = i + 1;
+        const missingFieldsForDependent: string[] = [];
+        
+        if (!relationshipType) missingFieldsForDependent.push("parentesco");
+        if (!documentType) missingFieldsForDependent.push("tipo de documento");
+        if (!documentNumber) missingFieldsForDependent.push("número de documento");
+        if (!firstNames) missingFieldsForDependent.push("nombres");
+        if (!lastNames) missingFieldsForDependent.push("apellidos");
+
+        if (missingFieldsForDependent.length > 0) {
+          missingFields.push(`Dependiente ${dependentNumber}: ${missingFieldsForDependent.join(", ")}`);
+        } else {
           dependentsData.push({
             relationshipTypeId: relationshipType.id,
             documentTypeId: documentType,
@@ -46,6 +60,30 @@ export const DependentInformationForm = ({
           });
         }
       }
+
+      // Si hay campos faltantes, mostrar error y no continuar
+      if (missingFields.length > 0) {
+        toast.error(`Por favor completa todos los campos.`, {
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="text-red-500"
+            />
+          ),
+          autoClose: 5000,
+          draggable: true,
+          progress: undefined,
+          hideProgressBar: true,
+          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+        });
+        return;
+      }
+
+      // Log para verificar que se están enviando todos los dependientes
+      console.log("🔍 [DEPENDENTS] Datos de dependientes a enviar:");
+      console.log("   - Total de dependientes configurados:", countDependents);
+      console.log("   - Dependientes con datos completos:", dependentsData.length);
+      console.log("   - Datos de cada dependiente:", dependentsData);
 
       // Editar la cita con los datos de dependientes
       await editAppointment({

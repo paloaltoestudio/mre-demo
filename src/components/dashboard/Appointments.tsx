@@ -127,20 +127,32 @@ export const AppointmentCards = () => {
       setToken(data);
 
       // Configurar expiración del token basado en el tipo de usuario
-      if (data.isPayload && data.payload) {
-        // Usuario ciudadano - usar payload
-        if (data.payload.expiration) {
-          const expirationDate = new Date(data.payload.expiration);
-          setTokenExpiration(expirationDate);
-          setExpiration(expirationDate);
-        }
+      console.log("⏰ [APPOINTMENTS] Configurando expiración del token...");
+      
+      // PRIORIDAD: Usar token_api.expires_in (expiración real del token de la API)
+      if (data.token_api && data.token_api.expires_in) {
+        const expirationDate = new Date(data.token_api.expires_in);
+        console.log("⏰ [APPOINTMENTS] Usando expiración del token_api.expires_in:", expirationDate.toLocaleString());
+        console.log("⏰ [APPOINTMENTS] Valor original del token_api:", data.token_api.expires_in);
+        setTokenExpiration(expirationDate);
+        setExpiration(expirationDate);
+      } else if (data.isPayload && data.payload && data.payload.expiration) {
+        // FALLBACK: Usar payload.expiration solo si no hay token_api
+        const expirationDate = new Date(data.payload.expiration);
+        console.log("⚠️ [APPOINTMENTS] Fallback - Usando expiración del payload:", expirationDate.toLocaleString());
+        console.log("⚠️ [APPOINTMENTS] Valor original del payload:", data.payload.expiration);
+        setTokenExpiration(expirationDate);
+        setExpiration(expirationDate);
       } else if (data.jsonData) {
         // Usuario funcionario - usar jsonData
         // Para funcionarios, podríamos usar un tiempo de expiración por defecto
         // o extraer de otro campo si está disponible
         const defaultExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+        console.log("⏰ [APPOINTMENTS] Funcionario - Expiración por defecto (24h):", defaultExpiration.toLocaleString());
         setTokenExpiration(defaultExpiration);
         setExpiration(defaultExpiration);
+      } else {
+        console.log("⚠️ [APPOINTMENTS] No se pudo determinar el tipo de usuario para configurar expiración");
       }
 
       // Guardar el token de la API para futuras peticiones
@@ -197,7 +209,7 @@ export const AppointmentCards = () => {
       });
       // Redirigir a la app externa después de mostrar el error
       setTimeout(() => {
-        // window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
       }, 2000);
     },
   });
@@ -660,13 +672,13 @@ export const AppointmentCards = () => {
                           : "Ver requisitos"}
                       </button>
                       
-                      {/* <button
+                      <button
                         type="button"
                         onClick={() => navigate(`/dashboard/appointments/${appt.appointmentId}`)}
                         className="text-blue-600 text-sm py-[3px] px-3 border border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-lg min-w-[100px] duration-150 transition-colors"
                       >
                         Ver Detalle
-                      </button> */}
+                      </button>
                       {appt.status === "Agendada" && (
                         <>
                           <button

@@ -51,6 +51,16 @@ export const AuthCallbackView = () => {
       // Guardar el token de la API para futuras peticiones
       if (data.token_api) {
         SessionStore.getState().setGlobalToken(data.token_api.access_token);
+        
+        // Configurar expiración del token usando token_api.expires_in
+        if (data.token_api.expires_in) {
+          const expirationDate = new Date(data.token_api.expires_in);
+          console.log("⏰ [AUTH CALLBACK] Configurando expiración del token_api:", expirationDate.toLocaleString());
+          console.log("⏰ [AUTH CALLBACK] Valor original del token_api:", data.token_api.expires_in);
+          SessionStore.getState().setTokenExpiration(expirationDate);
+        } else {
+          console.log("⚠️ [AUTH CALLBACK] No hay fecha de expiración en token_api");
+        }
       }
 
       // Determinar y guardar el tipo de usuario

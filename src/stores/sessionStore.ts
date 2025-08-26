@@ -96,8 +96,14 @@ export const SessionStore = create(
         setUserId: (userId) => set({ userId }),
         setActiveUser: (activeUser) => set({ activeUser }),
         clearActiveUser: () => set({ activeUser: null }),
-        setTokenExpiration: (expiration) =>
-          set({ tokenExpiration: expiration }),
+        setTokenExpiration: (expiration) => {
+          const stackTrace = new Error().stack;
+          console.log("🔧 [STORE] Estableciendo expiración del token:");
+          console.log("   - Nueva expiración:", expiration?.toLocaleString());
+          console.log("   - Timestamp:", expiration?.getTime());
+          console.log("   - Llamado desde:", stackTrace?.split('\n')[2]?.trim());
+          set({ tokenExpiration: expiration });
+        },
         clearTokenExpiration: () => set({ tokenExpiration: null }),
         setGlobalToken: (token) => set({ globalToken: token }),
         setUserType: (userType: string) => set({ userType }),
