@@ -306,6 +306,7 @@ export const AppointmentForForm = ({
                 required: "La cantidad es obligatoria",
                 validate: (value) => {
                   if (!value || value < 1) return "Debe ser al menos 1";
+                  if (value > 3) return "El máximo permitido es 3 dependientes";
                   return true;
                 },
               }}
@@ -341,9 +342,15 @@ export const AppointmentForForm = ({
                       <span
                         onClick={() => {
                           const currentValue = field.value || 0;
-                          field.onChange(currentValue + 1);
+                          if (currentValue < 3) {
+                            field.onChange(currentValue + 1);
+                          }
                         }}
-                        className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 cursor-pointer"
+                        className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ${
+                          (field.value || 0) >= 3 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
                       >
                         <FontAwesomeIcon
                           icon={faPlus}
