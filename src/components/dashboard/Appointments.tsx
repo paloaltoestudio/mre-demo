@@ -33,7 +33,6 @@ import type {
 import {
   CreateHashSchema,
   CreateTokenSchema,
-  ResponseCreateHashSchemaDebug,
 } from "../../schemas/Auth/hashSchemas";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 
@@ -128,14 +127,14 @@ export const AppointmentCards = () => {
       setToken(data);
 
       // Configurar expiración del token basado en el tipo de usuario
-      if (data.data?.isPayload && data.data?.payload) {
+      if (data.isPayload && data.payload) {
         // Usuario ciudadano - usar payload
-        if (data.data.payload.expiration) {
-          const expirationDate = new Date(data.data.payload.expiration);
+        if (data.payload.expiration) {
+          const expirationDate = new Date(data.payload.expiration);
           setTokenExpiration(expirationDate);
           setExpiration(expirationDate);
         }
-      } else if (data.data?.jsonData) {
+      } else if (data.jsonData) {
         // Usuario funcionario - usar jsonData
         // Para funcionarios, podríamos usar un tiempo de expiración por defecto
         // o extraer de otro campo si está disponible
@@ -555,7 +554,7 @@ export const AppointmentCards = () => {
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
         {(() => {
-          if (loader) {
+          if (loader || !sche) {
             return (
               <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
                 Cargando citas...
@@ -571,7 +570,7 @@ export const AppointmentCards = () => {
             );
           }
           
-          if (!sche?.appointments || sche.appointments.length === 0) {
+          if (!sche.appointments || sche.appointments.length === 0) {
             return (
               <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
                 No se encontraron citas para mostrar

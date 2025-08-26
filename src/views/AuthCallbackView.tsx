@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { postPublicRequest } from "../services/fetchingService";
-import { CreateHashSchema, CreateTokenSchema, ResponseCreateHashSchemaDebug } from "../schemas/Auth/hashSchemas";
+import { CreateHashSchema, CreateTokenSchema } from "../schemas/Auth/hashSchemas";
 import type {
   ResponseHashType,
   ResponsesTokenType,
@@ -205,6 +205,7 @@ export const AuthCallbackView = () => {
           id: parseInt(funcionarioData.USER_ID),
           documentNumber: funcionarioData.documentNumber,
           firstName: funcionarioData.names,
+          middleName: "",
           lastName: funcionarioData.lastName,
           secondLastName: "",
           email: funcionarioData.email,
