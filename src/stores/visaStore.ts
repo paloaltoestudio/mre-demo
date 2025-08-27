@@ -60,6 +60,7 @@ export interface VisaStoreState {
   tipoSolicitud: string;
   tipoSolicitante: string;
   mediaName: string;
+  fotoPreviewUrl: string;
   specifyActivity: string;
   visitReason: string;
   institution: string;
@@ -170,6 +171,7 @@ export interface VisaStoreState {
   setTipoSolicitud: (tipoSolicitud: string) => void;
   setTipoSolicitante: (tipoSolicitante: string) => void;
   setMediaName: (mediaName: string) => void;
+  setFotoPreviewUrl: (fotoPreviewUrl: string) => void;
   setSpecifyActivity: (specifyActivity: string) => void;
   setVisitReason: (visitReason: string) => void;
   setInstitution: (institution: string) => void;
@@ -296,6 +298,7 @@ export const useVisaStore = create<VisaStoreState>()(
         tipoSolicitud: '',
         tipoSolicitante: '',
         mediaName: '',
+        fotoPreviewUrl: '',
         specifyActivity: '',
         visitReason: '',
         institution: '',
@@ -406,6 +409,7 @@ export const useVisaStore = create<VisaStoreState>()(
         setTipoSolicitud: (tipoSolicitud) => set({ tipoSolicitud }),
         setTipoSolicitante: (tipoSolicitante) => set({ tipoSolicitante }),
         setMediaName: (mediaName) => set({ mediaName }),
+        setFotoPreviewUrl: (fotoPreviewUrl) => set({ fotoPreviewUrl }),
         setSpecifyActivity: (specifyActivity) => set({ specifyActivity }),
         setVisitReason: (visitReason) => set({ visitReason }),
         setInstitution: (institution) => set({ institution }),
@@ -526,6 +530,7 @@ export const useVisaStore = create<VisaStoreState>()(
           tipoSolicitud: '',
           tipoSolicitante: '',
           mediaName: '',
+          fotoPreviewUrl: '',
           specifyActivity: '',
           visitReason: '',
           institution: '',

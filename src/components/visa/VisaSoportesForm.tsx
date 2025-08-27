@@ -1,7 +1,10 @@
 import React, { useState, useRef } from "react";
+import Swal from 'sweetalert2';
+import { useVisaStore } from '../../stores/visaStore';
 import type { VisaSoportesFormProps } from '../../types/visa/soportesTypes';
 
 export const VisaSoportesForm = ({ onNext, onBack }: VisaSoportesFormProps) => {
+  const { setMediaName, setFotoPreviewUrl } = useVisaStore();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
@@ -15,23 +18,38 @@ export const VisaSoportesForm = ({ onNext, onBack }: VisaSoportesFormProps) => {
     if (file) {
       // Validar tipo de archivo
       if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Por favor selecciona un archivo de imagen válido',
+          confirmButtonText: 'Entendido'
+        });
         return;
       }
 
       // Validar tamaño (300 KB = 307,200 bytes)
       if (file.size > 307200) {
-        alert('El archivo debe tener un tamaño máximo de 300 KB');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Archivo muy grande',
+          text: 'El archivo debe tener un tamaño máximo de 300 KB',
+          confirmButtonText: 'Entendido'
+        });
         return;
       }
 
       setSelectedFile(file);
       setFileName(file.name);
+      
+      // Guardar en el store
+      setMediaName(file.name);
 
       // Crear preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string);
+        const previewUrl = e.target?.result as string;
+        setPreviewUrl(previewUrl);
+        setFotoPreviewUrl(previewUrl);
       };
       reader.readAsDataURL(file);
     }
@@ -49,10 +67,15 @@ export const VisaSoportesForm = ({ onNext, onBack }: VisaSoportesFormProps) => {
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        if (file.type !== 'application/pdf') {
-          alert('Por favor selecciona un archivo PDF válido');
-          return;
-        }
+              if (file.type !== 'application/pdf') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Por favor selecciona un archivo PDF válido',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
         setSupportDocuments(prev => ({
           ...prev,
           [documentId]: file
@@ -68,7 +91,15 @@ export const VisaSoportesForm = ({ onNext, onBack }: VisaSoportesFormProps) => {
       const url = URL.createObjectURL(document);
       window.open(url, '_blank');
     } else {
-      alert('No hay documento cargado para ver');
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin documento',
+        text: 'No hay documento cargado para ver',
+        customClass: {
+          confirmButton: 'modal-button'
+        },
+        confirmButtonText: 'Entendido'
+      });
     }
   };
 
@@ -86,7 +117,15 @@ export const VisaSoportesForm = ({ onNext, onBack }: VisaSoportesFormProps) => {
     e.preventDefault();
     
     if (!selectedFile) {
-      alert('Por favor selecciona una foto');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Foto requerida',
+        text: 'Por favor selecciona una foto',
+        confirmButtonText: 'Entendido',
+        customClass: {
+          confirmButton: 'modal-button'
+        }
+      });
       return;
     }
 

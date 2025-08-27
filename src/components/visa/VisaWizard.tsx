@@ -6,6 +6,7 @@ import { VisaPersonalDataForm } from "./VisaPersonalDataForm";
 import { VisaAdditionalInformationForm } from "./VisaAdditionalInformationForm";
 import LaborInformationForm from './LaborInformationForm';
 import { VisaSoportesForm } from "./VisaSoportesForm";
+import { VisaSummaryForm } from "./VisaSummaryForm";
 import type { AdditionalInformationData } from '../../types/visa/additionalInformationTypes';
 import type { SoportesData } from '../../types/visa/soportesTypes';
 import { useVisaStore } from '../../stores/visaStore';
@@ -27,6 +28,7 @@ export const VisaWizard = () => {
     "Información Laboral",
     "Información Adicional",
     "Soportes",
+    "Resumen de la Solicitud",
   ];
 
   // Sincronizar currentStep si el tipo de documento cambia y el paso de menor ya no debe mostrarse
@@ -110,8 +112,28 @@ export const VisaWizard = () => {
           <>
             {console.log('Renderizando paso 6 - Soportes')}
             <VisaSoportesForm 
-              onNext={handleNext} 
+              onNext={() => setCurrentStep(7)} 
               onBack={() => setCurrentStep(5)} 
+            />
+          </>
+        )}
+        
+        {currentStep === 7 && (
+          <>
+            {console.log('Renderizando paso 7 - Resumen de la Solicitud')}
+            <VisaSummaryForm 
+              onNext={() => {
+                // Aquí se podría implementar la lógica para enviar la solicitud
+                console.log('Solicitud registrada exitosamente');
+                // Redirigir a una página de confirmación o dashboard
+              }} 
+              onBack={() => setCurrentStep(6)} 
+              onEdit={(step: number) => setCurrentStep(step)}
+              onExit={() => {
+                // Aquí se podría implementar la lógica para salir del flujo
+                console.log('Usuario salió del flujo de visa');
+                // Redirigir al dashboard principal
+              }}
             />
           </>
         )}
