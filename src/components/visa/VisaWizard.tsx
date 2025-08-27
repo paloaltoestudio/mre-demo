@@ -5,7 +5,9 @@ import { VisaProcessSelectionForm } from "./VisaProcessSelectionForm";
 import { VisaPersonalDataForm } from "./VisaPersonalDataForm";
 import { VisaAdditionalInformationForm } from "./VisaAdditionalInformationForm";
 import LaborInformationForm from './LaborInformationForm';
+import { VisaSoportesForm } from "./VisaSoportesForm";
 import type { AdditionalInformationData } from '../../types/visa/additionalInformationTypes';
+import type { SoportesData } from '../../types/visa/soportesTypes';
 import { useVisaStore } from '../../stores/visaStore';
 
 export const VisaWizard = () => {
@@ -24,6 +26,7 @@ export const VisaWizard = () => {
     ...(tipoDocumento && tipoDocumento !== "CC" ? ["Datos del Registro Civil (En caso de Menor de Edad)"] : []),
     "Información Laboral",
     "Información Adicional",
+    "Soportes",
   ];
 
   // Sincronizar currentStep si el tipo de documento cambia y el paso de menor ya no debe mostrarse
@@ -39,7 +42,7 @@ export const VisaWizard = () => {
     console.log('Nacionalidad en wizard:', storeState.nacionalidad);
   }, [storeState]);
 
-  const handleNext = (data: AdditionalInformationData | any) => {
+  const handleNext = (data: AdditionalInformationData | SoportesData | any) => {
     console.log('Next step data:', data);
     setCurrentStep(currentStep + 1);
   };
@@ -93,12 +96,22 @@ export const VisaWizard = () => {
         
         {currentStep === 5 && (
           <>
-            {console.log('Renderizando paso 4 - Información Adicional')}
+            {console.log('Renderizando paso 5 - Información Adicional')}
             {console.log('Estado actual del store:', storeState)}
             {console.log('Nacionalidad en store del wizard:', storeState.nacionalidad)}
             <VisaAdditionalInformationForm 
-              onNext={handleNext} 
+              onNext={() => setCurrentStep(6)} 
               onBack={() => setCurrentStep(4)} 
+            />
+          </>
+        )}
+        
+        {currentStep === 6 && (
+          <>
+            {console.log('Renderizando paso 6 - Soportes')}
+            <VisaSoportesForm 
+              onNext={handleNext} 
+              onBack={() => setCurrentStep(5)} 
             />
           </>
         )}

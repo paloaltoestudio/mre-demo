@@ -58,7 +58,11 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
       `,
       width: '80%',
       confirmButtonText: 'Aceptar para continuar',
-      confirmButtonColor: '#2563eb',
+      // Botón de confirmación redondeado
+      customClass: {
+        confirmButton: 'modal-button'
+      },
+      confirmButtonColor: '#155dfc',
       allowOutsideClick: false,
       allowEscapeKey: false,
       showCloseButton: false
@@ -90,6 +94,7 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
   };
 
   return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       <section
         id="visa-process-selection-form"
@@ -216,5 +221,6 @@ export const VisaProcessSelectionForm = ({ onNext, onBack }: VisaProcessSelectio
 
       
     </form>
+    </div>
   );
 }; 

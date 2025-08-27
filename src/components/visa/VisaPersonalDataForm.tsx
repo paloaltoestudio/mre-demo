@@ -187,6 +187,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
   };
 
   return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       <section
         id="visa-personal-data-form"
@@ -740,7 +741,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
 
         {/* Formación Académica */}
         <h3 className="mb-4 text-md font-bold">Formación Académica</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Nivel educativo más alto */}
           <div className="flex flex-col justify-between h-full">
             <label className="block text-sm font-medium mb-1">¿Cuál es el nivel educativo más alto alcanzado? <span className="text-red-500">*</span></label>
@@ -875,9 +876,7 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
                 <option value="Trabajó en una actividad que le generó algún ingreso">Trabajó en una actividad que le generó algún ingreso</option>
               </select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-4">
+            
             {/* Profesión */}
             <div>
               <label className="block text-sm font-medium mb-1">¿Con qué profesión se relaciona su trabajo? <span className="text-red-500">*</span></label>
@@ -1374,5 +1373,6 @@ export const VisaPersonalDataForm = ({ onNext, onBack }: VisaPersonalDataFormPro
         </div>
       </section>
     </form>
+    </div>
   );
 }; 

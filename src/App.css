@@ -103,6 +103,34 @@ select {
   line-height: 1.6;
 }
 
+/* Botón modal estándar - Botón azul usado en toda la app */
+.modal-button {
+  background: #3466cc;
+  color: #fff;
+  border-radius: 9999px;
+  font-weight: 600;
+  padding: 0.75em 2.5em;
+  font-size: 1em;
+  box-shadow: none;
+  border: none;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.modal-button:hover {
+  background: #274a99;
+}
+
+.modal-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 102, 204, 0.3);
+}
+
+.modal-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 .requirements-html br {
   margin-bottom: 0.5rem;
 }

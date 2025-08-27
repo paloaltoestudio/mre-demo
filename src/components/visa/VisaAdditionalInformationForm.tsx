@@ -23,12 +23,23 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
       fechaExpedicionSC2: useVisaStore((state: VisaStoreState) => state.fechaExpedicionSC2) || "",
       fechaVencimientoSC2: useVisaStore((state: VisaStoreState) => state.fechaVencimientoSC2) || "",
       expulsadoColombia: useVisaStore((state: VisaStoreState) => state.expulsadoColombia) || "",
+      especificacionExpulsion: useVisaStore((state: VisaStoreState) => state.especificacionExpulsion) || "",
       deportadoColombia: useVisaStore((state: VisaStoreState) => state.deportadoColombia) || "",
+      especificacionDeportacion: useVisaStore((state: VisaStoreState) => state.especificacionDeportacion) || "",
       procesosPenales: useVisaStore((state: VisaStoreState) => state.procesosPenales) || "",
+      especificacionProcesosPenales: useVisaStore((state: VisaStoreState) => state.especificacionProcesosPenales) || "",
       permanenciaSinVisa: useVisaStore((state: VisaStoreState) => state.permanenciaSinVisa) || "",
+      especificacionPermanenciaSinVisa: useVisaStore((state: VisaStoreState) => state.especificacionPermanenciaSinVisa) || "",
       cedulaExtranjeria: useVisaStore((state: VisaStoreState) => state.cedulaExtranjeria) || "",
+      especificacionCedulaExtranjeria: useVisaStore((state: VisaStoreState) => state.especificacionCedulaExtranjeria) || "",
       familiaresColombia: useVisaStore((state: VisaStoreState) => state.familiaresColombia) || "",
-      ubicacionActual: useVisaStore((state: VisaStoreState) => state.ubicacionActual) || ""
+      parentescoFamiliar: useVisaStore((state: VisaStoreState) => state.parentescoFamiliar) || "",
+      tipoVisaFamiliar: useVisaStore((state: VisaStoreState) => state.tipoVisaFamiliar) || "",
+      nombreCompletoFamiliar: useVisaStore((state: VisaStoreState) => state.nombreCompletoFamiliar) || "",
+      nacionalidadFamiliar: useVisaStore((state: VisaStoreState) => state.nacionalidadFamiliar) || "",
+      ubicacionActual: useVisaStore((state: VisaStoreState) => state.ubicacionActual) || "",
+      paisUbicacion: useVisaStore((state: VisaStoreState) => state.paisUbicacion) || "",
+      ciudadUbicacion: useVisaStore((state: VisaStoreState) => state.ciudadUbicacion) || ""
     }
   });
 
@@ -49,12 +60,23 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
   const setFechaExpedicionSC2 = useVisaStore((state) => state.setFechaExpedicionSC2);
   const setFechaVencimientoSC2 = useVisaStore((state) => state.setFechaVencimientoSC2);
   const setExpulsadoColombia = useVisaStore((state) => state.setExpulsadoColombia);
+  const setEspecificacionExpulsion = useVisaStore((state) => state.setEspecificacionExpulsion);
   const setDeportadoColombia = useVisaStore((state) => state.setDeportadoColombia);
+  const setEspecificacionDeportacion = useVisaStore((state) => state.setEspecificacionDeportacion);
   const setProcesosPenales = useVisaStore((state) => state.setProcesosPenales);
+  const setEspecificacionProcesosPenales = useVisaStore((state) => state.setEspecificacionProcesosPenales);
   const setPermanenciaSinVisa = useVisaStore((state) => state.setPermanenciaSinVisa);
+  const setEspecificacionPermanenciaSinVisa = useVisaStore((state) => state.setEspecificacionPermanenciaSinVisa);
   const setCedulaExtranjeria = useVisaStore((state) => state.setCedulaExtranjeria);
+  const setEspecificacionCedulaExtranjeria = useVisaStore((state) => state.setEspecificacionCedulaExtranjeria);
   const setFamiliaresColombia = useVisaStore((state) => state.setFamiliaresColombia);
+  const setParentescoFamiliar = useVisaStore((state) => state.setParentescoFamiliar);
+  const setTipoVisaFamiliar = useVisaStore((state) => state.setTipoVisaFamiliar);
+  const setNombreCompletoFamiliar = useVisaStore((state) => state.setNombreCompletoFamiliar);
+  const setNacionalidadFamiliar = useVisaStore((state) => state.setNacionalidadFamiliar);
   const setUbicacionActual = useVisaStore((state) => state.setUbicacionActual);
+  const setPaisUbicacion = useVisaStore((state) => state.setPaisUbicacion);
+  const setCiudadUbicacion = useVisaStore((state) => state.setCiudadUbicacion);
   // Obtener la nacionalidad del store para mostrar condicionalmente la sección
   const nacionalidad = useVisaStore((state) => state.nacionalidad);
 
@@ -83,12 +105,23 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
     setFechaExpedicionSC2(data.fechaExpedicionSC2);
     setFechaVencimientoSC2(data.fechaVencimientoSC2);
     setExpulsadoColombia(data.expulsadoColombia);
+    setEspecificacionExpulsion(data.especificacionExpulsion || "");
     setDeportadoColombia(data.deportadoColombia);
+    setEspecificacionDeportacion(data.especificacionDeportacion || "");
     setProcesosPenales(data.procesosPenales);
+    setEspecificacionProcesosPenales(data.especificacionProcesosPenales || "");
     setPermanenciaSinVisa(data.permanenciaSinVisa);
+    setEspecificacionPermanenciaSinVisa(data.especificacionPermanenciaSinVisa || "");
     setCedulaExtranjeria(data.cedulaExtranjeria);
+    setEspecificacionCedulaExtranjeria(data.especificacionCedulaExtranjeria || "");
     setFamiliaresColombia(data.familiaresColombia);
+    setParentescoFamiliar(data.parentescoFamiliar || "");
+    setTipoVisaFamiliar(data.tipoVisaFamiliar || "");
+    setNombreCompletoFamiliar(data.nombreCompletoFamiliar || "");
+    setNacionalidadFamiliar(data.nacionalidadFamiliar || "");
     setUbicacionActual(data.ubicacionActual);
+    setPaisUbicacion(data.paisUbicacion || "");
+    setCiudadUbicacion(data.ciudadUbicacion || "");
     onNext(data);
   };
 
@@ -100,7 +133,7 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
   const isVenezuelan = nacionalidad === "Venezolano";
 
   return (
-    
+    <div className="bg-white p-6 rounded-lg shadow-md">
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
         <section
             id="visa-personal-data-form"
@@ -553,6 +586,39 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                 )}
               />
             </div>
+            
+            {/* Campo condicional: Especifique */}
+            {watch("expulsadoColombia") === "Si" && (
+              <div className="mt-4 ml-4">
+                <label className="block text-sm font-medium mb-2">
+                  Especifique *
+                </label>
+                <Controller
+                  name="especificacionExpulsion"
+                  control={control}
+                  rules={{ 
+                    required: watch("expulsadoColombia") === "Si" ? "Este campo es requerido" : false 
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <textarea
+                        {...field}
+                        rows={4}
+                        placeholder="Por favor especifique los detalles de la expulsión..."
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          fieldState.error ? 'border-red-500' : ''
+                        }`}
+                      />
+                      {fieldState.error && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </>
+                  )}
+                />
+              </div>
+            )}
           </div>
 
           {/* Pregunta 2: Deportación de Colombia */}
@@ -591,11 +657,44 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                 )}
               />
             </div>
+            
+            {/* Campo condicional: Especifique deportación */}
+            {watch("deportadoColombia") === "Si" && (
+              <div className="mt-4 ml-4">
+                <label className="block text-sm font-medium mb-2">
+                  Especifique *
+                </label>
+                <Controller
+                  name="especificacionDeportacion"
+                  control={control}
+                  rules={{ 
+                    required: watch("deportadoColombia") === "Si" ? "Este campo es requerido" : false 
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <textarea
+                        {...field}
+                        rows={4}
+                        placeholder="Por favor especifique los detalles de la deportación..."
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          fieldState.error ? 'border-red-500' : ''
+                        }`}
+                      />
+                      {fieldState.error && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </>
+                  )}
+                />
+              </div>
+            )}
           </div>
 
           {/* Pregunta 3: Procesos penales */}
           <div className="w-full mb-3">
-            <p className="block text-sm font-medium mb-1s">
+            <p className="block text-sm font-medium mb-1">
               ¿Ha tenido o tiene procesos penales en su contra?*
             </p>
             <div className="flex space-x-6 ml-4">
@@ -629,6 +728,39 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                 )}
               />
             </div>
+            
+            {/* Campo condicional: Especifique procesos penales */}
+            {watch("procesosPenales") === "Si" && (
+              <div className="mt-4 ml-4">
+                <label className="block text-sm font-medium mb-2">
+                  Especifique *
+                </label>
+                <Controller
+                  name="especificacionProcesosPenales"
+                  control={control}
+                  rules={{ 
+                    required: watch("procesosPenales") === "Si" ? "Este campo es requerido" : false 
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <textarea
+                        {...field}
+                        rows={4}
+                        placeholder="Por favor especifique los detalles de los procesos penales..."
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          fieldState.error ? 'border-red-500' : ''
+                        }`}
+                      />
+                      {fieldState.error && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </>
+                  )}
+                />
+              </div>
+            )}
           </div>
 
           {/* Pregunta 4: Permanencia sin visa */}
@@ -667,6 +799,39 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                 )}
               />
             </div>
+
+            {/* Campo condicional: Especifique permanencia sin visa */}
+            {watch("permanenciaSinVisa") === "Si" && (
+              <div className="mt-4 ml-4">
+                <label className="block text-sm font-medium mb-2">
+                  Especifique *
+                </label>
+                <Controller
+                  name="especificacionPermanenciaSinVisa"
+                  control={control}
+                  rules={{ 
+                    required: watch("permanenciaSinVisa") === "Si" ? "Este campo es requerido" : false 
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <textarea
+                        {...field}
+                        rows={4}
+                        placeholder="Por favor especifique los detalles de su permanencia sin visa..."
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          fieldState.error ? 'border-red-500' : ''
+                        }`}
+                      />
+                      {fieldState.error && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </>
+                  )}
+                />
+              </div>
+            )}
           </div>
 
           {/* Pregunta 5: Cédula de extranjería */}
@@ -705,6 +870,39 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                 )}
               />
             </div>
+
+            {/* Campo condicional: Especifique cédula de extranjería */}
+            {watch("cedulaExtranjeria") === "Si" && (
+              <div className="mt-4 ml-4">
+                <label className="block text-sm font-medium mb-2">
+                  Especifique *
+                </label>
+                <Controller
+                  name="especificacionCedulaExtranjeria"
+                  control={control}
+                  rules={{ 
+                    required: watch("cedulaExtranjeria") === "Si" ? "Este campo es requerido" : false 
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <textarea
+                        {...field}
+                        rows={4}
+                        placeholder="Por favor especifique los detalles de su cédula de extranjería..."
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          fieldState.error ? 'border-red-500' : ''
+                        }`}
+                      />
+                      {fieldState.error && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </>
+                  )}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -748,6 +946,169 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                 )}
               />
             </div>
+            
+            {/* Campos condicionales: Información del familiar */}
+            {watch("familiaresColombia") === "Si" && (
+              <div className="mt-6 ml-4 space-y-4 grid grid-cols-2 gap-4">
+                {/* Parentesco */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium mb-2">
+                    Parentesco *
+                  </label>
+                  <Controller
+                    name="parentescoFamiliar"
+                    control={control}
+                    rules={{ 
+                      required: watch("familiaresColombia") === "Si" ? "Este campo es requerido" : false 
+                    }}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <select
+                          {...field}
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            fieldState.error ? 'border-red-500' : ''
+                          }`}
+                        >
+                          <option value="">Seleccione Parentesco</option>
+                          <option value="Padre">Padre</option>
+                          <option value="Madre">Madre</option>
+                          <option value="Hermano">Hermano</option>
+                          <option value="Hermana">Hermana</option>
+                          <option value="Hijo">Hijo</option>
+                          <option value="Hija">Hija</option>
+                          <option value="Esposo">Esposo</option>
+                          <option value="Esposa">Esposa</option>
+                          <option value="Abuelo">Abuelo</option>
+                          <option value="Abuela">Abuela</option>
+                          <option value="Tío">Tío</option>
+                          <option value="Tía">Tía</option>
+                          <option value="Primo">Primo</option>
+                          <option value="Prima">Prima</option>
+                          <option value="Otro">Otro</option>
+                        </select>
+                        {fieldState.error && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                {/* Tipo de Visa */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium mb-2">
+                    Tipo Visa *
+                  </label>
+                  <Controller
+                    name="tipoVisaFamiliar"
+                    control={control}
+                    rules={{ 
+                      required: watch("familiaresColombia") === "Si" ? "Este campo es requerido" : false 
+                    }}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <select
+                          {...field}
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            fieldState.error ? 'border-red-500' : ''
+                          }`}
+                        >
+                          <option value="">Seleccione...</option>
+                          <option value="Visa de Turista">Visa de Turista</option>
+                          <option value="Visa de Trabajo">Visa de Trabajo</option>
+                          <option value="Visa de Estudiante">Visa de Estudiante</option>
+                          <option value="Visa de Negocios">Visa de Negocios</option>
+                          <option value="Visa de Inversionista">Visa de Inversionista</option>
+                          <option value="Visa de Reunificación Familiar">Visa de Reunificación Familiar</option>
+                          <option value="Visa de Residente">Visa de Residente</option>
+                          <option value="Ciudadanía Colombiana">Ciudadanía Colombiana</option>
+                          <option value="Otro">Otro</option>
+                        </select>
+                        {fieldState.error && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                {/* Nombre Completo del Familiar */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium mb-2">
+                    Nombre Completo del Familiar *
+                  </label>
+                  <Controller
+                    name="nombreCompletoFamiliar"
+                    control={control}
+                    rules={{ 
+                      required: watch("familiaresColombia") === "Si" ? "Este campo es requerido" : false 
+                    }}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <input
+                          {...field}
+                          type="text"
+                          placeholder="Ingrese el nombre completo del familiar"
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            fieldState.error ? 'border-red-500' : ''
+                          }`}
+                        />
+                        {fieldState.error && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                {/* Nacionalidad */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium mb-2">
+                    Nacionalidad *
+                  </label>
+                  <Controller
+                    name="nacionalidadFamiliar"
+                    control={control}
+                    rules={{ 
+                      required: watch("familiaresColombia") === "Si" ? "Este campo es requerido" : false 
+                    }}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <select
+                          {...field}
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            fieldState.error ? 'border-red-500' : ''
+                          }`}
+                        >
+                          <option value="">Seleccione Nacionalidad</option>
+                          <option value="Venezolana">Venezolana</option>
+                          <option value="Estadounidense">Estadounidense</option>
+                          <option value="Española">Española</option>
+                          <option value="Mexicana">Mexicana</option>
+                          <option value="Argentina">Argentina</option>
+                          <option value="Chilena">Chilena</option>
+                          <option value="Peruana">Peruana</option>
+                          <option value="Ecuatoriana">Ecuatoriana</option>
+                          <option value="Brasileña">Brasileña</option>
+                          <option value="Otro">Otro</option>
+                        </select>
+                        {fieldState.error && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -791,6 +1152,73 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
                 )}
               />
             </div>
+            
+            {/* Campos condicionales: Información de ubicación fuera de Colombia */}
+            {watch("ubicacionActual") === "Si" && (
+              <div className="mt-6 ml-4 space-y-4 grid grid-cols-2 gap-4">
+                {/* País */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium mb-2">
+                    Indique en que país se encuentra *
+                  </label>
+                  <Controller
+                    name="paisUbicacion"
+                    control={control}
+                    rules={{ 
+                      required: watch("ubicacionActual") === "Si" ? "Este campo es requerido" : false 
+                    }}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <input
+                          {...field}
+                          type="text"
+                          placeholder="Ingrese el país donde se encuentra"
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            fieldState.error ? 'border-red-500' : ''
+                          }`}
+                        />
+                        {fieldState.error && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                {/* Ciudad */}
+                <div className="w-full">
+                  <label className="block text-sm font-medium mb-2">
+                    Indique en la ciudad en donde se encuentra *
+                  </label>
+                  <Controller
+                    name="ciudadUbicacion"
+                    control={control}
+                    rules={{ 
+                      required: watch("ubicacionActual") === "Si" ? "Este campo es requerido" : false 
+                    }}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <input
+                          {...field}
+                          type="text"
+                          placeholder="Ingrese la ciudad donde se encuentra"
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            fieldState.error ? 'border-red-500' : ''
+                          }`}
+                        />
+                        {fieldState.error && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -812,5 +1240,6 @@ export const VisaAdditionalInformationForm = ({ onNext, onBack }: VisaAdditional
         </div>
         </section>
       </form>
+    </div>
   );
 };

@@ -64,6 +64,7 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
   };
 
   return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       <section
         id="visa-applicant-form"
@@ -401,5 +402,6 @@ export const VisaApplicantForm = ({ onNext, onBack }: VisaApplicantFormProps) =>
         </div>
       </section>
     </form>
+    </div>
   );
 }; 

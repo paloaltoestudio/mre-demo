@@ -155,6 +155,7 @@ const LaborInformationForm = ({ onNext, onBack }: LaborInformationFormProps) => 
   };
 
   return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
     <form onSubmit={handleSubmit(onSubmit)} className="w-full">
       <h3 className="mb-4 text-md font-bold">Información Laboral</h3>
       {categoriaVisa === 'Asistencia tecnica' ? (
@@ -717,6 +718,7 @@ const LaborInformationForm = ({ onNext, onBack }: LaborInformationFormProps) => 
         </button>
       </div>
     </form>
+    </div>
   );
 };
 

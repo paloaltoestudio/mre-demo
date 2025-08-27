@@ -102,14 +102,25 @@ export interface VisaStoreState {
   fechaVencimientoSC2: string;
   // Información Adicional
   expulsadoColombia: string;
+  especificacionExpulsion: string;
   deportadoColombia: string;
+  especificacionDeportacion: string;
   procesosPenales: string;
+  especificacionProcesosPenales: string;
   permanenciaSinVisa: string;
+  especificacionPermanenciaSinVisa: string;
   cedulaExtranjeria: string;
+  especificacionCedulaExtranjeria: string;
   // Familiares en Colombia
   familiaresColombia: string;
+  parentescoFamiliar: string;
+  tipoVisaFamiliar: string;
+  nombreCompletoFamiliar: string;
+  nacionalidadFamiliar: string;
   // Ubicacion Actual
   ubicacionActual: string;
+  paisUbicacion: string;
+  ciudadUbicacion: string;
   setSelectedCategory: (category: string) => void;
   setSector: (sector: string) => void;
   setSubsector: (subsector: string) => void;
@@ -201,14 +212,25 @@ export interface VisaStoreState {
   setFechaVencimientoSC2: (fechaVencimientoSC2: string) => void;
   // Información Adicional
   setExpulsadoColombia: (expulsadoColombia: string) => void;
+  setEspecificacionExpulsion: (especificacionExpulsion: string) => void;
   setDeportadoColombia: (deportadoColombia: string) => void;
+  setEspecificacionDeportacion: (especificacionDeportacion: string) => void;
   setProcesosPenales: (procesosPenales: string) => void;
+  setEspecificacionProcesosPenales: (especificacionProcesosPenales: string) => void;
   setPermanenciaSinVisa: (permanenciaSinVisa: string) => void;
+  setEspecificacionPermanenciaSinVisa: (especificacionPermanenciaSinVisa: string) => void;
   setCedulaExtranjeria: (cedulaExtranjeria: string) => void;
+  setEspecificacionCedulaExtranjeria: (especificacionCedulaExtranjeria: string) => void;
   // Familiares en Colombia
   setFamiliaresColombia: (familiaresColombia: string) => void;
+  setParentescoFamiliar: (parentescoFamiliar: string) => void;
+  setTipoVisaFamiliar: (tipoVisaFamiliar: string) => void;
+  setNombreCompletoFamiliar: (nombreCompletoFamiliar: string) => void;
+  setNacionalidadFamiliar: (nacionalidadFamiliar: string) => void;
   // Ubicacion Actual
   setUbicacionActual: (ubicacionActual: string) => void;
+  setPaisUbicacion: (paisUbicacion: string) => void;
+  setCiudadUbicacion: (ciudadUbicacion: string) => void;
   clear: () => void;
 }
 
@@ -314,16 +336,27 @@ export const useVisaStore = create<VisaStoreState>()(
         numeroSC2: '',
         fechaExpedicionSC2: '',
         fechaVencimientoSC2: '',
-        // Información Adicional
-        expulsadoColombia: '',
-        deportadoColombia: '',
-        procesosPenales: '',
-        permanenciaSinVisa: '',
+                            // Información Adicional
+          expulsadoColombia: '',
+          especificacionExpulsion: '',
+          deportadoColombia: '',
+          especificacionDeportacion: '',
+          procesosPenales: '',
+          especificacionProcesosPenales: '',
+          permanenciaSinVisa: '',
+        especificacionPermanenciaSinVisa: '',
         cedulaExtranjeria: '',
-        // Familiares en Colombia
-        familiaresColombia: '',
-        // Ubicacion Actual
-        ubicacionActual: '',
+        especificacionCedulaExtranjeria: '',
+                  // Familiares en Colombia
+          familiaresColombia: '',
+          parentescoFamiliar: '',
+          tipoVisaFamiliar: '',
+          nombreCompletoFamiliar: '',
+          nacionalidadFamiliar: '',
+          // Ubicacion Actual
+          ubicacionActual: '',
+          paisUbicacion: '',
+          ciudadUbicacion: '',
         setSelectedCategory: (category) => set({ selectedCategory: category }),
         setSector: (sector) => set({ sector }),
         setSubsector: (subsector) => set({ subsector }),
@@ -415,14 +448,25 @@ export const useVisaStore = create<VisaStoreState>()(
         setFechaVencimientoSC2: (fechaVencimientoSC2) => set({ fechaVencimientoSC2 }),
         // Información Adicional
         setExpulsadoColombia: (expulsadoColombia) => set({ expulsadoColombia }),
+        setEspecificacionExpulsion: (especificacionExpulsion) => set({ especificacionExpulsion }),
         setDeportadoColombia: (deportadoColombia) => set({ deportadoColombia }),
+        setEspecificacionDeportacion: (especificacionDeportacion) => set({ especificacionDeportacion }),
         setProcesosPenales: (procesosPenales) => set({ procesosPenales }),
+        setEspecificacionProcesosPenales: (especificacionProcesosPenales) => set({ especificacionProcesosPenales }),
         setPermanenciaSinVisa: (permanenciaSinVisa) => set({ permanenciaSinVisa }),
+        setEspecificacionPermanenciaSinVisa: (especificacionPermanenciaSinVisa) => set({ especificacionPermanenciaSinVisa }),
         setCedulaExtranjeria: (cedulaExtranjeria) => set({ cedulaExtranjeria }),
+        setEspecificacionCedulaExtranjeria: (especificacionCedulaExtranjeria) => set({ especificacionCedulaExtranjeria }),
         // Familiares en Colombia
         setFamiliaresColombia: (familiaresColombia) => set({ familiaresColombia }),
+        setParentescoFamiliar: (parentescoFamiliar) => set({ parentescoFamiliar }),
+        setTipoVisaFamiliar: (tipoVisaFamiliar) => set({ tipoVisaFamiliar }),
+        setNombreCompletoFamiliar: (nombreCompletoFamiliar) => set({ nombreCompletoFamiliar }),
+        setNacionalidadFamiliar: (nacionalidadFamiliar) => set({ nacionalidadFamiliar }),
         // Ubicacion Actual
         setUbicacionActual: (ubicacionActual) => set({ ubicacionActual }),
+        setPaisUbicacion: (paisUbicacion) => set({ paisUbicacion }),
+        setCiudadUbicacion: (ciudadUbicacion) => set({ ciudadUbicacion }),
         clear: () => set({
           selectedCategory: '',
           sector: '',
@@ -524,11 +568,21 @@ export const useVisaStore = create<VisaStoreState>()(
           fechaVencimientoSC2: '',
           // Información Adicional
           expulsadoColombia: '',
+          especificacionExpulsion: '',
           deportadoColombia: '',
+          especificacionDeportacion: '',
           procesosPenales: '',
+          especificacionProcesosPenales: '',
           permanenciaSinVisa: '',
+          especificacionPermanenciaSinVisa: '',
           cedulaExtranjeria: '',
+          especificacionCedulaExtranjeria: '',
+          // Familiares en Colombia
           familiaresColombia: '',
+          parentescoFamiliar: '',
+          tipoVisaFamiliar: '',
+          nombreCompletoFamiliar: '',
+          nacionalidadFamiliar: '',
           ubicacionActual: ''
         }),
       }),
