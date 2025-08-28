@@ -9,6 +9,18 @@ export const EditAppointmentSchema = object({
       documentNumber: string(),
       firstNames: string(),
       lastNames: string(),
+      documentoIdentidad: object({
+        base64: string(),
+        extension: string(),
+      }),
+      fotoFrontal: object({
+        base64: string(),
+        extension: string(),
+      }),
+      fotoPerfil: object({
+        base64: string(),
+        extension: string(),
+      }),
     })
   ),
 });

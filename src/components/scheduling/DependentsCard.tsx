@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { ResponseDependentsSchema } from "../../schemas/appointments/dependentsSchema";
 import type { ResponseDependentsType } from "../../types/dashboard/DependentInformation";
+import type { DependentDocument } from "../../types/dashboard/editAppointmentTypes";
 
 const customStyles = {
   control: (provided: any, state: any) => ({
@@ -32,20 +33,63 @@ type DependentsCardProps = {
 };
 
 export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
   const [uploadedFiles, setUploadedFiles] = useState<{
     [key: string]: boolean;
   }>({});
 
+  // Función para convertir archivo a base64
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        // Remover el prefijo "data:application/pdf;base64," o similar
+        const base64 = base64String.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Función para obtener la extensión del archivo
+  const getFileExtension = (filename: string): string => {
+    return filename.split('.').pop()?.toLowerCase() || '';
+  };
+
   const handleDrop = useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[], key: string) => {
+    async (acceptedFiles: File[], fileRejections: FileRejection[], key: string) => {
       if (acceptedFiles.length > 0) {
-        setUploadedFiles((prev) => ({ ...prev, [key]: true }));
+        const file = acceptedFiles[0];
+        try {
+          const base64 = await convertFileToBase64(file);
+          const extension = getFileExtension(file.name);
+          
+          // Crear el objeto DependentDocument
+          const documentData: DependentDocument = {
+            base64,
+            extension
+          };
+
+          // Guardar en el formulario usando setValue
+          setValue(`dependent-${aggregate}-${key}`, documentData);
+          
+          // Actualizar el estado visual
+          setUploadedFiles((prev) => ({ ...prev, [key]: true }));
+          
+          console.log(`Archivo ${key} convertido y guardado para dependiente ${aggregate}:`, {
+            extension,
+            base64Length: base64.length
+          });
+        } catch (error) {
+          console.error(`Error al convertir archivo ${key}:`, error);
+        }
       }
       console.log("Archivos aceptados:", acceptedFiles);
       console.log("Archivos rechazados:", fileRejections);
     },
-    []
+    [aggregate, setValue]
   );
 
   const [documentTypes, setDocumentTypes] = useState<
@@ -271,50 +315,50 @@ export const DependentsCard = ({ aggregate }: DependentsCardProps) => {
         </div>
       </div>
 
-      <div className="border-t-1 pt-5 border-gray-300 w-full grid grid-cols-2 gap-7 mt-5">
+      <div className="border-t-1 pt-5 border-gray-300 w-full grid grid-cols-3 gap-4 mt-5">
         {resources.map((item, index) => (
           <div
             key={`${index}${aggregate}`}
-            className="hover:cursor-pointer flex gap-3 border-gray-300 border-2 p-3 rounded-md hover:bg-gray-100"
+            className="hover:cursor-pointer flex flex-col gap-2 border-gray-300 border-2 p-3 rounded-md hover:bg-gray-100"
           >
-            <span className="flex items-center justify-center">
+            <div className="flex items-center justify-center">
               <FontAwesomeIcon
-                icon={uploadedFiles[item.text] ? faCheckCircle : faCloudArrowUp}
+                icon={uploadedFiles[item.key] ? faCheckCircle : faCloudArrowUp}
                 size="1x"
-                color={uploadedFiles[item.text] ? "green" : "#3466cc"}
+                color={uploadedFiles[item.key] ? "green" : "#3466cc"}
               />
+            </div>
+            <span className="text-xs text-center text-gray-600 font-medium">
+              {item.text}
             </span>
             <DropzoneComponent
               text={item.text}
               onDrop={(acceptedFiles, fileRejections) =>
-                handleDrop(acceptedFiles, fileRejections, item.text)
+                handleDrop(acceptedFiles, fileRejections, item.key)
               }
               identi={`${index}${aggregate}`}
             />
-            <div className="ml-auto text-[#3466cc] underline flex items-center justify-center">
-              {uploadedFiles[item.text] ? (
-                <span className="flex gap-2 justify-center items-center">
-                  <FontAwesomeIcon
-                    icon={faCloudArrowUp}
-                    size="1x"
-                    color={"#3466cc"}
-                    onClick={() => {
-                      document
-                        .getElementById(`dropzone-${index}${aggregate}`)
-                        ?.click();
-                    }}
-                  />
+            <div className="text-center">
+              {uploadedFiles[item.key] ? (
+                <div className="flex gap-2 justify-center items-center">
+                  <span className="text-xs text-green-600 font-medium">
+                    Archivo cargado
+                  </span>
                   <FontAwesomeIcon
                     icon={faTrash}
                     size="1x"
                     color={"#7e7e7e"}
+                    className="cursor-pointer hover:text-red-500"
                     onClick={() => {
-                      // trash
+                      // Limpiar el archivo del formulario
+                      setValue(`dependent-${aggregate}-${item.key}`, undefined);
+                      setUploadedFiles((prev) => ({ ...prev, [item.key]: false }));
                     }}
                   />
-                </span>
+                </div>
               ) : (
                 <span
+                  className="text-xs text-[#3466cc] underline cursor-pointer"
                   onClick={() => {
                     document
                       .getElementById(`dropzone-${index}${aggregate}`)

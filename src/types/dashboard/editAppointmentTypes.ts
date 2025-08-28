@@ -1,9 +1,17 @@
+export type DependentDocument = {
+  base64: string;
+  extension: string;
+};
+
 export type DependentData = {
   relationshipTypeId: number;
   documentTypeId: number;
   documentNumber: string;
   firstNames: string;
   lastNames: string;
+  documentoIdentidad: DependentDocument;
+  fotoFrontal: DependentDocument;
+  fotoPerfil: DependentDocument;
 };
 
 export type EditAppointmentRequest = {

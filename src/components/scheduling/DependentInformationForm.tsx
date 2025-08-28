@@ -37,6 +37,11 @@ export const DependentInformationForm = ({
         const documentNumber = watch(`document-number-dependent-${i}`);
         const firstNames = watch(`names-${i}`);
         const lastNames = watch(`last-names-${i}`);
+        
+        // Obtener los documentos del dependiente
+        const documentoIdentidad = watch(`dependent-${i}-documentoIdentidad`);
+        const fotoFrontal = watch(`dependent-${i}-fotoFrontal`);
+        const fotoPerfil = watch(`dependent-${i}-fotoPerfil`);
 
         // Validar cada dependiente individualmente
         const dependentNumber = i + 1;
@@ -47,6 +52,9 @@ export const DependentInformationForm = ({
         if (!documentNumber) missingFieldsForDependent.push("número de documento");
         if (!firstNames) missingFieldsForDependent.push("nombres");
         if (!lastNames) missingFieldsForDependent.push("apellidos");
+        if (!documentoIdentidad) missingFieldsForDependent.push("documento de identidad");
+        if (!fotoFrontal) missingFieldsForDependent.push("foto frontal");
+        if (!fotoPerfil) missingFieldsForDependent.push("foto de perfil");
 
         if (missingFieldsForDependent.length > 0) {
           missingFields.push(`Dependiente ${dependentNumber}: ${missingFieldsForDependent.join(", ")}`);
@@ -57,13 +65,16 @@ export const DependentInformationForm = ({
             documentNumber: documentNumber.toString(),
             firstNames,
             lastNames,
+            documentoIdentidad,
+            fotoFrontal,
+            fotoPerfil,
           });
         }
       }
 
       // Si hay campos faltantes, mostrar error y no continuar
       if (missingFields.length > 0) {
-        toast.error(`Por favor completa todos los campos.`, {
+        toast.error(`Por favor completa todos los campos. Campos faltantes: ${missingFields.join("; ")}`, {
           icon: (
             <FontAwesomeIcon
               icon={faCircleExclamation}
