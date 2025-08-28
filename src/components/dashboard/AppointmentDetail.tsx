@@ -15,6 +15,8 @@ import { useActiveUser } from "../../hooks/useActiveUser";
 import { useAppointmentDetail } from "../../hooks/useAppointmentDetail";
 import type { AppointmentType, Estado } from "../../types/dashboard/AppointmentTypes";
 import { toast } from "react-toastify";
+import { useCancelAppointment } from "../../hooks/useCancelAppointment";
+import { SchedulingsStore } from "../../stores/schedulingsStore";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -34,8 +36,11 @@ export const AppointmentDetail = () => {
   const [isOpenCancel, setIsOpenCancel] = useState(false);
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
   const [showRequirements, setShowRequirements] = useState(false);
+  const [requestRemove, setRequestRemove] = useState(false);
 
   const { data: appointmentData, isLoading, error, loadAppointmentDetail } = useAppointmentDetail(appointmentId);
+  const { mutateAsync: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
+  const { setToRemove } = SchedulingsStore();
   
   // Extraer la cita específica del array de appointments
   const appointment = appointmentData?.appointments?.[0];
@@ -47,9 +52,37 @@ export const AppointmentDetail = () => {
     }
   }, [appointmentId, activeUser, loadAppointmentDetail]);
 
+  // Función para manejar la cancelación de cita
+  const handleRemove = useCallback(async () => {
+    if (scheduledData && requestRemove) {
+      if (scheduledData.status === "Agendada") {
+        // Para citas agendadas, navegar a verificación
+        setToRemove(scheduledData);
+        setTimeout(() => {
+          navigate("/auth/verification-method");
+        }, 500);
+      } else if (scheduledData.status === "Cancelada") {
+        // Para citas canceladas, archivar
+        try {
+          await cancelAppointment(scheduledData.appointmentId);
+          // Recargar el detalle de la cita
+          loadAppointmentDetail();
+        } catch (error) {
+          console.error("Error al archivar la cita:", error);
+        }
+      }
+      setIsOpenCancel(false);
+      setRequestRemove(false);
+    }
+  }, [scheduledData, requestRemove, setToRemove, navigate, cancelAppointment, loadAppointmentDetail]);
+
   useEffect(() => {
     handleLoadAppointment();
   }, [handleLoadAppointment]);
+
+  useEffect(() => {
+    handleRemove();
+  }, [requestRemove, scheduledData, handleRemove]);
 
   useEffect(() => {
     if (error) {
@@ -348,7 +381,7 @@ export const AppointmentDetail = () => {
           <CancelAppointment
             isOpenCancel={isOpenCancel}
             setIsOpenCancel={setIsOpenCancel}
-            setRequestRemove={() => {}}
+            setRequestRemove={setRequestRemove}
             scheduledData={scheduledData}
           />
         )}
