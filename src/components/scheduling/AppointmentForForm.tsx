@@ -20,7 +20,9 @@ import type { ProceduresResponseType } from "../../types/dashboard/proceduresTyp
 import { usePublicQuery } from "../../hooks/usePublicQuery";
 import { ProcedureResponseSchema } from "../../schemas/appointments/proceduresInfo.schema";
 import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
+import { useValidateAppointment } from "../../hooks/useValidateAppointment";
 import { useEffect } from "react";
+import { SessionStore } from "../../stores/sessionStore";
 
 type AppointmentForFormProps = {
   consulate: ConsulatesType;
@@ -81,6 +83,7 @@ export const AppointmentForForm = ({
   const { country } = SchedulingsStore();
   const procedureWatcher = watch("tramites");
   const { logTraceabilityEvent } = useTraceabilityLog();
+  const { validateAppointment, isPending } = useValidateAppointment();
 
   const { data: procedures } = usePublicQuery<ProceduresResponseType>({
     key: ["procedures"],
@@ -97,7 +100,7 @@ export const AppointmentForForm = ({
     }
   }, [selectedOption, setValue]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (procedureWatcher === undefined || !selectedOption) {
       toast.error("Completa el formulario", {
         icon: (
@@ -138,6 +141,39 @@ export const AppointmentForForm = ({
           "border-l-5 border-red-500 bg-white text-black shadow-md",
       });
       return;
+    }
+
+    // Validación de cita activa para el trámite
+    try {
+      const { activeUser } = SessionStore.getState();
+      if (activeUser) {
+        const validationResult = await validateAppointment(
+          procedureWatcher.id,
+          selectedOption === "Para mí" ? 1 : selectedOption === "Para mis dependientes" ? 2 : 3,
+          activeUser.id
+        );
+
+        if (!validationResult.canContinue) {
+          toast.error(validationResult.reason, {
+            icon: (
+              <FontAwesomeIcon
+                icon={faCircleExclamation}
+                className="text-red-500"
+              />
+            ),
+            autoClose: 5000,
+            draggable: true,
+            progress: undefined,
+            hideProgressBar: true,
+            className:
+              "border-l-5 border-red-500 bg-white text-black shadow-md",
+          });
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Error en validación de cita:", error);
+      // Si hay error en la validación, continuamos para no bloquear al usuario
     }
 
     // Log cuando se continúa al siguiente paso
@@ -380,12 +416,26 @@ export const AppointmentForForm = ({
         <button
           type="button"
           onClick={handleContinue}
-          className="bg-[#3466cc] border-[#3466cc] border-2 text-white font-medium py-2 px-4 rounded-full hover:cursor-pointer hover:bg-[#3467cce8] duration-150"
+          disabled={isPending}
+          className={`border-2 font-medium py-2 px-4 rounded-full duration-150 ${
+            isPending
+              ? "bg-gray-400 border-gray-400 text-gray-600 cursor-not-allowed"
+              : "bg-[#3466cc] border-[#3466cc] text-white hover:cursor-pointer hover:bg-[#3467cce8]"
+          }`}
         >
-          Continuar
-          <span className="ml-2">
-            <FontAwesomeIcon icon={faArrowRight} />
-          </span>
+          {isPending ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Validando...
+            </div>
+          ) : (
+            <>
+              Continuar
+              <span className="ml-2">
+                <FontAwesomeIcon icon={faArrowRight} />
+              </span>
+            </>
+          )}
         </button>
       </div>
     </section>
