@@ -11,7 +11,7 @@ type VerificationMethodProps = {
 };
 
 export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
-  const { activeUser, externalId, setOtp } = SessionStore();
+  const { activeUser, userId, setOtp } = SessionStore();
   const methods = useFormContext();
   const selectedMethod = methods.watch("method");
   const isFormValid = !!selectedMethod;
@@ -21,34 +21,46 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
   const [error, setError] = useState<string | null>(null);
   const hasSubmittedRef = useRef(false);
   const { sendOTP, isPending } = useSendOTP({ setOtp, shouldNavigate: true });
+  
+
+  
   // Log isPending to avoid unused variable warning
   console.log("OTP sending status:", isPending);
 
-  const handleSendOTP = useCallback(async (externalId: string, submitted: string) => {
-    console.log("🚀 handleSendOTP iniciando con:", { externalId, submitted, isSubmitting });
+  const handleSendOTP = useCallback(async (userId: string, submitted: string) => {
+    console.log("🚀 handleSendOTP iniciando con:", { userId, submitted, isSubmitting });
     if (isSubmitting) {
       console.log("⚠️ Ya se está enviando, ignorando");
       return; // Ya se está enviando, ignorar llamada duplicada
     }
     setIsSubmitting(true);
+    
+    // Si hay un error previo, limpiarlo antes de reintentar
+    if (error) {
+      setError(null);
+    }
+    
     try {
       console.log("📤 Enviando OTP...");
-      await sendOTP(externalId, submitted);
+      await sendOTP(userId.toString(), submitted);
       console.log("✅ OTP enviado exitosamente");
+      // Solo mantener hasSubmittedRef como true si fue exitoso
+      hasSubmittedRef.current = true;
     } catch (err) {
       console.log("❌ Error enviando OTP:", err);
       setError("Error al enviar el código. Por favor intenta nuevamente.");
-      hasSubmittedRef.current = false; // Reset en caso de error
+      // NO resetear hasSubmittedRef aquí para evitar loop infinito
+      // El usuario deberá hacer clic manualmente en el botón para reintentar
     } finally {
       console.log("🏁 Finalizando handleSendOTP");
       setIsSubmitting(false);
     }
-  }, [sendOTP]);
+  }, [sendOTP, error]);
 
   useEffect(() => {
     console.log("🔍 useEffect ejecutándose:", { 
       submitted, 
-      externalId, 
+      userId, 
       isSubmitting, 
       hasSubmitted: hasSubmittedRef.current,
       activeUser: !!activeUser,
@@ -58,7 +70,7 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
     // Log del estado completo del store
     const storeState = SessionStore.getState();
     console.log("🔧 Estado completo del store:", {
-      externalId: storeState.externalId,
+      userId: storeState.userId,
       activeUser: storeState.activeUser ? {
         id: storeState.activeUser.id,
         documentNumber: storeState.activeUser.documentNumber,
@@ -68,22 +80,28 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
       official: storeState.official
     });
     
-    if (submitted?.trim() && externalId && !isSubmitting && !hasSubmittedRef.current) {
-      console.log("✅ Ejecutando handleSendOTP");
+    // Solo ejecutar automáticamente la primera vez:
+    // 1. Hay datos válidos
+    // 2. No se está enviando actualmente
+    // 3. No se ha enviado ya exitosamente
+    // 4. NO hay error activo (para evitar loops infinitos)
+    if (submitted?.trim() && userId && !isSubmitting && !hasSubmittedRef.current && !error) {
+      console.log("✅ Ejecutando handleSendOTP automáticamente");
       hasSubmittedRef.current = true;
-      handleSendOTP(externalId, submitted);
+      handleSendOTP(userId.toString(), submitted);
     } else {
-      console.log("❌ No ejecutando:", { 
+      console.log("❌ No ejecutando automáticamente:", { 
         hasSubmitted: !!submitted?.trim(), 
-        hasExternalId: !!externalId, 
+        hasuserId: !!userId, 
         isNotSubmitting: !isSubmitting,
-        alreadySubmitted: hasSubmittedRef.current
+        alreadySubmitted: hasSubmittedRef.current,
+        hasError: !!error
       });
       
       // Debug adicional para entender por qué no se ejecuta
-      if (!externalId) {
-        console.error("❌ externalId es null/undefined. Store state:", {
-          externalId,
+      if (!userId) {
+        console.error("❌ userId es null/undefined. Store state:", {
+          userId,
           activeUser: activeUser ? {
             id: activeUser.id,
             documentNumber: activeUser.documentNumber,
@@ -92,7 +110,7 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
         });
       }
     }
-  }, [submitted, externalId, isSubmitting, handleSendOTP, activeUser, sessionUser]);
+  }, [submitted, userId, isSubmitting, handleSendOTP, activeUser, sessionUser, error]);
 
   useEffect(() => {
     const methods: string[] = [];
@@ -106,7 +124,9 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
       setSessionUser(activeUser);
       setMethodList([...new Set(methods)] as MethodType[]);
     }
-  }, []);
+  }, [activeUser]);
+
+
 
   const maskEmail = (email: string) => {
     const [name, domain] = email.split("@");
@@ -188,11 +208,11 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
       )} */}
 
       {error && (
-        <div className="w-11/12 p-3 bg-red-50 border border-red-200 rounded-lg text-center">
-          <p className="text-sm text-red-700">
-            {error}
-          </p>
-        </div>
+        <div className="w-11/12 p-3 mx-auto bg-red-50 border border-red-200 rounded-lg text-center">
+        <p className="text-sm text-red-700 mb-3">
+          {error}
+        </p>
+      </div>
       )}
 
       <div
@@ -209,12 +229,22 @@ export const VerificationMethod = ({ submitted }: VerificationMethodProps) => {
           }`}
           type="submit"
           disabled={isSubmitting || !isFormValid}
+          onClick={() => {
+            // Si hay un error, resetear el estado para permitir reintento
+            if (error && submitted?.trim() && userId) {
+              hasSubmittedRef.current = false;
+              setError(null);
+              handleSendOTP(userId.toString(), submitted);
+            }
+          }}
         >
           {isSubmitting ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               Solicitando código...
             </div>
+          ) : error ? (
+            "Reintentar envío"
           ) : (
             "Continuar"
           )}

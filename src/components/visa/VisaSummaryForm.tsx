@@ -11,10 +11,10 @@ interface VisaSummaryFormProps {
 }
 
 export const VisaSummaryForm: React.FC<VisaSummaryFormProps> = ({
-  onNext,
+  // onNext,
   onBack,
   onEdit,
-  onExit
+  // onExit
 }) => {
   const navigate = useNavigate();
   const visaStore = useVisaStore();

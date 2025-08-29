@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useActiveUser } from "../../../hooks/useActiveUser";
 import { ENV_CONFIG } from "../../../configs/environment";
+import { SessionStore } from "../../../stores/sessionStore";
 
 export const UserHeader = () => {
   const { activeUser, hasActiveUser, clearActiveUser, clearTokenExpiration } = useActiveUser();
@@ -28,23 +29,31 @@ export const UserHeader = () => {
           />
         </div>
         <span className="text-gray-800 text-xs md:text-sm font-medium">
+          {SessionStore?.getState?.()?.official ? (
+            <span className="text-[10px] md:text-xs text-blue-700 font-semibold hidden md:block">(Por funcionario)</span>
+          ) : null}
           {activeUser?.firstName} {activeUser?.lastName}
         </span>
       </div>
       
-      <div className="hidden md:block w-px h-6 bg-gray-300"></div>
       
-      <button
-        onClick={handleLogout}
-        className="flex items-center gap-1 text-gray-600 hover:text-red-600 transition-colors duration-200 text-xs md:text-sm font-medium"
-        title="Cerrar sesión"
-      >
-        <FontAwesomeIcon
-          icon={faSignOutAlt}
-          className="text-xs md:text-sm"
-        />
-        <span>Cerrar Sesión</span>
-      </button>
+      {!SessionStore?.getState?.()?.official && (
+        <>
+          <div className="hidden md:block w-px h-6 bg-gray-300"></div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1 text-gray-600 hover:text-red-600 transition-colors duration-200 text-xs md:text-sm font-medium"
+            title="Cerrar sesión"
+          >
+            <FontAwesomeIcon
+              icon={faSignOutAlt}
+              className="text-xs md:text-sm"
+            />
+            <span>Cerrar Sesión</span>
+          </button>
+        </>
+      )}
+      
     </div>
   );
 }; 

@@ -15,9 +15,6 @@ import type {
   Estado,
 } from "../../types/dashboard/AppointmentTypes";
 import { SessionStore } from "../../stores/sessionStore";
-import { useActiveUser } from "../../hooks/useActiveUser";
-import { useTokenExpiration } from "../../hooks/useTokenExpiration";
-import { ENV_CONFIG } from "../../configs/environment";
 import { CancelAppointment } from "../scheduling/CancelAppointment";
 import { format } from "date-fns";
 import { toDate } from "../../configs/formats";
@@ -26,14 +23,6 @@ import {
   putPublicRequest,
 } from "../../services/fetchingService";
 import { postAppointmentSchema } from "../../schemas/appointments/appointments";
-import type {
-  ResponseHashType,
-  ResponsesTokenType,
-} from "../../types/auth/hashSchemas";
-import {
-  CreateHashSchema,
-  CreateTokenSchema,
-} from "../../schemas/Auth/hashSchemas";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 
 import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
@@ -51,8 +40,6 @@ export const estadoColor: Record<Estado, string> = {
 export const AppointmentCards = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { activeUser, setActiveUser, setTokenExpiration } = useActiveUser();
-  const { setTokenExpiration: setExpiration } = useTokenExpiration();
   const [sche, setSche] = useState<AppointmentsType>();
   const [loader, setLoader] = useState(true);
   const [noAppointmentsMsg, setNoAppointmentsMsg] = useState<string>("");
@@ -61,282 +48,283 @@ export const AppointmentCards = () => {
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
   const [requestRemove, setRequestRemove] = useState(false);
   const { setToRemove, toRemove } = SchedulingsStore();
+  const { activeUser, userType } = SessionStore();
   // Log toRemove to avoid unused variable warning
   console.log("Current toRemove value:", toRemove);
   const { logTraceabilityEvent } = useTraceabilityLog();
   const [showRequirementsMap, setShowRequirementsMap] = useState<
     Record<string, boolean>
   >({});
-  const [hash, setHash] = useState<string | null>();
-  const [token, setToken] = useState<ResponseHashType>();
 
-  useEffect(() => {
-    const rawHash = searchParams.get("hash");
+  // useEffect(() => {
+  //   const rawHash = searchParams.get("hash");
 
-    if (rawHash) {
-      const corrected = rawHash.replace(/ /g, "+");
-      const decoded = decodeURIComponent(corrected);
-      setHash(decoded);
-    } else {
-      setHash(null);
-    }
+  //   if (rawHash) {
+  //     const corrected = rawHash.replace(/ /g, "+");
+  //     const decoded = decodeURIComponent(corrected);
+  //     setHash(decoded);
+  //   } else {
+  //     setHash(null);
+  //   }
 
-    setTimeout(() => {
-      setLoader(false);
-    }, 500);
-  }, [searchParams]);
+  //   setTimeout(() => {
+  //     setLoader(false);
+  //   }, 500);
+  // }, [searchParams]);
 
-  useEffect(() => {
-    if (hash) {
-      handleHash();
-    }
-  }, [hash]);
-  useEffect(() => {
-    if (token) {
-      handleToken();
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   if (hash) {
+  //     handleHash();
+  //   }
+  // }, [hash]);
+  // useEffect(() => {
+  //   if (token) {
+  //     handleToken();
+  //   }
+  // }, [token]);
 
-  const { mutateAsync: MutateHash } = useMutation({
-    mutationFn: postPublicRequest<ResponseHashType>,
-    onSuccess: (data: ResponseHashType) => {
-      console.log("Response external data", data);
-      console.log("Data structure:", {
-        isPayload: data.isPayload,
-        hasPayload: !!data.payload,
-        hasJsonData: !!data.jsonData,
-        tokenApi: !!data.token_api
-      });
+  // const { mutateAsync: MutateHash } = useMutation({
+  //   mutationFn: postPublicRequest<ResponseHashType>,
+  //   onSuccess: (data: ResponseHashType) => {
+  //     console.log("Response external data", data);
+  //     console.log("Data structure:", {
+  //       isPayload: data.isPayload,
+  //       hasPayload: !!data.payload,
+  //       hasJsonData: !!data.jsonData,
+  //       tokenApi: !!data.token_api
+  //     });
       
-      // Debug detallado de la estructura
-      console.log("Debug completo de la respuesta:", {
-        isPayload: data.isPayload,
-        payload: data.payload,
-        jsonData: data.jsonData,
-        token_api: data.token_api
-      });
+  //     // Debug detallado de la estructura
+  //     console.log("Debug completo de la respuesta:", {
+  //       isPayload: data.isPayload,
+  //       payload: data.payload,
+  //       jsonData: data.jsonData,
+  //       token_api: data.token_api
+  //     });
       
-      // Debug adicional para externalId
-      if (data.isPayload && data.payload) {
-        console.log("🔍 Ciudadano detectado - externalId:", data.payload.externalId);
-      } else if (data.jsonData) {
-        console.log("🔍 Funcionario detectado - USER_ID:", data.jsonData.Data.USER_ID);
-      } else {
-        console.log("❌ No se pudo determinar el tipo de usuario");
-      }
-      setToken(data);
+  //     // Debug adicional para externalId
+  //     if (data.isPayload && data.payload) {
+  //       console.log("🔍 Ciudadano detectado - externalId:", data.payload.externalId);
+  //     } else if (data.jsonData) {
+  //       console.log("🔍 Funcionario detectado - USER_ID:", data.jsonData.Data.USER_ID);
+  //     } else {
+  //       console.log("❌ No se pudo determinar el tipo de usuario");
+  //     }
+  //     setToken(data);
 
-      // Configurar expiración del token basado en el tipo de usuario
-      console.log("⏰ [APPOINTMENTS] Configurando expiración del token...");
+  //     // Configurar expiración del token basado en el tipo de usuario
+  //     console.log("⏰ [APPOINTMENTS] Configurando expiración del token...");
       
-      // PRIORIDAD: Usar token_api.expires_in (expiración real del token de la API)
-      if (data.token_api && data.token_api.expires_in) {
-        const expirationDate = new Date(data.token_api.expires_in);
-        console.log("⏰ [APPOINTMENTS] Usando expiración del token_api.expires_in:", expirationDate.toLocaleString());
-        console.log("⏰ [APPOINTMENTS] Valor original del token_api:", data.token_api.expires_in);
-        setTokenExpiration(expirationDate);
-        setExpiration(expirationDate);
-      } else if (data.isPayload && data.payload && data.payload.expiration) {
-        // FALLBACK: Usar payload.expiration solo si no hay token_api
-        const expirationDate = new Date(data.payload.expiration);
-        console.log("⚠️ [APPOINTMENTS] Fallback - Usando expiración del payload:", expirationDate.toLocaleString());
-        console.log("⚠️ [APPOINTMENTS] Valor original del payload:", data.payload.expiration);
-        setTokenExpiration(expirationDate);
-        setExpiration(expirationDate);
-      } else if (data.jsonData) {
-        // Usuario funcionario - usar jsonData
-        // Para funcionarios, podríamos usar un tiempo de expiración por defecto
-        // o extraer de otro campo si está disponible
-        const defaultExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
-        console.log("⏰ [APPOINTMENTS] Funcionario - Expiración por defecto (24h):", defaultExpiration.toLocaleString());
-        setTokenExpiration(defaultExpiration);
-        setExpiration(defaultExpiration);
-      } else {
-        console.log("⚠️ [APPOINTMENTS] No se pudo determinar el tipo de usuario para configurar expiración");
-      }
+  //     // PRIORIDAD: Usar token_api.expires_in (expiración real del token de la API)
+  //     if (data.token_api && data.token_api.expires_in) {
+  //       const expirationDate = new Date(data.token_api.expires_in);
+  //       console.log("⏰ [APPOINTMENTS] Usando expiración del token_api.expires_in:", expirationDate.toLocaleString());
+  //       console.log("⏰ [APPOINTMENTS] Valor original del token_api:", data.token_api.expires_in);
+  //       setTokenExpiration(expirationDate);
+  //       setExpiration(expirationDate);
+  //     } else if (data.isPayload && data.payload && data.payload.expiration) {
+  //       // FALLBACK: Usar payload.expiration solo si no hay token_api
+  //       const expirationDate = new Date(data.payload.expiration);
+  //       console.log("⚠️ [APPOINTMENTS] Fallback - Usando expiración del payload:", expirationDate.toLocaleString());
+  //       console.log("⚠️ [APPOINTMENTS] Valor original del payload:", data.payload.expiration);
+  //       setTokenExpiration(expirationDate);
+  //       setExpiration(expirationDate);
+  //     } else if (data.jsonData) {
+  //       // Usuario funcionario - usar jsonData
+  //       // Para funcionarios, podríamos usar un tiempo de expiración por defecto
+  //       // o extraer de otro campo si está disponible
+  //       const defaultExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+  //       console.log("⏰ [APPOINTMENTS] Funcionario - Expiración por defecto (24h):", defaultExpiration.toLocaleString());
+  //       setTokenExpiration(defaultExpiration);
+  //       setExpiration(defaultExpiration);
+  //     } else {
+  //       console.log("⚠️ [APPOINTMENTS] No se pudo determinar el tipo de usuario para configurar expiración");
+  //     }
 
-      // Guardar el token de la API para futuras peticiones
-      if (data.token_api) {
-        SessionStore.getState().setGlobalToken(data.token_api.access_token);
-      }
+  //     // Guardar el token de la API para futuras peticiones
+  //     if (data.token_api) {
+  //       SessionStore.getState().setGlobalToken(data.token_api.access_token);
+  //     }
 
-      // Determinar y guardar el tipo de usuario
-      let userType = null;
-      console.log("🔍 Procesando tipo de usuario...");
-      console.log("🔍 Estructura completa de data recibida:", data);
+  //     // Determinar y guardar el tipo de usuario
+  //     let userType = null;
+  //     console.log("🔍 Procesando tipo de usuario...");
+  //     console.log("🔍 Estructura completa de data recibida:", data);
       
-      if (data.isPayload && data.payload) {
-        userType = data.payload.userType;
-        console.log("🔍 Ciudadano detectado - guardando externalId:", data.payload.externalId);
-        // Para ciudadanos, guardar el externalId inmediatamente
-        SessionStore.getState().setExternalId(data.payload.externalId);
-      } else if (data.jsonData) {
-        userType = data.jsonData.Data.USER_TYPE.toLowerCase();
-        console.log("🔍 Funcionario detectado - guardando USER_ID como externalId:", data.jsonData.Data.USER_ID);
-        // Para funcionarios, guardar el USER_ID como externalId
-        SessionStore.getState().setExternalId(data.jsonData.Data.USER_ID);
-      } else {
-        console.log("❌ No se pudo determinar el tipo de usuario - estructura de data:", data);
-        console.log("❌ Propiedades disponibles:", Object.keys(data));
-      }
+  //     if (data.isPayload && data.payload) {
+  //       userType = data.payload.userType;
+  //       console.log("🔍 Ciudadano detectado - guardando externalId:", data.payload.externalId);
+  //       // Para ciudadanos, guardar el externalId inmediatamente
+  //       SessionStore.getState().setExternalId(data.payload.externalId);
+  //     } else if (data.jsonData) {
+  //       userType = data.jsonData.Data.USER_TYPE.toLowerCase();
+  //       console.log("🔍 Funcionario detectado - guardando USER_ID como externalId:", data.jsonData.Data.USER_ID);
+  //       // Para funcionarios, guardar el USER_ID como externalId
+  //       SessionStore.getState().setExternalId(data.jsonData.Data.USER_ID);
+  //     } else {
+  //       console.log("❌ No se pudo determinar el tipo de usuario - estructura de data:", data);
+  //       console.log("❌ Propiedades disponibles:", Object.keys(data));
+  //     }
       
-      if (userType) {
-        console.log("✅ Tipo de usuario determinado:", userType);
-        SessionStore.getState().setUserType(userType);
-        // También actualizar el flag official
-        SessionStore.getState().setOfficial(userType === 'funcionario');
-      } else {
-        console.log("❌ No se pudo determinar el tipo de usuario");
-      }
-    },
-    onError: (error: any) => {
-      console.error("Error completo en MutateHash:", error);
-      console.error("Error response:", error.response);
-      console.error("Error data:", error.response?.data);
+  //     if (userType) {
+  //       console.log("✅ Tipo de usuario determinado:", userType);
+  //       SessionStore.getState().setUserType(userType);
+  //       // También actualizar el flag official
+  //       SessionStore.getState().setOfficial(userType === 'funcionario');
+  //     } else {
+  //       console.log("❌ No se pudo determinar el tipo de usuario");
+  //     }
+  //   },
+  //   onError: (error: any) => {
+  //     console.error("Error completo en MutateHash:", error);
+  //     console.error("Error response:", error.response);
+  //     console.error("Error data:", error.response?.data);
       
-      toast.error("Ocurrió un error en la generación del token", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-red-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-      });
-      // Redirigir a la app externa después de mostrar el error
-      setTimeout(() => {
-        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
-      }, 2000);
-    },
-  });
+  //     toast.error("Ocurrió un error en la generación del token", {
+  //       icon: (
+  //         <FontAwesomeIcon
+  //           icon={faCircleExclamation}
+  //           className="text-red-500"
+  //         />
+  //       ),
+  //       autoClose: 1000,
+  //       draggable: true,
+  //       progress: undefined,
+  //       hideProgressBar: true,
+  //       className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+  //     });
+  //     // Redirigir a la app externa después de mostrar el error
+  //     setTimeout(() => {
+  //       window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+  //     }, 2000);
+  //   },
+  // });
 
-  const {
-    setUserId,
-    setExternalId,
-    setLocationVerification,
-  } = SessionStore();
-  const { mutateAsync: MutateToken } = useMutation({
-    mutationFn: postPublicRequest<ResponsesTokenType>,
-    onSuccess: (data: ResponsesTokenType) => {
-      setActiveUser(data[0]);
-      setUserId(data[0].id);
-    },
-    onError: () => {
-      toast.error("Ocurrió un error en la generación del token", {
-        icon: (
-          <FontAwesomeIcon
-            icon={faCircleExclamation}
-            className="text-red-500"
-          />
-        ),
-        autoClose: 1000,
-        draggable: true,
-        progress: undefined,
-        hideProgressBar: true,
-        className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-      });
+  // const {
+  //   setUserId,
+  //   setExternalId,
+  //   setLocationVerification,
+  // } = SessionStore();
+  // const { mutateAsync: MutateToken } = useMutation({
+  //   mutationFn: postPublicRequest<ResponsesTokenType>,
+  //   onSuccess: (data: ResponsesTokenType) => {
+  //     setActiveUser(data[0]);
+  //     setUserId(data[0].id);
+  //   },
+  //   onError: () => {
+  //     toast.error("Ocurrió un error en la generación del token", {
+  //       icon: (
+  //         <FontAwesomeIcon
+  //           icon={faCircleExclamation}
+  //           className="text-red-500"
+  //         />
+  //       ),
+  //       autoClose: 1000,
+  //       draggable: true,
+  //       progress: undefined,
+  //       hideProgressBar: true,
+  //       className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+  //     });
 
-      // Redirigir a la app externa después de mostrar el error
-      setTimeout(() => {
-        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
-      }, 2000);
-    },
-  });
+  //     // Redirigir a la app externa después de mostrar el error
+  //     setTimeout(() => {
+  //       window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+  //     }, 2000);
+  //   },
+  // });
 
-  const handleHash = async () => {
-    if (hash) {
-      await MutateHash({
-        url: "/Token/decrypt",
-        schema: CreateHashSchema,
-        body: { hash: hash! },
-      });
-    }
-  };
+  // const handleHash = async () => {
+  //   if (hash) {
+  //     await MutateHash({
+  //       url: "/Token/decrypt",
+  //       schema: CreateHashSchema,
+  //       body: { hash: hash! },
+  //     });
+  //   }
+  // };
 
-  const handleToken = async () => {
-    if (token) {
-      console.log("handleToken ejecutándose con token:", token);
-      console.log("Token structure en handleToken:", {
-        isPayload: token.isPayload,
-        hasPayload: !!token.payload,
-        hasJsonData: !!token.jsonData,
-        payloadContent: token.payload,
-        jsonDataContent: token.jsonData
-      });
+  // const handleToken = async () => {
+  //   if (token) {
+  //     console.log("handleToken ejecutándose con token:", token);
+  //     console.log("Token structure en handleToken:", {
+  //       isPayload: token.isPayload,
+  //       hasPayload: !!token.payload,
+  //       hasJsonData: !!token.jsonData,
+  //       payloadContent: token.payload,
+  //       jsonDataContent: token.jsonData
+  //     });
       
-      if (token.isPayload && token.payload) {
-        // Para ciudadanos: necesitamos hacer la segunda petición para obtener datos del usuario
-        const externalId = token.payload.externalId;
-        console.log("Ciudadano - ExternalId para handleToken:", externalId);
+  //     if (token.isPayload && token.payload) {
+  //       // Para ciudadanos: necesitamos hacer la segunda petición para obtener datos del usuario
+  //       const externalId = token.payload.externalId;
+  //       console.log("Ciudadano - ExternalId para handleToken:", externalId);
         
-        if (externalId) {
-      await MutateToken({
-        url: "/User/external",
-        schema: CreateTokenSchema,
-            body: { externalId },
-          });
-        } else {
-          console.error("No se pudo obtener el externalId del token de ciudadano");
-          toast.error("Error: No se pudo obtener el ID del usuario", {
-            autoClose: 3000,
-            draggable: true,
-            progress: undefined,
-            hideProgressBar: true,
-            className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-          });
-        }
-      } else if (token.jsonData) {
-        // Para funcionarios: los datos ya están en la respuesta, crear usuario directamente
-        console.log("Funcionario - Creando usuario desde jsonData");
-        const funcionarioData = token.jsonData.Data;
+  //       if (externalId) {
+  //     await MutateToken({
+  //       url: "/User/external",
+  //       schema: CreateTokenSchema,
+  //           body: { externalId },
+  //         });
+  //       } else {
+  //         console.error("No se pudo obtener el externalId del token de ciudadano");
+  //         toast.error("Error: No se pudo obtener el ID del usuario", {
+  //           autoClose: 3000,
+  //           draggable: true,
+  //           progress: undefined,
+  //           hideProgressBar: true,
+  //           className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+  //         });
+  //       }
+  //     } else if (token.jsonData) {
+  //       // Para funcionarios: los datos ya están en la respuesta, crear usuario directamente
+  //       console.log("Funcionario - Creando usuario desde jsonData");
+  //       const funcionarioData = token.jsonData.Data;
         
-        // Crear objeto de usuario con el formato esperado
-        const funcionarioUser = {
-          id: parseInt(funcionarioData.USER_ID),
-          documentNumber: funcionarioData.documentNumber,
-          firstName: funcionarioData.names,
-          middleName: "",
-          lastName: funcionarioData.lastName,
-          secondLastName: "",
-          email: funcionarioData.email,
-          phone: "",
-          whatsapp: "",
-          officeId: 0,
-          acceptsDataProcessing: true,
-          acceptsTermsAndConditions: true,
-          acceptanceDate: new Date(),
-        };
+  //       // Crear objeto de usuario con el formato esperado
+  //       const funcionarioUser = {
+  //         id: parseInt(funcionarioData.USER_ID),
+  //         documentNumber: funcionarioData.documentNumber,
+  //         firstName: funcionarioData.names,
+  //         middleName: "",
+  //         lastName: funcionarioData.lastName,
+  //         secondLastName: "",
+  //         email: funcionarioData.email,
+  //         phone: "",
+  //         whatsapp: "",
+  //         officeId: 0,
+  //         acceptsDataProcessing: true,
+  //         acceptsTermsAndConditions: true,
+  //         acceptanceDate: new Date(),
+  //       };
         
-        console.log("Usuario funcionario creado:", funcionarioUser);
+  //       console.log("Usuario funcionario creado:", funcionarioUser);
         
-        // Establecer el usuario activo directamente
-        setActiveUser(funcionarioUser);
-        setUserId(funcionarioUser.id);
-        setExternalId(funcionarioData.USER_ID);
+  //       // Establecer el usuario activo directamente
+  //       setActiveUser(funcionarioUser);
+  //       setUserId(funcionarioUser.id);
+  //       setExternalId(funcionarioData.USER_ID);
         
-        // No necesitamos hacer la segunda petición para funcionarios
-      } else {
-        console.error("No se pudo determinar el tipo de usuario del token");
-        console.error("Token completo en error:", token);
-        console.error("Condiciones fallidas:", {
-          isPayloadCondition: token.isPayload && token.payload,
-          jsonDataCondition: token.jsonData,
-          dataExists: true
-        });
-        toast.error("Error: No se pudo determinar el tipo de usuario", {
-          autoClose: 3000,
-          draggable: true,
-          progress: undefined,
-          hideProgressBar: true,
-          className: "border-l-5 border-red-500 bg-white text-black shadow-md",
-        });
-      }
-    }
-  };
+  //       // No necesitamos hacer la segunda petición para funcionarios
+  //     } else {
+  //       console.error("No se pudo determinar el tipo de usuario del token");
+  //       console.error("Token completo en error:", token);
+  //       console.error("Condiciones fallidas:", {
+  //         isPayloadCondition: token.isPayload && token.payload,
+  //         jsonDataCondition: token.jsonData,
+  //         dataExists: true
+  //       });
+  //       toast.error("Error: No se pudo determinar el tipo de usuario", {
+  //         autoClose: 3000,
+  //         draggable: true,
+  //         progress: undefined,
+  //         hideProgressBar: true,
+  //         className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+  //       });
+  //     }
+  //   }
+  // };
+
+  const { setLocationVerification } = SessionStore();
 
   const { mutateAsync: removeAsync } = useMutation({
     mutationFn: putPublicRequest<ResponseCancelAppointmentType>,
@@ -566,7 +554,7 @@ export const AppointmentCards = () => {
       {/* Cards de citas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
         {(() => {
-          if (loader || !sche) {
+          if (!sche) {
             return (
               <div className="col-span-2 text-center text-lg text-gray-600 font-semibold py-12">
                 Cargando citas...
@@ -672,25 +660,27 @@ export const AppointmentCards = () => {
                           : "Ver requisitos"}
                       </button>
                       
-                      <button
+                      {/* <button
                         type="button"
                         onClick={() => navigate(`/dashboard/appointments/${appt.appointmentId}`)}
                         className="text-blue-600 text-sm py-[3px] px-3 border border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-lg min-w-[100px] duration-150 transition-colors"
                       >
                         Ver Detalle
-                      </button>
+                      </button> */}
                       {appt.status === "Agendada" && (
                         <>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsOpenCancel(true);
-                              setScheduledData(appt);
-                            }}
-                            className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
-                          >
-                            Cancelar
-                          </button>
+                          {userType === 'ciudadano' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsOpenCancel(true);
+                                setScheduledData(appt);
+                              }}
+                              className="text-blue-600 text-sm p-[3px] border-1 border-blue-600 hover:bg-gray-400 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
+                            >
+                              Cancelar
+                            </button>
+                          )}
 
                           <button
                             type="button"

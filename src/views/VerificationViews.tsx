@@ -38,7 +38,7 @@ export const VerificationViews = () => {
     official,
     setOtp,
     otp,
-    externalId,
+    userId,
     activeUser,
   } = SessionStore();
   const [invalidCode, setInvalidCode] = useState(false);
@@ -291,13 +291,13 @@ export const VerificationViews = () => {
   const { sendOTP } = useSendOTP({ setOtp, shouldNavigate: false });
 
   const resendCode = async () => {
-    console.log("🔄 resendCode llamado con:", { methodSelected, externalId, isResending });
+    console.log("🔄 resendCode llamado con:", { methodSelected, userId, isResending });
     
-    if (methodSelected && externalId && !isResending) {
+    if (methodSelected && userId && !isResending) {
       setIsResending(true);
       try {
-        console.log("🔄 Reenviando código OTP...", { methodSelected, externalId });
-        await sendOTP(externalId, methodSelected);
+        console.log("🔄 Reenviando código OTP...", { methodSelected, userId });
+        await sendOTP(userId.toString(), methodSelected);
         console.log("✅ Código reenviado exitosamente");
         toast.success("Código reenviado exitosamente", {
           icon: (
@@ -323,7 +323,7 @@ export const VerificationViews = () => {
         setIsResending(false);
       }
     } else {
-      console.warn("⚠️ No se puede reenviar código:", { methodSelected, externalId, isResending });
+      console.warn("⚠️ No se puede reenviar código:", { methodSelected, userId, isResending });
     }
   };
 

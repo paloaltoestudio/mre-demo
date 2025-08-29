@@ -17,6 +17,7 @@ import type { AppointmentType, Estado } from "../../types/dashboard/AppointmentT
 import { toast } from "react-toastify";
 import { useCancelAppointment } from "../../hooks/useCancelAppointment";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
+import { SessionStore } from "../../stores/sessionStore";
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",
@@ -32,6 +33,7 @@ export const AppointmentDetail = () => {
   const { id: appointmentId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { activeUser } = useActiveUser();
+  const { userType } = SessionStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenCancel, setIsOpenCancel] = useState(false);
   const [scheduledData, setScheduledData] = useState<AppointmentType>();
@@ -39,7 +41,7 @@ export const AppointmentDetail = () => {
   const [requestRemove, setRequestRemove] = useState(false);
 
   const { data: appointmentData, isLoading, error, loadAppointmentDetail } = useAppointmentDetail(appointmentId);
-  const { mutateAsync: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
+  const { mutateAsync: cancelAppointment } = useCancelAppointment();
   const { setToRemove } = SchedulingsStore();
   
   // Extraer la cita específica del array de appointments
@@ -286,16 +288,18 @@ export const AppointmentDetail = () => {
           <div className="flex flex-wrap gap-3">
             {appointment.status === "Agendada" && (
               <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsOpenCancel(true);
-                    setScheduledData(appointment);
-                  }}
-                  className="text-blue-600 text-sm py-2 px-4 border border-blue-600 hover:bg-red-50 hover:border-red-600 hover:text-red-600 font-medium rounded-lg min-w-[120px] duration-150 transition-colors"
-                >
-                  Cancelar Cita
-                </button>
+                {userType === 'ciudadano' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpenCancel(true);
+                      setScheduledData(appointment);
+                    }}
+                    className="text-blue-600 text-sm py-2 px-4 border border-blue-600 hover:bg-red-50 hover:border-red-600 hover:text-red-600 font-medium rounded-lg min-w-[120px] duration-150 transition-colors"
+                  >
+                    Cancelar Cita
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -303,7 +307,7 @@ export const AppointmentDetail = () => {
                     setIsOpen(true);
                     setScheduledData(appointment);
                   }}
-                  className="text-blue-600 text-sm py-2 px-4 border border-blue-600 hover:bg-blue-50 hover:border-blue-700 hover:text-blue-700 font-medium rounded-lg min-w-[120px] duration-150 transition-colors flex items-center"
+                  className="text-blue-600 text-sm py-[3px] px-3 border-1 border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-full min-w-[100px] duration-150 hover:border-gray-400 hover:cursor-pointer"
                 >
                   <FontAwesomeIcon
                     icon={faCalendar}

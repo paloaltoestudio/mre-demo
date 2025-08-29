@@ -74,10 +74,12 @@ export const AuthCallbackView = () => {
         // Para ciudadanos, guardar el externalId inmediatamente
         SessionStore.getState().setExternalId(data.payload.externalId);
       } else if (data.jsonData) {
-        userType = data.jsonData.Data.USER_TYPE.toLowerCase();
+        userType = data.jsonData.Data.USER_TYPE?.toLowerCase() || 'funcionario';
         console.log("🔍 Funcionario detectado (AuthCallback) - guardando USER_ID como externalId:", data.jsonData.Data.USER_ID);
         // Para funcionarios, guardar el USER_ID como externalId
-        SessionStore.getState().setExternalId(data.jsonData.Data.USER_ID);
+        if (data.jsonData.Data.USER_ID) {
+          SessionStore.getState().setExternalId(data.jsonData.Data.USER_ID);
+        }
       } else {
         console.log("❌ No se pudo determinar el tipo de usuario (AuthCallback) - estructura de data:", data);
         console.log("❌ Propiedades disponibles (AuthCallback):", Object.keys(data));
@@ -212,13 +214,13 @@ export const AuthCallbackView = () => {
         
         // Crear objeto de usuario con el formato esperado
         const funcionarioUser = {
-          id: parseInt(funcionarioData.USER_ID),
-          documentNumber: funcionarioData.documentNumber,
-          firstName: funcionarioData.names,
+          id: parseInt(funcionarioData.USER_ID || "0"),
+          documentNumber: funcionarioData.documentNumber || "",
+          firstName: funcionarioData.names || "",
           middleName: "",
-          lastName: funcionarioData.lastName,
+          lastName: funcionarioData.lastName || "",
           secondLastName: "",
-          email: funcionarioData.email,
+          email: funcionarioData.email || "",
           phone: "",
           whatsapp: "",
           officeId: 0,
