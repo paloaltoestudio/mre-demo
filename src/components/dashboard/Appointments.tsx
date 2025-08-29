@@ -1,4 +1,14 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircleCheck,
+  faCircleExclamation,
+  faCalendar,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import type {
   AppointmentsType,
   AppointmentType,
@@ -7,20 +17,10 @@ import type {
 import { SessionStore } from "../../stores/sessionStore";
 import { useActiveUser } from "../../hooks/useActiveUser";
 import { useTokenExpiration } from "../../hooks/useTokenExpiration";
-import { useEffect, useState } from "react";
 import { ENV_CONFIG } from "../../configs/environment";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCalendar,
-  faCircleCheck,
-  faCircleExclamation,
-} from "@fortawesome/free-solid-svg-icons";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { CancelAppointment } from "../scheduling/CancelAppointment";
 import { format } from "date-fns";
 import { toDate } from "../../configs/formats";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import {
   postPublicRequest,
   putPublicRequest,
@@ -36,10 +36,10 @@ import {
 } from "../../schemas/Auth/hashSchemas";
 import { SchedulingsStore } from "../../stores/schedulingsStore";
 
-
 import type { ResponseCancelAppointmentType } from "../../types/dashboard/cancelAppointmentTypes";
 import { ReschedulingForm } from "../scheduling/ReschedulingForm";
 import { useTraceabilityLog } from "../../hooks/useTraceabilityLog";
+
 
 export const estadoColor: Record<Estado, string> = {
   Agendada: "bg-green-100 text-green-700",

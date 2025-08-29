@@ -30,15 +30,20 @@ export const PayloadDataSchema = object({
 // Esquema para jsonData cuando isPayload es false (usuario funcionario)
 export const JsonDataSchema = object({
   Data: object({
-    USER_ID: string(),
-    USER_TYPE: string(),
-    USER_ID_FUNCIONARIO: string(),
-    documentType: string(),
-    documentNumber: string(),
-    names: string(),
-    lastName: string(),
-    email: string(),
+    // Campos para funcionarios
+    USER_ID: nullable(string()),
+    USER_TYPE: nullable(string()),
+    USER_ID_FUNCIONARIO: nullable(string()),
+    documentType: nullable(string()),
+    documentNumber: nullable(string()),
+    names: nullable(string()),
+    lastName: nullable(string()),
+    email: nullable(string()),
     ID_CASO: nullable(string()), // Campo opcional para funcionarios
+    
+    // Campos para ciudadanos (nueva estructura anidada)
+    isPayload: nullable(boolean()),
+    payload: nullable(PayloadDataSchema),
   }),
 });
 

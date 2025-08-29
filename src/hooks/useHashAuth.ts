@@ -49,8 +49,16 @@ export const useHashAuth = (): UseHashAuthReturn => {
       if (data.isPayload && data.payload) {
         console.log("🔍 Ciudadano detectado (useHashAuth) - externalId:", data.payload.externalId);
       } else if (data.jsonData && data.jsonData.Data) {
-        console.log("🔍 Funcionario detectado (useHashAuth) - USER_ID:", data.jsonData.Data.USER_ID);
-        console.log("🔍 Datos completos del funcionario (useHashAuth):", data.jsonData.Data);
+        if (data.jsonData.Data.isPayload && data.jsonData.Data.payload) {
+          // Hash de ciudadano - el externalId está en jsonData.Data.payload
+          console.log("🔍 Ciudadano detectado (useHashAuth) - externalId:", data.jsonData.Data.payload.externalId);
+        } else if (data.jsonData.Data.USER_ID) {
+          // Funcionario - USER_ID está directamente en jsonData.Data
+          console.log("🔍 Funcionario detectado (useHashAuth) - USER_ID:", data.jsonData.Data.USER_ID);
+          console.log("🔍 Datos completos del funcionario (useHashAuth):", data.jsonData.Data);
+        } else {
+          console.log("❌ [useHashAuth] Estructura de jsonData.Data no reconocida:", data.jsonData.Data);
+        }
       } else {
         console.log("❌ No se pudo determinar el tipo de usuario (useHashAuth)");
       }
@@ -65,31 +73,43 @@ export const useHashAuth = (): UseHashAuthReturn => {
 
       // Determinar y guardar el tipo de usuario
       let userType = null;
+      let externalId = null;
       console.log("🔍 Procesando tipo de usuario (useHashAuth)...");
       console.log("🔍 Estructura completa de data recibida (useHashAuth):", data);
       
       if (data.isPayload && data.payload) {
+        // Hash directo (estructura antigua)
         userType = data.payload.userType;
-        console.log("🔍 Ciudadano detectado (useHashAuth) - guardando externalId:", data.payload.externalId);
-        // Para ciudadanos, guardar el externalId inmediatamente
-        SessionStore.getState().setExternalId(data.payload.externalId);
+        externalId = data.payload.externalId;
+        console.log("🔍 Ciudadano detectado (estructura antigua) - guardando externalId:", externalId);
       } else if (data.jsonData && data.jsonData.Data) {
-        userType = data.jsonData.Data.USER_TYPE.toLowerCase();
-        console.log("🔍 Funcionario detectado (useHashAuth) - guardando USER_ID como externalId:", data.jsonData.Data.USER_ID);
-        // Para funcionarios, guardar el USER_ID como externalId
-        SessionStore.getState().setExternalId(data.jsonData.Data.USER_ID);
+        if (data.jsonData.Data.isPayload && data.jsonData.Data.payload) {
+          // Hash de ciudadano (nueva estructura)
+          userType = data.jsonData.Data.payload.userType;
+          externalId = data.jsonData.Data.payload.externalId;
+          console.log("🔍 Ciudadano detectado (nueva estructura) - guardando externalId:", externalId);
+        } else if (data.jsonData.Data.USER_ID) {
+          // Funcionario
+          userType = data.jsonData.Data.USER_TYPE?.toLowerCase() || 'funcionario';
+          externalId = data.jsonData.Data.USER_ID;
+          console.log("🔍 Funcionario detectado - guardando USER_ID como externalId:", externalId);
+        } else {
+          console.log("❌ [useHashAuth] No se pudo determinar el tipo de usuario en jsonData.Data:", data.jsonData.Data);
+        }
       } else {
         console.log("❌ No se pudo determinar el tipo de usuario (useHashAuth) - estructura de data:", data);
         console.log("❌ Propiedades disponibles (useHashAuth):", Object.keys(data));
       }
       
-      if (userType) {
+      if (userType && externalId) {
         console.log("✅ Tipo de usuario determinado (useHashAuth):", userType);
+        console.log("✅ ExternalId guardado (useHashAuth):", externalId);
         SessionStore.getState().setUserType(userType);
+        SessionStore.getState().setExternalId(externalId);
         // También actualizar el flag official
         SessionStore.getState().setOfficial(userType === 'funcionario');
       } else {
-        console.log("❌ No se pudo determinar el tipo de usuario (useHashAuth)");
+        console.log("❌ No se pudo determinar el tipo de usuario o externalId (useHashAuth)");
       }
     },
     onError: (error: any) => {
@@ -195,10 +215,15 @@ export const useHashAuth = (): UseHashAuthReturn => {
           console.log("🔍 Iniciando petición a /User/external con externalId:", externalId);
           setIsProcessing(true);
           try {
+            // Obtener el token global del store para la petición a /User/external
+            const globalToken = SessionStore.getState().globalToken;
+            console.log("🔑 Token global para /User/external:", globalToken ? "Disponible" : "No disponible");
+            
             const result = await MutateToken({
               url: "/User/external",
               schema: CreateTokenSchema,
               body: { externalId },
+              auth: globalToken, // Pasar el token de autorización
             });
             console.log("✅ Petición a /User/external exitosa:", result);
           } catch (error) {
@@ -220,37 +245,78 @@ export const useHashAuth = (): UseHashAuthReturn => {
           });
         }
       } else if (token.jsonData && token.jsonData.Data) {
-        // Para funcionarios: los datos ya están en la respuesta, crear usuario directamente
-        console.log("Funcionario - Creando usuario desde jsonData (useHashAuth)");
-        const funcionarioData = token.jsonData.Data;
-        
-        // Crear objeto de usuario con el formato esperado
-        const funcionarioUser = {
-          id: parseInt(funcionarioData.USER_ID),
-          documentNumber: funcionarioData.documentNumber,
-          firstName: funcionarioData.names,
-          middleName: "",
-          lastName: funcionarioData.lastName,
-          secondLastName: "",
-          email: funcionarioData.email,
-          phone: "",
-          whatsapp: "",
-          officeId: 0,
-          acceptsDataProcessing: true,
-          acceptsTermsAndConditions: true,
-          acceptanceDate: new Date(),
-        };
-        
-        console.log("Usuario funcionario creado (useHashAuth):", funcionarioUser);
-        
-        // Establecer el usuario activo directamente
-        setActiveUser(funcionarioUser);
-        
-        // Log de confirmación
-        console.log("✅ Usuario funcionario autenticado exitosamente en useHashAuth");
-        console.log("🎯 Usuario autenticado y listo para usar en cualquier componente");
-        
-        setError(null);
+        if (token.jsonData.Data.isPayload && token.jsonData.Data.payload) {
+          // Hash de ciudadano (nueva estructura) - necesitamos hacer la segunda petición
+          const externalId = token.jsonData.Data.payload.externalId;
+          console.log("Ciudadano (nueva estructura) - ExternalId para handleToken (useHashAuth):", externalId);
+          console.log("Ciudadano (nueva estructura) - Token payload completo:", token.jsonData.Data.payload);
+          
+          if (externalId) {
+            console.log("🔍 Iniciando petición a /User/external con externalId (nueva estructura):", externalId);
+            setIsProcessing(true);
+            try {
+              // Obtener el token global del store para la petición a /User/external
+              const globalToken = SessionStore.getState().globalToken;
+              console.log("🔑 Token global para /User/external (nueva estructura):", globalToken ? "Disponible" : "No disponible");
+              
+              const result = await MutateToken({
+                url: "/User/external",
+                schema: CreateTokenSchema,
+                body: { externalId },
+                auth: globalToken, // Pasar el token de autorización
+              });
+              console.log("✅ Petición a /User/external exitosa (nueva estructura):", result);
+            } catch (error) {
+              console.error("❌ Error en petición a /User/external (nueva estructura):", error);
+              throw error;
+            } finally {
+              setIsProcessing(false);
+            }
+          } else {
+            const errorMessage = "No se pudo obtener el externalId del token de ciudadano (nueva estructura)";
+            setError(errorMessage);
+            console.error(errorMessage + " en useHashAuth");
+            toast.error("Error: No se pudo obtener el ID del usuario", {
+              autoClose: 3000,
+              draggable: true,
+              progress: undefined,
+              hideProgressBar: true,
+              className: "border-l-5 border-red-500 bg-white text-black shadow-md",
+            });
+          }
+        } else {
+          // Para funcionarios: los datos ya están en la respuesta, crear usuario directamente
+          console.log("Funcionario - Creando usuario desde jsonData (useHashAuth)");
+          const funcionarioData = token.jsonData.Data;
+          
+          // Crear objeto de usuario con el formato esperado
+          const funcionarioUser = {
+            id: parseInt(funcionarioData.USER_ID || "0"),
+            documentNumber: funcionarioData.documentNumber || "",
+            firstName: funcionarioData.names || "",
+            middleName: "",
+            lastName: funcionarioData.lastName || "",
+            secondLastName: "",
+            email: funcionarioData.email || "",
+            phone: "",
+            whatsapp: "",
+            officeId: 0,
+            acceptsDataProcessing: true,
+            acceptsTermsAndConditions: true,
+            acceptanceDate: new Date(),
+          };
+          
+          console.log("Usuario funcionario creado (useHashAuth):", funcionarioUser);
+          
+          // Establecer el usuario activo directamente
+          setActiveUser(funcionarioUser);
+          
+          // Log de confirmación
+          console.log("✅ Usuario funcionario autenticado exitosamente en useHashAuth");
+          console.log("🎯 Usuario autenticado y listo para usar en cualquier componente");
+          
+          setError(null);
+        }
       } else {
         const errorMessage = "No se pudo determinar el tipo de usuario del token";
         setError(errorMessage);
