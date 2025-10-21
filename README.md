@@ -1,6 +1,44 @@
-# React + TypeScript + Vite
+# MRE Appointment Demo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript + Vite application for managing appointments, visas, passports, and certifications.
+
+## Quick Start for Demo
+
+To run the application in **demo mode** (without authentication):
+
+1. Create a `.env` file in the project root:
+```env
+VITE_DEMO_MODE=true
+VITE_API_URL=https://your-api-url.com/api
+VITE_AUTH_REDIRECT_URL=http://localhost:3000
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+The application will automatically create a fake user session and bypass all authentication. See [DEMO_MODE.md](./DEMO_MODE.md) for detailed information.
+
+## Environment Variables
+
+Required environment variables:
+- `VITE_DEMO_MODE` - Set to `true` to enable demo mode (bypasses authentication)
+- `VITE_API_URL` - Base URL for the API
+- `VITE_AUTH_REDIRECT_URL` - URL to redirect for authentication (not used in demo mode)
+- `VITE_MAPS_API_KEY` - Google Maps API key (optional)
+
+## Documentation
+
+- [Demo Mode Guide](./DEMO_MODE.md) - How to run without authentication
+- [User Store Guide](./docs/USER_STORE_GUIDE.md)
+- [Traceability Logging](./docs/TRACEABILITY_LOGGING.md)
+- [Appointment Detail Functionality](./docs/APPOINTMENT_DETAIL_FUNCTIONALITY.md)
 
 Currently, two official plugins are available:
 

@@ -39,6 +39,68 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { setActiveUser, setTokenExpiration } = useActiveUser();
 
   useEffect(() => {
+    // Demo mode: bypass authentication and create a complete mock session
+    if (ENV_CONFIG.DEMO_MODE) {
+      if (!hasActiveUser) {
+        console.log("🎭 DEMO MODE: Creating complete mock session");
+        
+        // Create mock user matching the real session structure
+        const demoUser = {
+          id: 7,
+          documentNumber: "987654321",
+          firstName: "Demo",
+          middleName: "Test",
+          lastName: "User",
+          secondLastName: "Account",
+          email: "demo@example.com",
+          phone: "3001234567",
+          whatsapp: "3001234567",
+          officeId: 1,
+          acceptsDataProcessing: true,
+          acceptsTermsAndConditions: true,
+          acceptanceDate: new Date("2025-08-01T19:24:10.4959131"),
+        };
+        
+        // Generate a fake JWT token (for demo purposes)
+        const demoJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vIiwianRpIjoiZGVtby1zZXNzaW9uLWlkIiwicGVybWlzc2lvbnMiOlsiYXBpLndyaXRlIiwiYXBpLnJlYWQiXSwic2NvcGVzIjoiYXBpLnRyYWNlYWJpbGl0eSIsImV4cCI6OTk5OTk5OTk5OSwiaXNzIjoiZGVtby1tb2RlIiwiYXVkIjoiZGVtby1tb2RlIn0.demoTokenSignature";
+        
+        // Set the demo expiration (far future)
+        const demoExpiration = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
+        
+        // Mock externalId (UUID format like the real session)
+        const demoExternalId = "88df4719-b2f2-4a5e-9947-70fe6e7651b0";
+        
+        // Set all session store values to match real session structure
+        setActiveUser(demoUser);
+        SessionStore.getState().setUserId(demoUser.id);
+        SessionStore.getState().setExternalId(demoExternalId);
+        SessionStore.getState().setUserType("ciudadano");
+        SessionStore.getState().setOfficial(false);
+        SessionStore.getState().setGlobalToken(demoJWT);
+        SessionStore.getState().setIsAuthenticated(true);
+        setTokenExpiration(demoExpiration);
+        setExpiration(demoExpiration);
+        
+        console.log("✅ DEMO MODE: Complete mock session created:");
+        console.log("   - User ID:", demoUser.id);
+        console.log("   - External ID:", demoExternalId);
+        console.log("   - User Type:", "ciudadano");
+        console.log("   - Token:", demoJWT.substring(0, 50) + "...");
+        console.log("   - Token Expiration:", demoExpiration.toLocaleString());
+        console.log("   - Session State:", {
+          activeUser: demoUser,
+          externalId: demoExternalId,
+          userId: demoUser.id,
+          userType: "ciudadano",
+          official: false,
+          globalToken: demoJWT,
+          tokenExpiration: demoExpiration,
+        });
+      }
+      return; // Skip normal authentication flow
+    }
+
+    // Normal authentication flow
     // Permitir acceso temporal si hay hash en la URL (para procesar autenticación)
     const hasHash = searchParams.get("hash");
     
@@ -46,7 +108,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       // Redirigir a la aplicación externa de autenticación
       window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
     }
-  }, [hasActiveUser, searchParams]);
+  }, [hasActiveUser, searchParams, setActiveUser, setTokenExpiration, setExpiration]);
 
   // Si no hay usuario activo y no hay hash, no renderizar nada (se está redirigiendo)
   // const hasHash = searchParams.get("hash");
@@ -61,6 +123,9 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
 
   useEffect(() => {
+    // Skip hash processing in demo mode
+    if (ENV_CONFIG.DEMO_MODE) return;
+    
     const rawHash = searchParams.get("hash");
 
     if (rawHash) {
@@ -75,11 +140,17 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [searchParams]);
 
   useEffect(() => {
+    // Skip hash processing in demo mode
+    if (ENV_CONFIG.DEMO_MODE) return;
+    
     if (hash) {
       handleHash();
     }
   }, [hash]);
   useEffect(() => {
+    // Skip token processing in demo mode
+    if (ENV_CONFIG.DEMO_MODE) return;
+    
     if (token) {
       handleToken();
     }
