@@ -33,6 +33,25 @@ Required environment variables:
 - `VITE_AUTH_REDIRECT_URL` - URL to redirect for authentication (not used in demo mode)
 - `VITE_MAPS_API_KEY` - Google Maps API key (optional)
 
+## Deployment
+
+### Netlify
+
+The project includes a `public/_redirects` file that handles SPA routing on Netlify. This ensures that all routes are properly handled by React Router, even when users navigate directly to inner pages or refresh the page.
+
+**Build settings for Netlify:**
+- Build command: `npm run build`
+- Publish directory: `dist`
+
+### Environment Variables on Netlify
+
+Make sure to configure the following environment variables in your Netlify dashboard (Site settings > Environment variables):
+
+- `VITE_DEMO_MODE` - Set to `true` for demo mode, `false` for production
+- `VITE_API_URL` - Your API base URL
+- `VITE_AUTH_REDIRECT_URL` - Authentication redirect URL
+- `VITE_MAPS_API_KEY` - Google Maps API key (optional)
+
 ## Documentation
 
 - [Demo Mode Guide](./DEMO_MODE.md) - How to run without authentication

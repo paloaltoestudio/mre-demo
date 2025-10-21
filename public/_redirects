@@ -1,0 +1,7 @@
+# Netlify redirects file for Single Page Application (SPA)
+# This ensures all routes are handled by React Router
+
+# Redirect all routes to index.html with a 200 status code
+# This allows client-side routing to work properly
+/*    /index.html   200
+
