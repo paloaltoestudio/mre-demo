@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useActiveUser } from "../hooks/useActiveUser";
 import { useTokenExpiration } from "../hooks/useTokenExpiration";
-import { ENV_CONFIG } from "../configs/environment";
 
 export const TokenExpirationChecker = () => {
   const { tokenExpiration, hasActiveUser } = useActiveUser();
@@ -23,10 +22,9 @@ export const TokenExpirationChecker = () => {
       console.log("   - Fecha de expiración:", expiration.toLocaleString());
       console.log("   - Tiempo restante:", Math.floor(timeUntilExpiration / 1000 / 60), "minutos");
 
-      // Si ya expiró, redirigir inmediatamente
+      // NOAUTH: expiration redirect disabled for local revision
       if (now >= expiration) {
-        console.log("❌ [TOKEN CHECKER] Token expirado al cargar la aplicación, redirigiendo...");
-        window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+        console.log("❌ [TOKEN CHECKER] Token expirado (redirect deshabilitado temporalmente)");
         return;
       }
 

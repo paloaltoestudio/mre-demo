@@ -39,13 +39,11 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { setActiveUser, setTokenExpiration } = useActiveUser();
 
   useEffect(() => {
-    // Permitir acceso temporal si hay hash en la URL (para procesar autenticación)
-    const hasHash = searchParams.get("hash");
-    
-    if (!hasActiveUser && !hasHash) {
-      // Redirigir a la aplicación externa de autenticación
-      window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
-    }
+    // NOAUTH: redirect disabled for local revision
+    // const hasHash = searchParams.get("hash");
+    // if (!hasActiveUser && !hasHash) {
+    //   window.location.href = ENV_CONFIG.AUTH_REDIRECT_URL;
+    // }
   }, [hasActiveUser, searchParams]);
 
   // Si no hay usuario activo y no hay hash, no renderizar nada (se está redirigiendo)
